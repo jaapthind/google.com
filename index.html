@@ -3,39 +3,46 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Geometty Dash – Final Correction</title>
+<title>Geometty Dash – Ultra Edition</title>
 <style>
+  /* Full Page Setup */
   html, body { 
-    margin: 0; padding: 0; background: #000; overflow: hidden; 
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-    touch-action: none; /* Prevents zooming/scrolling on mobile */
+    margin: 0; padding: 0; width: 100%; height: 100%; 
+    background: #000; overflow: hidden; touch-action: none;
   }
-  canvas { 
-    display: block; margin: 0 auto; background: #000; 
-    max-width: 100vw; max-height: 100vh; object-fit: contain;
+  
+  /* Canvas spans the whole screen */
+  #gameCanvas { 
+    display: block; width: 100vw; height: 100vh; 
+    image-rendering: pixelated; /* Keeps it sharp */
   }
+
   #uiLayer { 
     position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
     display: flex; flex-direction: column; align-items: center; 
     justify-content: center; pointer-events: none; 
+    font-family: 'Segoe UI', sans-serif;
   }
+
   .btn { 
-    padding: 15px 30px; font-size: 20px; font-weight: bold; color: white; 
-    background: #22c55e; border: 4px solid #166534; border-radius: 12px; 
-    cursor: pointer; pointer-events: auto; display: none; transition: 0.2s;
+    padding: 20px 40px; font-size: 24px; font-weight: 900; color: white; 
+    background: linear-gradient(180deg, #22c55e 0%, #166534 100%);
+    border: 3px solid #fff; border-radius: 50px; cursor: pointer; 
+    pointer-events: auto; display: none; box-shadow: 0 0 20px #22c55e;
+    text-transform: uppercase; letter-spacing: 2px;
   }
-  .btn:hover { background: #16a34a; transform: scale(1.05); }
+
   #scoreBoard { 
     position: absolute; top: 20px; left: 20px; color: white; 
-    font-weight: bold; font-size: 22px; pointer-events: none; 
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.8); 
+    font-weight: bold; font-size: 24px; pointer-events: none; 
+    text-shadow: 0 0 10px rgba(0,255,255,0.8);
   }
 </style>
 </head>
 <body>
-<div id="scoreBoard">Best: 0%</div>
-<canvas id="gameCanvas" width="960" height="540"></canvas>
-<div id="uiLayer"><button id="newLevelBtn" class="btn">GENERATE NEW WORLD</button></div>
+<div id="scoreBoard">BEST: 0%</div>
+<canvas id="gameCanvas"></canvas>
+<div id="uiLayer"><button id="newLevelBtn" class="btn">New World</button></div>
 
 <script>
 (function(){
@@ -43,91 +50,76 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 const btn = document.getElementById("newLevelBtn");
 const scoreBoard = document.getElementById("scoreBoard");
-const W = canvas.width, H = canvas.height;
 
-const baseGroundY = H * 0.75;
-const cubeSize = 32;
+// --- DYNAMIC SCALING ---
+let W, H;
+function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();
+
+const baseGroundY = () => H * 0.75;
+const cubeSize = 40;
 const gravity = 0.98;      
-const jumpVel = -13.8;   
-const moveSpeed = 9.2;     
-const levelLength = 45000; 
+const jumpVel = -16;   
+const moveSpeed = 10;     
+const levelLength = 50000; 
 
 let x, y, vy, onGround, started, dead, shake, cameraX = 0, cameraY = 0;
-let introDone = false, hue = 0, won = false, bang = 0, cutsceneT = 0;
+let introDone = false, hue = 0, won = false, cutsceneT = 0;
 let charColor1, charColor2, rotation = 0, inputActive = false;
 let lastCheckpointX = 120, checkpointFlash = 0;
 let highScore = localStorage.getItem("gd_highscore") || 0;
 
 function updateHighScoreDisplay() {
-    scoreBoard.innerText = `Best: ${highScore}%`;
+    scoreBoard.innerText = `BEST: ${highScore}%`;
 }
 updateHighScoreDisplay();
 
-// --- AUDIO SYSTEM ---
+// --- PRO AUDIO ---
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-let nextNoteTime = 0;
-let beatIndex = 0;
-const melody = [261.63, 311.13, 349.23, 311.13, 392.00, 349.23, 311.13, 233.08]; 
+let nextNoteTime = 0, beatIndex = 0;
+const melody = [261.63, 311.13, 349.23, 392.00, 466.16, 523.25]; 
 
-function playSynth(freq, time, vol, detune = 0, type = "square", decay = 0.2, slideTo = null) {
+function playSynth(freq, time, vol, type = "square", decay = 0.2) {
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.type = type;
     osc.frequency.setValueAtTime(freq, time);
-    if (slideTo) osc.frequency.exponentialRampToValueAtTime(slideTo, time + decay);
-    osc.detune.setValueAtTime(detune, time);
     gain.gain.setValueAtTime(vol, time);
     gain.gain.exponentialRampToValueAtTime(0.0001, time + decay);
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start(time);
-    osc.stop(time + decay);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(time); osc.stop(time + decay);
 }
 
 function updateAudio() {
     if (!started || dead || won || audioCtx.state === 'suspended') return;
-    const isFinale = x > levelLength * 0.82;
-    const prog = Math.max(0, Math.min(1, (x - hillEndX) / (levelLength - hillEndX)));
-    let tempo = isFinale ? 0.07 : (0.15 - (prog * 0.05));
-
     if (audioCtx.currentTime > nextNoteTime) {
-        if (!isFinale) {
-            playSynth(50, nextNoteTime, 0.4, 0, "sine", 0.3); 
-            playSynth(melody[beatIndex % melody.length], nextNoteTime, 0.12, 0, "square", 0.2); 
-            if (beatIndex % 4 === 0) playSynth(melody[(beatIndex + 2) % melody.length] * 2, nextNoteTime, 0.05, 10, "triangle", 0.4); 
-            if (beatIndex % 4 === 2) playSynth(800, nextNoteTime, 0.08, 50, "sawtooth", 0.05); 
-        } else {
-            const creepyFreq = 100 + Math.random() * 50;
-            playSynth(creepyFreq, nextNoteTime, 0.4, Math.random() * 1000, "sawtooth", 0.1);
-            if(beatIndex % 3 === 0) playSynth(800 + Math.random() * 1000, nextNoteTime, 0.05, 0, "sine", 0.5, 50);
-        }
-        nextNoteTime = audioCtx.currentTime + tempo;
+        playSynth(60, nextNoteTime, 0.3, "sine", 0.4); // Bass Kick
+        playSynth(melody[beatIndex % melody.length], nextNoteTime, 0.1, "sawtooth", 0.2);
+        nextNoteTime = audioCtx.currentTime + 0.15;
         beatIndex++;
     }
 }
 
 const segments = [], trail = [];
-const hillStartX = 0, hillEndX = 2500;
-const checkpoints = [0.2, 0.4, 0.6, 0.8].map(p => hillEndX + (levelLength * 0.82 - hillEndX) * p);
+const checkpoints = [0.2, 0.4, 0.6, 0.8].map(p => 2500 + (levelLength * 0.82 - 2500) * p);
 
 function generateLevel() {
   segments.length = 0;
-  let curX = hillEndX + 800;
+  let curX = 3300;
   while (curX < levelLength * 0.80) {
-    let nearCheckpoint = checkpoints.some(cx => Math.abs(curX - cx) < 250);
-    if (!nearCheckpoint) {
-        const count = Math.random() > 0.8 ? 3 : (Math.random() > 0.6 ? 2 : 1);
-        for(let i=0; i<count; i++) segments.push({ x: curX + (i*32), w: 32 });
-    }
-    curX += 450 + Math.random() * 350;
+    segments.push({ x: curX, w: 40 });
+    curX += 400 + Math.random() * 400;
   }
 }
 
 function reset(newWorld = false) {
   if (newWorld) { generateLevel(); introDone = false; lastCheckpointX = 120; }
   x = lastCheckpointX; y = groundYAt(x) - cubeSize;
-  vy = 0; rotation = 0; onGround = true; started = false; dead = false; 
-  won = false; bang = 0; cutsceneT = 0; shake = 0;
+  vy = 0; rotation = 0; onGround = true; started = false; dead = false; won = false;
   btn.style.display = "none";
   const h = Math.random() * 360;
   charColor1 = `hsl(${h}, 100%, 50%)`; charColor2 = `hsl(${(h+40)%360}, 100%, 70%)`;
@@ -135,13 +127,12 @@ function reset(newWorld = false) {
 }
 
 function groundYAt(worldX) {
-  if (!introDone && worldX < hillEndX + 100) {
-    const p = Math.max(0, Math.min(1, (worldX - hillStartX) / (hillEndX - hillStartX)));
-    if (p < 0.8) return baseGroundY - Math.pow(p / 0.8, 5) * 1100;
-    if (p < 0.9) return baseGroundY - 1100;
-    return (baseGroundY - 1100) + ((p - 0.9) / 0.1) * 1100;
+  if (!introDone && worldX < 2500) {
+    let p = Math.max(0, Math.min(1, worldX / 2500));
+    if (p < 0.8) return baseGroundY() - 1000;
+    return (baseGroundY() - 1000) + ((p - 0.8) / 0.2) * 1000;
   }
-  return (worldX > levelLength * 0.98) ? 9999 : baseGroundY;
+  return (worldX > levelLength * 0.98) ? 9999 : baseGroundY();
 }
 
 function update() {
@@ -156,87 +147,59 @@ function update() {
 
   if (y + cubeSize >= curFloor) {
     y = curFloor - cubeSize;
-    if (x >= hillEndX && !introDone) {
-        introDone = true;
-        shake = 25; vy = 0; onGround = true;
-    } else {
-        vy = 0; onGround = true;
-        if (inputActive && introDone) { vy = jumpVel; onGround = false; }
-    }
+    if (x >= 2500 && !introDone) { introDone = true; shake = 30; }
+    vy = 0; onGround = true;
+    if (inputActive && introDone) { vy = jumpVel; onGround = false; }
   } else { onGround = false; }
 
-  if (!onGround) rotation += 0.18;
+  if (!onGround) rotation += 0.2;
   else rotation = Math.round(rotation / (Math.PI/2)) * (Math.PI/2);
 
   checkpoints.forEach(cx => { if (x > cx && lastCheckpointX < cx) { lastCheckpointX = cx; checkpointFlash = 1; } });
 
-  const progInt = Math.floor(Math.max(0, Math.min(1, (x - hillEndX) / (levelLength - hillEndX))) * 100);
-  if (progInt > highScore) {
-      highScore = progInt;
-      localStorage.setItem("gd_highscore", highScore);
-      updateHighScoreDisplay();
-  }
+  const progInt = Math.floor(Math.max(0, Math.min(1, x / levelLength)) * 100);
+  if (progInt > highScore) { highScore = progInt; localStorage.setItem("gd_highscore", highScore); updateHighScoreDisplay(); }
 
-  if (x > levelLength * 0.98 && y > H + 200) { 
-    won = true; bang = 1; 
-    setTimeout(() => { btn.style.display = "block"; }, 9000); 
-  }
+  if (x > levelLength * 0.98 && y > H + 200) { won = true; setTimeout(() => { btn.style.display = "block"; }, 3000); }
 
   if (introDone) {
     for (const s of segments) {
-      if (x + 8 < s.x + s.w && x + cubeSize - 8 > s.x && y + 20 > baseGroundY - 32) { die(); return; }
+      if (x + 10 < s.x + s.w && x + cubeSize - 10 > s.x && y + cubeSize > baseGroundY() - 20) { die(); return; }
     }
   }
-  cameraX += (x - 250 - cameraX) * 0.15;
-  cameraY += ((y - H * 0.5) - cameraY) * 0.15;
-  trail.push({ x, y, hue: hue }); if (trail.length > 12) trail.shift();
+
+  cameraX += (x - W * 0.3 - cameraX) * 0.1;
+  cameraY += ((y - H * 0.5) - cameraY) * 0.1;
+  trail.push({ x, y, hue }); if (trail.length > 15) trail.shift();
 }
 
-function die() { dead = true; shake = 25; setTimeout(() => reset(false), 500); }
+function die() { dead = true; shake = 40; setTimeout(() => reset(false), 400); }
 
 function draw() {
-  if (won && bang >= 1) { drawEndingCinematic(); requestAnimationFrame(draw); return; }
-  const isFinale = x > levelLength * 0.82;
-  ctx.fillStyle = isFinale ? "#000" : `hsl(${hue}, 50%, 15%)`; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle = "#000"; ctx.fillRect(0,0,W,H);
   
   ctx.save();
   ctx.translate((Math.random()-0.5)*shake, (Math.random()-0.5)*shake);
   ctx.translate(-cameraX, -cameraY);
 
-  ctx.fillStyle = "black";
-  ctx.beginPath(); ctx.moveTo(cameraX-200, H*6);
-  for(let i=cameraX-200; i<x+W*1.5; i+=40) { 
-    let gy = groundYAt(i);
-    ctx.lineTo(i, gy); 
-  }
-  ctx.lineTo(x+W*1.5, H*6); ctx.fill();
+  // Background Glow
+  const bgGrad = ctx.createRadialGradient(x, y, 0, x, y, 800);
+  bgGrad.addColorStop(0, `hsla(${hue}, 50%, 20%, 0.3)`);
+  bgGrad.addColorStop(1, "transparent");
+  ctx.fillStyle = bgGrad; ctx.fillRect(cameraX, cameraY, W, H);
 
-  checkpoints.forEach(cx => {
-      ctx.fillStyle = lastCheckpointX >= cx ? "#0ff" : "#555";
-      ctx.fillRect(cx, baseGroundY - 80, 4, 80);
-      ctx.beginPath(); ctx.moveTo(cx+4, baseGroundY-80); ctx.lineTo(cx+40, baseGroundY-60); ctx.lineTo(cx+4, baseGroundY-40); ctx.fill();
-  });
+  // Ground
+  ctx.fillStyle = "#111"; ctx.fillRect(cameraX - 100, baseGroundY(), W + 1000, H);
+  ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`; ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.moveTo(cameraX - 100, baseGroundY()); ctx.lineTo(x + W, baseGroundY()); ctx.stroke();
 
-  if (isFinale) {
-    const stalkerX = x - 450 + Math.sin(Date.now()*0.005)*120;
-    ctx.fillStyle = "black"; ctx.font = "bold 600px Arial";
-    ctx.fillText("💀", stalkerX - 250, y + 200); 
-    ctx.fillStyle = "red"; ctx.shadowBlur = 40; ctx.shadowColor = "red";
-    ctx.fillRect(stalkerX - 150, y - 60, 60, 60); ctx.fillRect(stalkerX + 20, y - 60, 60, 60);
-    ctx.shadowBlur = 0; shake = 15;
-  }
-
-  ctx.fillStyle = "#ff3333";
+  // Spikes
+  ctx.fillStyle = "#ff0044";
   for (const s of segments) {
-    ctx.beginPath(); ctx.moveTo(s.x, baseGroundY); ctx.lineTo(s.x+16, baseGroundY-32); ctx.lineTo(s.x+32, baseGroundY); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(s.x, baseGroundY()); ctx.lineTo(s.x+20, baseGroundY()-40); ctx.lineTo(s.x+40, baseGroundY()); ctx.fill();
   }
 
-  if (!introDone) {
-    ctx.save(); ctx.font = "bold 48px Arial"; ctx.textAlign = "center";
-    ctx.shadowColor = "cyan"; ctx.shadowBlur = 20; ctx.fillStyle = "white";
-    ctx.fillText("Geometty Dash by Jaap", x, y - 110); ctx.restore();
-  }
-
+  // Player Trail
   trail.forEach((t, i) => {
       ctx.globalAlpha = i / trail.length;
       ctx.fillStyle = `hsl(${t.hue}, 100%, 50%)`;
@@ -244,67 +207,32 @@ function draw() {
   });
   ctx.globalAlpha = 1;
 
-  ctx.save(); ctx.translate(x+16, y+16); ctx.rotate(rotation);
-  const grad = ctx.createLinearGradient(-16,-16,16,16); grad.addColorStop(0, charColor1); grad.addColorStop(1, charColor2);
-  ctx.fillStyle = grad; ctx.fillRect(-16,-16,32,32); ctx.strokeStyle = "white"; ctx.strokeRect(-16,-16,32,32);
+  // Player
+  ctx.save(); ctx.translate(x + cubeSize/2, y + cubeSize/2); ctx.rotate(rotation);
+  ctx.shadowBlur = 15; ctx.shadowColor = charColor1;
+  ctx.fillStyle = charColor1; ctx.fillRect(-cubeSize/2, -cubeSize/2, cubeSize, cubeSize);
+  ctx.strokeStyle = "white"; ctx.lineWidth = 3; ctx.strokeRect(-cubeSize/2, -cubeSize/2, cubeSize, cubeSize);
   ctx.restore();
+  
   ctx.restore();
 
-  const prog = Math.max(0, Math.min(1, (x - hillEndX) / (levelLength - hillEndX)));
-  ctx.fillStyle = "rgba(0,0,0,0.6)"; ctx.fillRect(W/2 - 150, 20, 300, 25);
-  ctx.fillStyle = isFinale ? "#f00" : `hsl(${hue}, 100%, 50%)`; ctx.fillRect(W/2 - 150, 20, 300 * prog, 25);
-  ctx.fillStyle = "white"; ctx.font = "bold 16px Arial"; ctx.textAlign = "center";
-  ctx.fillText(isFinale ? "RUN." : `${Math.floor(prog * 100)}%`, W/2, 38);
+  // Progress Bar
+  const prog = Math.min(1, x / levelLength);
+  ctx.fillStyle = "rgba(255,255,255,0.1)"; ctx.fillRect(W/2 - 200, 20, 400, 10);
+  ctx.fillStyle = `hsl(${hue}, 100%, 50%)`; ctx.fillRect(W/2 - 200, 20, 400 * prog, 10);
 
-  if (checkpointFlash > 0) { ctx.fillStyle = `rgba(0, 255, 0, ${checkpointFlash * 0.3})`; ctx.fillRect(0,0,W,H); }
+  if (checkpointFlash > 0) { ctx.fillStyle = `rgba(255, 255, 255, ${checkpointFlash * 0.2})`; ctx.fillRect(0,0,W,H); }
   requestAnimationFrame(draw);
-}
-
-function drawEndingCinematic() {
-  const t = cutsceneT;
-  if (t < 150) { 
-    ctx.fillStyle = "white"; ctx.fillRect(0,0,W,H);
-    ctx.save(); ctx.translate(W/2, H/2 + t); ctx.rotate(t*0.05);
-    const g = ctx.createLinearGradient(-16,-16,16,16); g.addColorStop(0, charColor1); g.addColorStop(1, charColor2);
-    ctx.fillStyle = g; ctx.fillRect(-16,-16,32,32); ctx.restore();
-    ctx.fillStyle = "red"; ctx.globalAlpha = Math.min(1, t/100);
-    ctx.fillRect(W/2 - 300, 100, 20, 20); ctx.fillRect(W/2 + 300, 100, 20, 20); ctx.globalAlpha = 1;
-    return;
-  }
-  if (t < 200) { ctx.fillStyle = "white"; ctx.fillRect(0,0,W,H); return; }
-  const spaceT = t - 200;
-  ctx.fillStyle = "#000510"; ctx.fillRect(0,0,W,H);
-  for(let i=0; i<60; i++) { ctx.fillStyle = "white"; ctx.fillRect((i*137)%W, (i*531 + spaceT*4)%H, 2, 2); }
-  const earthS = Math.max(10, 500 - spaceT*1.2);
-  const ex = W/2, ey = H/2; 
-  ctx.fillStyle = "#2255ff"; ctx.beginPath(); ctx.arc(ex, ey, earthS, 0, Math.PI*2); ctx.fill();
-  if (earthS > 15) {
-    ctx.fillStyle = "#3a3"; ctx.beginPath(); ctx.arc(ex - earthS*0.3, ey - earthS*0.2, earthS*0.4, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = "red"; ctx.beginPath(); ctx.arc(ex + earthS*0.2, ey - earthS*0.1, Math.max(2, earthS*0.1), 0, Math.PI*2); ctx.fill();
-  }
-  ctx.save(); ctx.translate(W/2 + Math.sin(spaceT*0.1)*10, H/2 - Math.min(150, spaceT*2));
-  ctx.fillStyle = spaceT % 4 < 2 ? "#fa0" : "#f40";
-  ctx.beginPath(); ctx.moveTo(-18, 30); ctx.lineTo(0, 75); ctx.lineTo(18, 30); ctx.fill();
-  ctx.fillStyle = "#ddd"; ctx.beginPath(); ctx.moveTo(0, -60); ctx.lineTo(40, 25); ctx.lineTo(-40, 25); ctx.closePath(); ctx.fill();
-  const g = ctx.createLinearGradient(-8,-8,8,8); g.addColorStop(0, charColor1); g.addColorStop(1, charColor2);
-  ctx.fillStyle = g; ctx.fillRect(-8, -8, 16, 16); ctx.restore();
 }
 
 btn.addEventListener("click", () => reset(true));
 const handleInput = (v) => { 
     if(!started) { started = true; if(audioCtx.state === 'suspended') audioCtx.resume(); }
     inputActive = v; 
-    if(v && onGround && introDone) { vy = jumpVel; onGround = false; } 
 };
 
-window.addEventListener("keydown", (e)=>{ 
-    if(e.code==="Space" || e.code==="ArrowUp" || e.code==="KeyW") handleInput(true); 
-});
-window.addEventListener("keyup", (e)=>{ 
-    if(e.code==="Space" || e.code==="ArrowUp" || e.code==="KeyW") handleInput(false); 
-});
-canvas.addEventListener("mousedown", () => handleInput(true));
-canvas.addEventListener("mouseup", () => handleInput(false));
+window.addEventListener("keydown", (e)=>handleInput(true));
+window.addEventListener("keyup", (e)=>handleInput(false));
 canvas.addEventListener("touchstart", (e) => { e.preventDefault(); handleInput(true); }, {passive: false});
 canvas.addEventListener("touchend", () => handleInput(false));
 
