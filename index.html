@@ -3,60 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smash Karts + Chat</title>
+    <title>Smash Karts | Pro Portal</title>
     <style>
+        /* This stops the page from bouncing around */
+        * { box-sizing: border-box; }
+        
         body {
             margin: 0;
-            background-color: #0b0b0b;
+            padding: 0;
+            background-color: #000;
             color: white;
-            font-family: 'Arial', sans-serif;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+            overflow: hidden; /* Prevents double scrolling */
+        }
+
+        /* Game takes up the left side */
+        .game-wrapper {
+            flex: 3;
+            height: 100%;
+            background: #000;
             display: flex;
             flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
         }
-        header {
-            padding: 10px;
-            text-align: center;
-            background: #111;
-            border-bottom: 2px solid #ff4757;
-        }
-        /* This creates the side-by-side layout */
-        .main-container {
-            display: flex;
+
+        /* Chat takes up the right side */
+        .chat-wrapper {
             flex: 1;
-            width: 100%;
+            min-width: 320px;
+            max-width: 400px;
+            height: 100%;
+            border-left: 3px solid #ff4757;
+            background: #111;
         }
-        .game-area {
-            flex: 3; /* Game takes up 75% of the screen */
-            border-right: 2px solid #333;
-        }
-        .chat-area {
-            flex: 1; /* Chat takes up 25% of the screen */
-            background: #1a1a1a;
-            min-width: 300px;
-        }
+
         iframe {
             width: 100%;
             height: 100%;
             border: none;
         }
+
+        /* Small header so you know it's your site */
+        .status-bar {
+            background: #111;
+            padding: 5px 15px;
+            font-size: 12px;
+            color: #ff4757;
+            border-bottom: 1px solid #333;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
-    <header>
-        <h2 style="margin:0; color: #ff4757;">SMASH KARTS ARENA</h2>
-    </header>
+    <div class="game-wrapper">
+        <div class="status-bar">● Smash Karts Live Arena</div>
+        <iframe 
+            src="https://smashkarts.io/" 
+            allow="autoplay; gamepad; fullscreen" 
+            loading="eager">
+        </iframe>
+    </div>
 
-    <div class="main-container">
-        <div class="game-area">
-            <iframe src="https://smashkarts.io/" title="Smash Karts"></iframe>
-        </div>
-
-        <div class="chat-area">
-            <iframe src="https://deadsimplechat.com/J4fFLy4Ek" width="100%" height="100%"></iframe>
-        </div>
+    <div class="chat-wrapper">
+        <iframe 
+            src="https://deadsimplechat.com/J4fFLy4Ek" 
+            title="Player Chat">
+        </iframe>
     </div>
 
 </body>
