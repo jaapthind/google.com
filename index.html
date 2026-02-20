@@ -3,70 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smash Karts Portal</title>
+    <title>Smash Karts + Chat</title>
     <style>
         body {
             margin: 0;
-            padding: 20px 0;
-            background-color: #0f0f0f;
+            background-color: #0b0b0b;
+            color: white;
+            font-family: 'Arial', sans-serif;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        .game-container {
-            width: 95%;
-            max-width: 1000px;
-            aspect-ratio: 16 / 9;
-            border: 4px solid #ff4757;
-            border-radius: 12px;
+            height: 100vh;
             overflow: hidden;
-            box-shadow: 0 0 20px rgba(255, 71, 87, 0.3);
+        }
+        header {
+            padding: 10px;
+            text-align: center;
+            background: #111;
+            border-bottom: 2px solid #ff4757;
+        }
+        /* This creates the side-by-side layout */
+        .main-container {
+            display: flex;
+            flex: 1;
+            width: 100%;
+        }
+        .game-area {
+            flex: 3; /* Game takes up 75% of the screen */
+            border-right: 2px solid #333;
+        }
+        .chat-area {
+            flex: 1; /* Chat takes up 25% of the screen */
+            background: #1a1a1a;
+            min-width: 300px;
         }
         iframe {
             width: 100%;
             height: 100%;
             border: none;
         }
-        .chat-section {
-            width: 95%;
-            max-width: 1000px;
-            margin-top: 30px;
-            background: #1a1a1a;
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid #333;
-        }
-        h1 { margin-bottom: 10px; color: #ff4757; text-transform: uppercase; letter-spacing: 2px; }
-        p { color: #888; margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
-    <h1>Smash Karts Arena</h1>
-    <p>Play with friends & chat below!</p>
+    <header>
+        <h2 style="margin:0; color: #ff4757;">SMASH KARTS ARENA</h2>
+    </header>
 
-    <div class="game-container">
-        <iframe 
-            src="https://smashkarts.io/" 
-            title="Smash Karts"
-            allowfullscreen>
-        </iframe>
+    <div class="main-container">
+        <div class="game-area">
+            <iframe src="https://smashkarts.io/" title="Smash Karts"></iframe>
+        </div>
+
+        <div class="chat-area">
+            <iframe src="https://deadsimplechat.com/J4fFLy4Ek" width="100%" height="100%"></iframe>
+        </div>
     </div>
-
-    <div class="chat-section">
-        <h2 style="margin-top:0;">Player Chat</h2>
-        
-        <div id="cusdis_thread"
-          data-host="https://cusdis.com"
-          data-app-id="f011c213-dd07-46f5-93a6-cf4b28af407e"
-          data-page-id="smash_karts_v1"
-          data-page-url="https://jaapthind.github.io/sksk/"
-          data-page-title="Smash Karts Chat">
-        </div>
-        <script async defer src="https://cusdis.com/js/cusdis.es.js"></script>
-        </div>
 
 </body>
 </html>
