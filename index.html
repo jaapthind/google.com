@@ -8,112 +8,123 @@
     <style>
         :root {
             --bg: #202124;
+            --search-bg: #303134;
             --text: #e8eaed;
             --link: #8ab4f8;
             --subtext: #bdc1c6;
             --border: #3c4043;
             --ai-bg: #2d2e31;
+            --ai-border: #424548;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Google Sans', arial, sans-serif; background: var(--bg); color: var(--text); overflow-y: scroll; }
+        body { font-family: 'Google Sans', arial, sans-serif; background: var(--bg); color: var(--text); overflow-y: auto; height: 200vh; }
 
-        /* HEADER */
+        /* NAV HEADER */
         header { border-bottom: 1px solid var(--border); padding: 20px 0 10px 160px; position: sticky; top: 0; background: var(--bg); z-index: 100; }
-        .logo { position: absolute; left: 30px; top: 25px; }
+        .logo { position: absolute; left: 30px; top: 25px; cursor: pointer; }
         .search-container { width: 690px; }
-        .search-bar { width: 100%; height: 46px; border: 1px solid var(--border); border-radius: 24px; padding: 0 50px 0 20px; font-size: 16px; background: #303134; color: white; outline: none; }
+        .search-bar { width: 100%; height: 46px; border: 1px solid var(--border); border-radius: 24px; padding: 0 50px 0 20px; font-size: 16px; background: var(--search-bg); color: white; outline: none; }
         
-        /* LAYOUT FOR SIDE CARDS */
-        .page-content { display: flex; margin-left: 160px; gap: 40px; margin-top: 20px; }
-        .main-column { width: 652px; }
-        .side-column { width: 360px; }
+        .nav-tabs { display: flex; gap: 20px; font-size: 14px; color: var(--subtext); margin-top: 15px; }
+        .tab-active { color: var(--link); border-bottom: 3px solid var(--link); padding-bottom: 10px; }
 
-        /* AI OVERVIEW */
-        .ai-overview { background: var(--ai-bg); border-radius: 24px; padding: 24px; margin-bottom: 30px; border: 1px solid var(--border); }
-        .ai-sparkle { color: #d3e3fd; font-weight: bold; display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
-        .ai-body { line-height: 1.6; font-size: 15px; margin-bottom: 15px; }
-        .ai-list { list-style: none; margin-left: 10px; }
-        .ai-list li { margin-bottom: 12px; display: flex; gap: 10px; }
-        .ai-list span { color: var(--link); cursor: pointer; }
+        /* LAYOUT */
+        .content-wrap { display: flex; margin-left: 160px; gap: 45px; padding-top: 20px; }
+        .main-col { width: 652px; }
+        .side-col { width: 360px; }
 
-        /* GAME CONTAINER */
-        #game-box { display: none; width: 100%; height: 450px; background: #000; border-radius: 12px; overflow: hidden; margin-top: 15px; border: 1px solid var(--border); }
+        /* AI OVERVIEW - THE GAME TRIGGER */
+        .ai-box { background: var(--ai-bg); border-radius: 24px; padding: 24px; border: 1px solid var(--ai-border); margin-bottom: 30px; position: relative; }
+        .ai-sparkle { color: #d3e3fd; font-weight: 600; font-size: 16px; display: flex; align-items: center; gap: 8px; margin-bottom: 15px; }
+        .ai-text { line-height: 1.6; font-size: 15px; margin-bottom: 15px; }
+        .ai-text span { background: rgba(138, 180, 248, 0.2); border-bottom: 1px solid var(--link); }
+        
+        .ai-list { list-style: none; margin-top: 15px; }
+        .ai-list li { margin-bottom: 15px; display: flex; gap: 12px; font-size: 14px; }
+        .ai-list b { color: #fff; font-weight: 500; }
+
+        #game-box { display: none; width: 100%; height: 450px; background: #000; border-radius: 12px; overflow: hidden; margin-top: 20px; border: 1px solid var(--border); }
         iframe { width: 100%; height: 100%; border: none; }
 
+        /* SIDEBAR CARDS */
+        .knowledge-card { background: var(--search-bg); border-radius: 16px; padding: 12px; margin-bottom: 15px; display: flex; gap: 12px; border: 1px solid var(--border); }
+        .knowledge-card img { width: 72px; height: 72px; border-radius: 8px; object-fit: cover; }
+        .k-text b { display: block; font-size: 14px; margin-bottom: 4px; color: #fff; }
+        .k-text p { font-size: 13px; color: var(--subtext); line-height: 1.4; }
+
         /* PEOPLE ALSO ASK */
-        .paa-section { border-top: 1px solid var(--border); margin-top: 20px; padding-top: 15px; }
-        .paa-row { border-bottom: 1px solid var(--border); padding: 12px 0; display: flex; justify-content: space-between; cursor: pointer; font-size: 16px; }
+        .paa { border-top: 1px solid var(--border); margin-top: 30px; padding-top: 15px; }
+        .paa-row { border-bottom: 1px solid var(--border); padding: 14px 0; display: flex; justify-content: space-between; font-size: 16px; cursor: pointer; }
 
-        /* RESULTS */
-        .result { margin-top: 25px; }
-        .result cite { font-style: normal; color: var(--subtext); font-size: 14px; }
-        .result h3 { color: var(--link); font-size: 20px; font-weight: 400; margin-top: 4px; cursor: pointer; }
-        .result p { color: var(--subtext); font-size: 14px; margin-top: 5px; line-height: 1.5; }
-
-        /* SIDE CARDS (From your screenshot) */
-        .side-card { background: #303134; border-radius: 16px; padding: 12px; margin-bottom: 15px; display: flex; gap: 12px; border: 1px solid var(--border); }
-        .side-card img { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; }
-        .side-info { flex: 1; font-size: 14px; color: var(--subtext); }
-        .side-info b { color: white; display: block; margin-bottom: 4px; }
+        /* SEARCH RESULTS */
+        .res { margin-top: 28px; }
+        .res cite { color: var(--subtext); font-style: normal; font-size: 14px; }
+        .res h3 { color: var(--link); font-size: 20px; font-weight: 400; margin: 4px 0; cursor: pointer; }
+        .res p { font-size: 14px; color: var(--subtext); line-height: 1.5; }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo">
-            <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_light_color_92x30dp.png" width="92">
-        </div>
+        <div class="logo"><img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_light_color_92x30dp.png" width="92"></div>
         <div class="search-container">
             <input type="text" class="search-bar" value="most important black history figures">
+            <div class="nav-tabs">
+                <div class="tab-active">All</div>
+                <div>Images</div>
+                <div>News</div>
+                <div>Videos</div>
+                <div>More</div>
+            </div>
         </div>
     </header>
 
-    <div class="page-content">
-        <div class="main-column">
-            <div class="ai-overview">
+    <div class="content-wrap">
+        <div class="main-col">
+            <div class="ai-box">
                 <div class="ai-sparkle">✨ AI Overview</div>
-                <div class="ai-body" id="ai-content">
+                <div class="ai-text">
                     Influential Black leaders have profoundly shaped global history, civil rights, science, and culture, with key figures including 
-                    <span style="color:var(--link)">Martin Luther King Jr.</span>, <span>Nelson Mandela</span>, and <span>Harriet Tubman</span>.
+                    <span>Martin Luther King Jr.</span>, <span>Nelson Mandela</span>, <span>Harriet Tubman</span>, and <span>Barack Obama</span>.
                 </div>
                 <ul class="ai-list" id="ai-list">
-                    <li>• <b>Martin Luther King Jr.:</b> A central leader of the Civil Rights Movement...</li>
-                    <li>• <b>Harriet Tubman:</b> Abolitionist who led hundreds to freedom via <span onclick="launchGame()">the Underground Railroad</span>.</li>
+                    <li>• <b>Martin Luther King Jr.:</b> A central leader of the Civil Rights Movement, known for his activism and "I Have a Dream" speech.</li>
+                    <li>• <b>Harriet Tubman:</b> Abolitionist who led hundreds of enslaved people to freedom via <span style="color:var(--link); cursor:pointer;" onclick="launch()">the Underground Railroad</span>.</li>
                 </ul>
-                <button id="show-more" onclick="launchGame()" style="background:none; border: 1px solid var(--border); color:white; padding: 8px 20px; border-radius: 20px; cursor: pointer; margin-top: 10px;">Show more ∨</button>
+                <button onclick="launch()" style="margin-top:15px; background:none; border:1px solid var(--border); color:#fff; padding: 8px 20px; border-radius: 20px; cursor:pointer;">Show more ⌵</button>
 
-                <div id="game-box">
-                    <iframe id="game-frame" src=""></iframe>
-                </div>
+                <div id="game-box"><iframe id="game-frame" src=""></iframe></div>
             </div>
 
-            <div class="paa-section">
-                <h2 style="font-size: 22px; margin-bottom: 10px;">People also ask</h2>
-                <div class="paa-row">Who are the top 5 Black historical figures? <span>⌵</span></div>
-                <div class="paa-row">Who was the most influential Black person in history? <span>⌵</span></div>
-                <div class="paa-row">Who are the significant figures in Black history? <span>⌵</span></div>
-            </div>
-
-            <div class="result">
+            <div class="res">
                 <cite>https://kids.nationalgeographic.com › history › topic</cite>
                 <h3>African American Heroes - National Geographic Kids</h3>
-                <p>George Washington Carver, Shirley Chisholm, Katherine Johnson, and more. Read about the heroes who paved the way...</p>
+                <p>African American Heroes · George Washington Carver · Shirley Chisholm · Bessie Coleman · Benjamin O. Davis, Jr. · Frederick Douglass · Katherine Johnson.</p>
             </div>
+
+            <div class="paa">
+                <h2 style="font-size: 22px; margin-bottom: 10px; font-weight: 400;">People also ask</h2>
+                <div class="paa-row">Who are the top 5 Black historical figures? <span>⌵</span></div>
+                <div class="paa-row">Who was the most influential Black person in history? <span>⌵</span></div>
+            </div>
+
+            <div class="res"><cite>https://www.oprahdaily.com › life</cite><h3>31 History-Making Black Americans Everyone Should Know</h3><p>Feb 1, 2023 — From pioneers in African American history like Dr. Martin Luther King Jr. and Rosa Parks...</p></div>
+            <div class="res"><cite>https://www.history.com › articles</cite><h3>Notable Figures in Black History: Photos</h3><p>Black history is a story of resilience, resistance, and creativity. Browse photos of icons who changed the world.</p></div>
         </div>
 
-        <div class="side-column">
-            <div class="side-card">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfIuO-4fDox_D4C69kUatpI7yE7n6m5S-G7A&s" alt="MLK">
-                <div class="side-info">
-                    <b>12 Notable Figures in Black History</b>
-                    Black history is a story of resilience, ingenuity, and creativity.
+        <div class="side-col">
+            <div class="knowledge-card">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSfIuO-4fDox_D4C69kUatpI7yE7n6m5S-G7A&s">
+                <div class="k-text">
+                    <b>12 Notable Figures in Black History: Photos</b>
+                    <p>Black history is a story of resilience, resistance, ingenuity, and creativity.</p>
                 </div>
             </div>
-            <div class="side-card">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0N-O8SjHqXJ0vH6O3S8L1G7Pj_p8Zk9A9fA&s" alt="Mandela">
-                <div class="side-info">
-                    <b>9 Leaders from Black History</b>
-                    Explore the icons of the civil rights movement.
+            <div class="knowledge-card">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0N-O8SjHqXJ0vH6O3S8L1G7Pj_p8Zk9A9fA&s">
+                <div class="k-text">
+                    <b>12 inspiring figures in Black history - Rest Less</b>
+                    <p>Dr. Martin Luther King, Jr. (1929-1968) On 28th August 1963, Martin Luther King Jr. addressed...</p>
                 </div>
             </div>
         </div>
@@ -122,35 +133,21 @@
     <script>
         const gameBox = document.getElementById('game-box');
         const gameFrame = document.getElementById('game-frame');
-        const aiBody = document.getElementById('ai-content');
         const aiList = document.getElementById('ai-list');
-        const showMoreBtn = document.getElementById('show-more');
 
-        function launchGame() {
-            // Using the 2PlayerGames embed you confirmed works
+        function launch() {
             gameFrame.src = "https://www.twoplayergames.org/embed/basket-random";
             gameBox.style.display = 'block';
-            
-            // Hide AI text to make room
-            aiBody.style.display = 'none';
             aiList.style.display = 'none';
-            showMoreBtn.style.display = 'none';
-            
-            // Move scroll to top so teacher doesn't see game if they look fast
             window.scrollTo(0, 0);
-            
-            // Crucial: Give focus to the frame so Esc key works
             setTimeout(() => { gameFrame.focus(); }, 200);
         }
 
-        // BOSS KEY (ESC) - Returns to exact screenshot state
         document.addEventListener('keydown', (e) => {
             if (e.key === "Escape") {
                 gameFrame.src = '';
                 gameBox.style.display = 'none';
-                aiBody.style.display = 'block';
                 aiList.style.display = 'block';
-                showMoreBtn.style.display = 'block';
                 document.title = "most important black history figures - Google Search";
             }
         });
