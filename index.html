@@ -3,220 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="page-title">Google Docs - Project Workspace</title>
-    <link id="favicon" rel="icon" type="image/x-icon" href="https://ssl.gstatic.com/docs/documents/images/kix-favicon7.ico">
+    <title>Workspace - Liquid Widgets</title>
     
     <style>
-
-        <!-- SVG Filter (include once in your document) -->
-<svg width="0" height="0" style="position: absolute;">
-  <defs>
-    <filter id="glass-distortion" x="0%" y="0%" width="100%" height="100%">
-      <feTurbulence 
-        type="fractalNoise" 
-        baseFrequency="0.025 0.025"
-        numOctaves="2" 
-        seed="92" 
-        result="noise" 
-      />
-      <feGaussianBlur 
-        in="noise" 
-        stdDeviation="2" 
-        result="blurred" 
-      />
-      <feDisplacementMap 
-        in="SourceGraphic" 
-        in2="blurred" 
-        scale="65"
-        xChannelSelector="R" 
-        yChannelSelector="G" 
-      />
-    </filter>
-  </defs>
-</svg>
-
-<!-- Liquid Glass Card -->
-<div class="liquid-glass-card">
-  <div class="card-content">
-    <div class="card-header">
-      <div class="user-info">
-        <div class="avatar">
-          <svg class="avatar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-            <circle cx="12" cy="7" r="4"></circle>
-          </svg>
-        </div>
-        <div class="user-details">
-          <p class="user-name">Jane Doe</p>
-          <p class="user-role">UX Designer</p>
-        </div>
-      </div>
-      <svg class="notification-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-      </svg>
-    </div>
-    <div class="card-body">
-      <h3 class="card-title">Styled Component</h3>
-      <p class="card-description">This is a sample of how your content might look inside.</p>
-      <button class="glass-button">Get Started</button>
-    </div>
-    <p class="card-tip">Tip: Try adjusting the sliders and colors to see real-time changes!</p>
-  </div>
-</div>
-
-        /* Liquid Glass Card */
-        .liquid-glass-card {
-          position: relative;
-          width: 400px;
-          height: 300px;
-          border-radius: 28px;
-          isolation: isolate;
-          box-shadow: 0px 0px 21px -8px rgba(255, 255, 255, 0.3);
-          cursor: pointer;
-        }
-        
-        
-        /* Tint and inner shadow layer */
-        .liquid-glass-card::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          z-index: 0;
-          border-radius: 28px;
-          box-shadow: inset 0 0 12px -2px rgba(255, 255, 255, 0.7);
-          background-color: rgba(255, 255, 255, 0);
-          pointer-events: none;
-        }
-        
-        /* Backdrop blur and distortion layer */
-        .liquid-glass-card::after {
-          content: '';
-          position: absolute;
-          inset: 0;
-          z-index: -1;
-          border-radius: 28px;
-          backdrop-filter: blur(6px);
-          -webkit-backdrop-filter: blur(6px);
-          filter: url(#glass-distortion);
-          -webkit-filter: url(#glass-distortion);
-          isolation: isolate;
-          pointer-events: none;
-        }
-        
-        /* Content styling */
-        .card-content {
-          position: relative;
-          z-index: 10;
-          width: 100%;
-          height: 100%;
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-          padding: 24px;
-          color: white;
-          text-shadow: 0 1px 3px rgba(0,0,0,0.2);
-        }
-        
-        .card-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-        }
-        
-        .user-info {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-        }
-        
-        .avatar {
-          width: 40px;
-          height: 40px;
-          border-radius: 50%;
-          background: rgba(255, 255, 255, 0.1);
-          border: 2px solid #3b82f6;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        
-        .avatar-icon {
-          width: 20px;
-          height: 20px;
-          color: #3b82f6;
-        }
-        
-        .user-details {
-          display: flex;
-          flex-direction: column;
-        }
-        
-        .user-name {
-          font-weight: 600;
-          margin: 0;
-        }
-        
-        .user-role {
-          font-size: 12px;
-          opacity: 0.7;
-          margin: 0;
-        }
-        
-        .notification-icon {
-          width: 20px;
-          height: 20px;
-          opacity: 0.5;
-        }
-        
-        .card-body {
-          text-align: center;
-          margin-top: 8px;
-        }
-        
-        .card-title {
-          font-size: 18px;
-          font-weight: 700;
-          margin: 0 0 4px 0;
-        }
-        
-        .card-description {
-          font-size: 14px;
-          opacity: 0.7;
-          margin: 0 0 16px 0;
-        }
-        
-        .glass-button {
-          width: 100%;
-          background: rgba(255, 255, 255, 0.1);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          color: white;
-          padding: 8px 16px;
-          border-radius: 8px;
-          font-weight: 600;
-          cursor: pointer;
-          backdrop-filter: blur(8px);
-          -webkit-backdrop-filter: blur(8px);
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-          transition: all 0.2s ease;
-        }
-        
-        .glass-button:hover {
-          background: rgba(255, 255, 255, 0.2);
-        }
-        
-        .glass-button:focus {
-          outline: none;
-          box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
-        }
-        
-        .card-tip {
-          font-size: 12px;
-          text-align: center;
-          color: #e0e6ed;
-          margin: 16px 0 0 0;
-        }
-
         :root {
             --bg: #0b0c10; 
             --side: #161b22; 
@@ -224,10 +13,9 @@
             --text: #c9d1d9; 
             --border: #30363d;
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
-        
-        /* DARK BACKGROUND FOR CHAT MODE */
         body { 
             background: radial-gradient(circle at center, #1a1c23, #0b0c10); 
             color: var(--text); 
@@ -236,215 +24,242 @@
             justify-content: center; 
             align-items: center;
             overflow: hidden; 
+            gap: 20px;
         }
 
-        /* --- CENTERED CHAT CONTAINER & ANIMATIONS --- */
-        @keyframes floatIn {
-            0% { transform: translateY(50px) scale(0.95); opacity: 0; }
-            100% { transform: translateY(0) scale(1); opacity: 1; }
+        /* --- SVG LIQUID FILTER --- */
+        .svg-filters { position: absolute; width: 0; height: 0; }
+
+        /* --- LIQUID GLASS CARD BASE --- */
+        .liquid-glass-card {
+            position: relative;
+            width: 320px;
+            height: 500px;
+            border-radius: 28px;
+            isolation: isolate;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        @keyframes subtleGlow {
-            0% { box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 15px rgba(88, 166, 255, 0.1); }
-            100% { box-shadow: 0 10px 40px rgba(0, 0, 0, 0.9), 0 0 25px rgba(88, 166, 255, 0.3); }
+        .liquid-glass-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            filter: url(#glass-distortion);
+            background: rgba(255, 255, 255, 0.03);
         }
 
+        .widget-content {
+            padding: 20px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            color: white;
+        }
+
+        /* --- CHAT WRAPPER --- */
         #chat-wrapper {
             width: 450px;
             height: 80vh;
-            max-height: 800px;
             background: var(--side);
             border-radius: 16px;
             border: 1px solid var(--border);
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            animation: floatIn 0.8s cubic-bezier(0.2, 1, 0.3, 1) forwards, subtleGlow 3s infinite alternate ease-in-out;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
         }
 
         .relay-tag { 
-            padding: 15px; 
+            padding: 10px; 
             background: #010409; 
-            font-size: 11px; 
-            font-weight: bold; 
+            font-size: 10px; 
             color: var(--accent); 
             letter-spacing: 2px; 
-            border-bottom: 1px solid var(--border);
             text-align: center;
-            font-family: 'Courier New', Courier, monospace;
+            font-family: monospace;
         }
 
-        #chat-wrapper iframe {
-            flex-grow: 1;
-            width: 100%;
-            border: none;
-        }
+        iframe { flex-grow: 1; border: none; }
 
-        /* --- GHOST MODE (FOOLPROOF GOOGLE REPLICA) --- */
-        #ghost-mode {
-            display: none; 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%;
-            background: #ffffff; /* Google White */
-            z-index: 999999; 
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Top right Google links */
-        .g-nav {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        .g-nav a { text-decoration: none; color: #1f1f1f; }
-        .g-nav a:hover { text-decoration: underline; }
-        .g-profile { width: 32px; height: 32px; background: #1a73e8; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; }
-
-        /* Centered Search Area */
-        .g-center {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            transform: translateY(-10vh);
-        }
-
-        .g-logo { margin-bottom: 30px; }
-
-        .g-search-bar {
-            width: 100%;
-            max-width: 584px;
-            height: 46px;
-            background: #fff;
-            border: 1px solid #dfe1e5;
-            border-radius: 24px;
-            display: flex;
-            align-items: center;
-            padding: 0 14px 0 14px;
-            transition: box-shadow 0.2s;
-        }
-        .g-search-bar:hover, .g-search-bar:focus-within {
-            box-shadow: 0 1px 6px rgba(32,33,36,.28);
-            border-color: rgba(223,225,229,0);
-        }
-        
-        .g-search-icon { color: #9aa0a6; margin-right: 10px; }
-        .g-search-input {
-            flex-grow: 1;
-            height: 100%;
-            border: none;
-            outline: none;
-            font-size: 16px;
-            color: #202124;
-        }
-
-        .g-buttons {
-            margin-top: 25px;
-            display: flex;
-            gap: 12px;
-        }
-        .g-btn {
-            background-color: #f8f9fa;
-            border: 1px solid #f8f9fa;
-            border-radius: 4px;
-            color: #3c4043;
-            font-size: 14px;
-            margin: 11px 4px;
-            padding: 0 16px;
-            line-height: 27px;
-            height: 36px;
+        /* --- COOKIE CLICKER STYLES --- */
+        #cookie {
+            width: 120px;
             cursor: pointer;
+            transition: transform 0.1s;
+            filter: drop-shadow(0 0 10px rgba(210, 105, 30, 0.5));
+            margin: 20px 0;
         }
-        .g-btn:hover { border: 1px solid #dadce0; color: #202124; box-shadow: 0 1px 1px rgba(0,0,0,.1); }
+        #cookie:active { transform: scale(0.9); }
+        .stat-box { font-size: 24px; font-weight: bold; margin-bottom: 10px; color: #ffca28; }
+        .upgrade-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid var(--accent);
+            color: white;
+            padding: 10px;
+            width: 100%;
+            margin: 5px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .upgrade-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
+        /* --- PHYSICS SIM STYLES --- */
+        #physics-canvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 15px;
+            background: rgba(0,0,0,0.2);
+        }
     </style>
 </head>
 <body>
 
-    <div id="ghost-mode">
-        <div class="g-nav">
-            <a href="#">Gmail</a>
-            <a href="#">Images</a>
-            <div style="cursor:pointer; margin: 0 5px;">&#8942;</div>
-            <div class="g-profile">A</div>
-        </div>
+<svg class="svg-filters">
+  <defs>
+    <filter id="glass-distortion">
+      <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="3" seed="5" result="noise" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="30" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+  </defs>
+</svg>
 
-        <div class="g-center">
-            <img class="g-logo" src="https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png" alt="Google Logo">
-            
-            <div class="g-search-bar">
-                <svg class="g-search-icon" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20">
-                    <path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
-                </svg>
-                <input type="text" class="g-search-input" id="real-search" autocomplete="off" autofocus>
-            </div>
-
-            <div class="g-buttons">
-                <button class="g-btn" onclick="executeSearch()">Google Search</button>
-                <button class="g-btn" onclick="executeSearch()">I'm Feeling Lucky</button>
-            </div>
-        </div>
+<div class="liquid-glass-card">
+    <div class="widget-content">
+        <h3 style="margin-bottom: 10px; opacity: 0.8;">Cookie Lab</h3>
+        <div id="cookie-count" class="stat-box">0</div>
+        <p style="font-size: 12px; margin-bottom: 20px;">Cookies</p>
+        
+        <img id="cookie" src="https://cdn-icons-png.flaticon.com/512/548/548427.png" alt="Cookie" onclick="clickCookie()">
+        
+        <button class="upgrade-btn" onclick="buyUpgrade('auto')" id="btn-auto">Buy Auto-Baker (Cost: 15)</button>
+        <button class="upgrade-btn" onclick="buyUpgrade('multi')" id="btn-multi">Upgrade Oven (Cost: 50)</button>
+        <p id="cps-text" style="font-size: 11px; margin-top: 10px; opacity: 0.6;">Cookies per sec: 0</p>
     </div>
+</div>
 
-    <div id="chat-wrapper">
-        <div class="relay-tag">WILLARD_CHAT_RELAY // SECURE_V3</div>
-        <iframe src="https://deadsimplechat.com/J4fFLy4Ek" allow="camera; microphone" title="Chat Room"></iframe>
+<div id="chat-wrapper">
+    <div class="relay-tag">TERMINAL_RELAY // ENCRYPTED_V3</div>
+    <iframe src="https://deadsimplechat.com/J4fFLy4Ek" title="Chat Room"></iframe>
+</div>
+
+<div class="liquid-glass-card">
+    <div class="widget-content" style="padding: 10px;">
+        <h3 style="margin-bottom: 10px; opacity: 0.8;">Liquid Core</h3>
+        <canvas id="physics-canvas"></canvas>
+        <p style="font-size: 11px; margin-top: 10px; opacity: 0.6;">Move cursor to disturb the fluid</p>
     </div>
+</div>
 
-    <script>
-        const ghostMode = document.getElementById('ghost-mode');
-        const searchInput = document.getElementById('real-search');
-        const pageTitle = document.getElementById('page-title');
-        const favicon = document.getElementById('favicon');
+<script>
+    /* --- COOKIE CLICKER LOGIC --- */
+    let cookies = 0;
+    let autoBakers = 0;
+    let multiplier = 1;
+    let autoCost = 15;
+    let multiCost = 50;
 
-        // Execute a real Google Search
-        function executeSearch() {
-            const query = searchInput.value.trim();
-            if (query) {
-                window.location.href = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
-            }
+    function updateDisplay() {
+        document.getElementById('cookie-count').innerText = Math.floor(cookies);
+        document.getElementById('btn-auto').innerText = `Buy Auto-Baker (Cost: ${autoCost})`;
+        document.getElementById('btn-multi').innerText = `Upgrade Oven (Cost: ${multiCost})`;
+        document.getElementById('btn-auto').disabled = cookies < autoCost;
+        document.getElementById('btn-multi').disabled = cookies < multiCost;
+        document.getElementById('cps-text').innerText = `Cookies per sec: ${autoBakers}`;
+    }
+
+    function clickCookie() {
+        cookies += multiplier;
+        updateDisplay();
+    }
+
+    function buyUpgrade(type) {
+        if (type === 'auto' && cookies >= autoCost) {
+            cookies -= autoCost;
+            autoBakers++;
+            autoCost = Math.floor(autoCost * 1.5);
+        } else if (type === 'multi' && cookies >= multiCost) {
+            cookies -= multiCost;
+            multiplier += 1;
+            multiCost = Math.floor(multiCost * 2.2);
         }
+        updateDisplay();
+    }
 
-        // Listen for Enter key inside the fake Google search bar
-        searchInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                executeSearch();
+    setInterval(() => {
+        cookies += autoBakers / 10;
+        updateDisplay();
+    }, 100);
+
+    /* --- LIQUID PHYSICS SIMULATION --- */
+    const canvas = document.getElementById('physics-canvas');
+    const ctx = canvas.getContext('2d');
+    let width, height, particles = [];
+
+    function initCanvas() {
+        width = canvas.width = canvas.offsetWidth;
+        height = canvas.height = canvas.offsetHeight;
+        particles = [];
+        for (let i = 0; i < 80; i++) {
+            particles.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                vx: Math.random() * 2 - 1,
+                vy: Math.random() * 2 - 1,
+                radius: Math.random() * 15 + 5
+            });
+        }
+    }
+
+    let mouse = { x: -1000, y: -1000 };
+    canvas.addEventListener('mousemove', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        mouse.x = e.clientX - rect.left;
+        mouse.y = e.clientY - rect.top;
+    });
+
+    function draw() {
+        ctx.clearRect(0, 0, width, height);
+        ctx.fillStyle = 'rgba(88, 166, 255, 0.4)';
+        ctx.filter = 'blur(10px)';
+
+        particles.forEach(p => {
+            let dx = mouse.x - p.x;
+            let dy = mouse.y - p.y;
+            let dist = Math.sqrt(dx*dx + dy*dy);
+
+            if (dist < 80) {
+                p.vx -= dx * 0.01;
+                p.vy -= dy * 0.01;
             }
+
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vx *= 0.98;
+            p.vy *= 0.98;
+
+            // Bounce
+            if (p.x < 0 || p.x > width) p.vx *= -1;
+            if (p.y < 0 || p.y > height) p.vy *= -1;
+
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+            ctx.fill();
         });
 
-        // ESCAPE KEY: TOGGLE GHOST MODE
-        document.addEventListener('keydown', (e) => {
-            if (e.key === "Escape") {
-                const isHidden = ghostMode.style.display === 'none' || ghostMode.style.display === '';
-                
-                if (isHidden) {
-                    // Turn ON Ghost Mode
-                    ghostMode.style.display = 'flex';
-                    pageTitle.innerText = "Google";
-                    favicon.href = "https://www.google.com/favicon.ico";
-                    searchInput.focus(); // Auto-focus the search bar
-                } else {
-                    // Turn OFF Ghost Mode
-                    ghostMode.style.display = 'none';
-                    pageTitle.innerText = "Google Docs - Project Workspace";
-                    favicon.href = "https://ssl.gstatic.com/docs/documents/images/kix-favicon7.ico";
-                }
-            }
-        });
-    </script>
+        requestAnimationFrame(draw);
+    }
+
+    window.addEventListener('resize', initCanvas);
+    initCanvas();
+    draw();
+</script>
+
 </body>
 </html>
-
-
-
-
-
