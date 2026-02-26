@@ -3,242 +3,302 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>macOS Sonoma - Live Tahoe</title>
-    <link rel="icon" type="image/png" href="https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/apple.png">
+    <title>macOS Sonoma - Ultimate Web OS</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='%23fff' d='M50 100c27.6 0 50-22.4 50-50S77.6 0 50 0 0 22.4 0 50s22.4 50 50 50z'/%3E%3C/svg%3E">
     
     <style>
-        /* ::::::::::::::::::::::::::::::::::::::::::::::::
-           CORE OS STYLES & TYPOGRAPHY
-        :::::::::::::::::::::::::::::::::::::::::::::::: */
+        /* ==========================================================================
+           1. CORE OS VARIABLES & RESET
+           ========================================================================== */
         :root {
-            --system-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
-            --window-blur: blur(30px) saturate(180%);
-            --dock-blur: blur(35px) saturate(160%);
-            --menu-bar-height: 32px;
-            --dock-height: 70px;
+            --sys-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            --glass-bg: rgba(255, 255, 255, 0.25);
+            --glass-bg-dark: rgba(30, 30, 30, 0.45);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --glass-border-dark: rgba(255, 255, 255, 0.1);
+            --glass-blur: blur(40px) saturate(250%) contrast(110%) brightness(110%);
+            --glass-blur-dark: blur(40px) saturate(200%) contrast(100%) brightness(90%);
+            --dock-height: 76px;
+            --menu-bar-height: 30px;
+            --accent-blue: #007aff;
+            --window-shadow: 0 30px 60px rgba(0,0,0,0.4), 0 0 0 1px inset rgba(255,255,255,0.3);
+            --window-shadow-dark: 0 30px 60px rgba(0,0,0,0.6), 0 0 0 1px inset rgba(255,255,255,0.1);
         }
 
         * {
             margin: 0; padding: 0; box-sizing: border-box;
-            font-family: var(--system-font);
-            /* Force Mac cursor everywhere */
+            font-family: var(--sys-font);
             cursor: url('https://cdn.custom-cursor.com/db/9753/32/apple-spinning-wait-cursor-pointer.png'), auto !important;
-            user-select: none;
-            -webkit-font-smoothing: antialiased;
+            user-select: none; -webkit-font-smoothing: antialiased;
         }
 
         body, html {
-            width: 100%; height: 100%; overflow: hidden; position: relative;
-            background: #000;
+            width: 100vw; height: 100vh; overflow: hidden; background: #000; position: relative;
         }
 
-        /* ::::::::::::::::::::::::::::::::::::::::::::::::
-           LAYER 1: LIVE WALLPAPER DESKTOP
-        :::::::::::::::::::::::::::::::::::::::::::::::: */
-        #desktop-background {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;
-            overflow: hidden;
+        /* ==========================================================================
+           2. LIVE TAHOE YOUTUBE WALLPAPER
+           ========================================================================== */
+        #video-background {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1;
+            overflow: hidden; pointer-events: none;
         }
         
-        #live-wallpaper {
-            position: absolute; top: 50%; left: 50%; min-width: 100%; min-height: 100%;
-            width: auto; height: auto; transform: translateX(-50%) translateY(-50%);
-            z-index: 1;
+        #video-background iframe {
+            width: 100vw; height: 56.25vw; /* 16:9 Aspect Ratio */
+            min-height: 100vh; min-width: 177.77vh; 
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
         }
 
         #wallpaper-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2;
-            /* Subtle gradient to ensure menu bar readability over bright video parts */
-            background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 20%);
+            /* Subtle dark gradient at top to make the white menu bar text readable */
+            background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 15%, rgba(0,0,0,0) 80%, rgba(0,0,0,0.1) 100%);
+            pointer-events: none;
         }
 
-        /* ::::::::::::::::::::::::::::::::::::::::::::::::
-           LAYER 2: MENU BAR
-        :::::::::::::::::::::::::::::::::::::::::::::::: */
+        /* ==========================================================================
+           3. MAC MENU BAR (LIQUID GLASS)
+           ========================================================================== */
         #menu-bar {
             position: absolute; top: 0; left: 0; width: 100%; height: var(--menu-bar-height);
-            background: rgba(255, 255, 255, 0.45);
-            backdrop-filter: var(--window-blur); -webkit-backdrop-filter: var(--window-blur);
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
             border-bottom: 1px solid rgba(255,255,255,0.2);
             display: flex; justify-content: space-between; align-items: center;
-            padding: 0 20px; font-size: 13.5px; font-weight: 500; color: #222; z-index: 99999;
+            padding: 0 16px; font-size: 13.5px; font-weight: 500; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            z-index: 99999;
         }
 
-        .menu-group { display: flex; gap: 18px; align-items: center; height: 100%; }
-        .menu-item { cursor: default !important; }
-        .apple-logo { font-size: 17px; padding-bottom: 2px; }
+        .menu-group { display: flex; align-items: center; height: 100%; }
+        .menu-item { 
+            padding: 0 10px; height: 100%; display: flex; align-items: center; 
+            cursor: default !important; border-radius: 4px; transition: background 0.1s;
+        }
+        .menu-item:hover { background: rgba(255,255,255,0.2); }
+        .apple-logo { font-size: 18px; padding-bottom: 2px; }
         .app-name { font-weight: 700; }
-        
-        .status-icon { font-size: 16px; }
-        .control-center-icon { font-size: 18px; }
+        .status-icons { gap: 12px; }
 
-        /* ::::::::::::::::::::::::::::::::::::::::::::::::
-           LAYER 3: WINDOW SYSTEM
-        :::::::::::::::::::::::::::::::::::::::::::::::: */
-        #window-layer {
-            position: absolute; top: var(--menu-bar-height); left: 0; 
-            width: 100%; height: calc(100% - var(--menu-bar-height) - var(--dock-height));
-            z-index: 10; pointer-events: none; /* Allow clicks through to desktop if no window hit */
-        }
-
-        .mac-window {
-            position: absolute; pointer-events: auto;
-            width: 680px; height: 480px;
-            background: rgba(245, 245, 247, 0.85);
-            backdrop-filter: var(--window-blur); -webkit-backdrop-filter: var(--window-blur);
-            border-radius: 12px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.3), 0 0 0 0.5px rgba(255,255,255,0.4) inset;
-            display: flex; flex-direction: column; overflow: hidden;
-            opacity: 0; transform: scale(0.95);
-            transition: opacity 0.2s ease-out, transform 0.2s ease-out;
-        }
-
-        .mac-window.active { opacity: 1; transform: scale(1); }
-        .mac-window.closing { opacity: 0; transform: scale(0.95); pointer-events: none;}
-
-        /* Special Style for the Liquid Chat Window */
-        .mac-window.liquid-type {
-            background: transparent; backdrop-filter: none; box-shadow: none;
-        }
-        .liquid-container {
-            position: relative; width: 100%; height: 100%;
-            background: #1c1c1e; border-radius: 12px;
-            display: flex; flex-direction: column; overflow: hidden;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.15) inset;
-        }
-        #glcanvas-container {
-            position: absolute; top: -5px; left: -5px; right: -5px; bottom: -5px;
-            z-index: 0; pointer-events: none;
-        }
-        .liquid-content-layer { position: relative; z-index: 2; display: flex; flex-direction: column; height: 100%; }
-
-
-        /* Window Title Bar */
-        .title-bar {
-            height: 42px; flex-shrink: 0;
-            display: flex; align-items: center; padding: 0 16px;
-            border-bottom: 1px solid rgba(0,0,0,0.1);
-            background: linear-gradient(to bottom, rgba(255,255,255,0.5), rgba(255,255,255,0.3));
-        }
-        .title-bar.dark {
-            background: #2d2d2d; border-bottom: 1px solid #111; color: #ddd;
-        }
-
-        .traffic-lights { display: flex; gap: 8px; height: 100%; align-items: center; }
-        .traffic-btn {
-            width: 12px; height: 12px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 8px; color: rgba(0,0,0,0.5); opacity: 1;
-            border: 0.5px solid rgba(0,0,0,0.15);
-        }
-        .traffic-lights:hover .traffic-btn-icon { opacity: 1; }
-        .traffic-btn-icon { opacity: 0; transition: opacity 0.1s; }
-        .tb-close { background: #ff5f56; border-color: #e0443e; }
-        .tb-min { background: #ffbd2e; border-color: #dea123; }
-        .tb-max { background: #27c93f; border-color: #1aab29; }
-
-        .window-title-text {
-            flex-grow: 1; text-align: center; font-weight: 600; font-size: 13px;
-            color: rgba(0,0,0,0.85); margin-left: -60px; /* Offset for traffic lights */
-        }
-        .dark .window-title-text { color: rgba(255,255,255,0.9); }
-
-        /* Window Content Area */
-        .window-content {
-            flex-grow: 1; position: relative; background: #fff; overflow: hidden;
-        }
-        .window-content.dark { background: #1e1e1e; color: #fff; }
-        
-        iframe.app-iframe { width: 100%; height: 100%; border: none; }
-        /* The shield covers iframes during drag so mouse events don't get swallowed */
-        .iframe-shield {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 999; display: none;
-        }
-        .mac-window.dragging .iframe-shield { display: block; }
-
-        /* ::::::::::::::::::::::::::::::::::::::::::::::::
-           LAYER 4: THE DOCK (FIXED, NOT AUTO-HIDE)
-        :::::::::::::::::::::::::::::::::::::::::::::::: */
-        #dock-container {
-            position: absolute; bottom: 10px; left: 0; width: 100%;
-            display: flex; justify-content: center; z-index: 10000;
+        /* ==========================================================================
+           4. MAC DOCK (MATH-DRIVEN PROPORTIONAL SCALING)
+           ========================================================================== */
+        #dock-wrapper {
+            position: absolute; bottom: 12px; left: 0; width: 100%;
+            display: flex; justify-content: center; z-index: 100000;
+            pointer-events: none; /* Let clicks pass through empty areas */
         }
         
         #dock {
-            display: flex; align-items: flex-end; gap: 8px;
-            padding: 10px;
-            height: var(--dock-height);
-            background: rgba(245, 245, 245, 0.35);
-            backdrop-filter: var(--dock-blur); -webkit-backdrop-filter: var(--dock-blur);
-            border: 1px solid rgba(255, 255, 255, 0.35);
-            border-radius: 24px;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            pointer-events: auto;
+            display: flex; align-items: flex-end; gap: 6px;
+            padding: 8px; height: var(--dock-height);
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 28px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.8);
+            transform-origin: bottom center;
         }
 
         .dock-item {
-            position: relative; width: 50px; height: 50px;
+            position: relative; width: 56px; height: 56px;
             display: flex; flex-direction: column; align-items: center;
-            transition: transform 0.2s ease-out; margin-bottom: 5px;
+            /* Transition removed here because JS handles the exact math smoothly */
+            will-change: transform, width, height, margin;
         }
-        
-        /* Dock magnification effect on hover */
-        .dock-item:hover { transform: scale(1.4) translateY(-15px); margin: 0 10px 5px 10px; }
 
-        .dock-icon-img {
-            width: 100%; height: 100%; object-fit: contain;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+        .dock-icon {
+            width: 100%; height: 100%;
+            background-size: cover; background-position: center; background-repeat: no-repeat;
+            border-radius: 14px;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.5);
+            cursor: pointer !important;
+            transform-origin: bottom center;
+            transition: filter 0.2s;
         }
+        .dock-icon:active { filter: brightness(0.6); }
 
         .dock-dot {
-            width: 4px; height: 4px; background: #444; border-radius: 50%;
-            position: absolute; bottom: -8px; opacity: 0; transition: opacity 0.3s;
+            position: absolute; bottom: -8px; width: 4px; height: 4px;
+            background: rgba(0,0,0,0.7); border-radius: 50%;
+            opacity: 0; transition: opacity 0.3s;
         }
         .dock-dot.active { opacity: 1; }
 
         .dock-separator {
-            width: 1px; height: 40px; background: rgba(0,0,0,0.2);
-            margin: 0 8px; align-self: center;
+            width: 1px; height: 46px; background: rgba(0,0,0,0.2);
+            margin: 0 6px; align-self: center;
         }
 
+        /* Dock Icon Label */
+        .dock-label {
+            position: absolute; top: -45px; background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(10px); color: white; padding: 4px 10px;
+            border-radius: 6px; font-size: 13px; font-weight: 500;
+            pointer-events: none; opacity: 0; transform: translateY(10px);
+            transition: opacity 0.2s, transform 0.2s; white-space: nowrap;
+            border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .dock-label::after {
+            content: ''; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%);
+            border-width: 5px 5px 0; border-style: solid; border-color: rgba(0,0,0,0.6) transparent transparent transparent;
+        }
+        .dock-item:hover .dock-label { opacity: 1; transform: translateY(0); }
 
-        /* ::::::::::::::::::::::::::::::::::::::::::::::::
-           CUSTOM APP STYLES
-        :::::::::::::::::::::::::::::::::::::::::::::::: */
-        /* Calculator Grid */
-        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: 1.5fr repeat(5, 1fr); height: 100%; background: #333; gap: 1px; }
-        .calc-display { grid-column: span 4; background: #222; color: white; font-size: 56px; display: flex; align-items: flex-end; justify-content: flex-end; padding: 20px; font-weight: 300; }
-        .calc-btn { background: #555; color: white; border: none; font-size: 22px; cursor: default !important; }
-        .calc-btn:active { background: #777; }
-        .calc-btn.op { background: #ff9f0a; font-size: 28px; padding-bottom: 4px;} .calc-btn.op:active { background: #d48407; }
-        .calc-btn.top { background: #444; }
-        .calc-btn.zero { grid-column: span 2; text-align: left; padding-left: 25px;}
 
+        /* ==========================================================================
+           5. WINDOW SYSTEM & PHYSICS
+           ========================================================================== */
+        #window-layer {
+            position: absolute; top: var(--menu-bar-height); left: 0; 
+            width: 100%; height: calc(100% - var(--menu-bar-height));
+            z-index: 10; pointer-events: none;
+        }
+
+        .mac-window {
+            position: absolute; pointer-events: auto;
+            width: 700px; height: 500px; min-width: 300px; min-height: 200px;
+            background: rgba(235, 235, 235, 0.85);
+            backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+            border-radius: 14px;
+            box-shadow: var(--window-shadow);
+            display: flex; flex-direction: column; overflow: hidden;
+            
+            /* Animation States */
+            opacity: 0; transform: scale(0.9) translateY(40px);
+            transition: opacity 0.25s cubic-bezier(0.2, 1, 0.3, 1), transform 0.25s cubic-bezier(0.2, 1, 0.3, 1);
+            will-change: transform, opacity, left, top, width, height;
+        }
+        .mac-window.dark-mode {
+            background: rgba(30, 30, 30, 0.85);
+            box-shadow: var(--window-shadow-dark); border: 1px solid rgba(255,255,255,0.15);
+        }
+
+        .mac-window.active { opacity: 1; transform: scale(1) translateY(0); }
+        
+        /* The Genie Minimize Effect */
+        .mac-window.minimized {
+            opacity: 0; pointer-events: none;
+            /* Transform dynamically set via JS to suck into dock */
+        }
+
+        /* Special Liquid Chat Override */
+        .mac-window.liquid-app { background: transparent; backdrop-filter: none; box-shadow: none; border: none; }
+        .liquid-wrapper {
+            position: relative; width: 100%; height: 100%;
+            border-radius: 16px; overflow: hidden;
+            box-shadow: 0 40px 80px rgba(0,0,0,0.7), inset 0 0 0 1px rgba(255,255,255,0.2);
+        }
+        #glcanvas-bg { position: absolute; top: -10px; left: -10px; right: -10px; bottom: -10px; z-index: 1; pointer-events: none; }
+        .liquid-ui { position: relative; z-index: 2; display: flex; flex-direction: column; height: 100%; background: rgba(20,20,20,0.6); }
+
+        /* Window Title Bar */
+        .title-bar {
+            height: 48px; flex-shrink: 0;
+            display: flex; align-items: center; padding: 0 16px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.3));
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            cursor: grab !important; z-index: 10;
+        }
+        .dark-mode .title-bar { background: linear-gradient(180deg, rgba(60,60,60,0.6), rgba(40,40,40,0.6)); border-bottom: 1px solid rgba(0,0,0,0.3); }
+        .title-bar:active { cursor: grabbing !important; }
+
+        .traffic-lights { display: flex; gap: 8px; align-items: center; position: absolute; left: 16px; }
+        .traffic-btn {
+            width: 12px; height: 12px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            border: 0.5px solid rgba(0,0,0,0.15); cursor: pointer !important;
+        }
+        .traffic-btn-icon { color: rgba(0,0,0,0.7); font-size: 9px; font-weight: 900; opacity: 0; }
+        .traffic-lights:hover .traffic-btn-icon { opacity: 1; }
+        .tb-close { background: #ff5f56; border-color: #e0443e; } .tb-close .traffic-btn-icon { font-size: 11px; margin-top: -1px; }
+        .tb-min { background: #ffbd2e; border-color: #dea123; } .tb-min .traffic-btn-icon { font-size: 11px; margin-top: -1px; }
+        .tb-max { background: #27c93f; border-color: #1aab29; }
+
+        .window-title-text {
+            flex-grow: 1; text-align: center; font-weight: 600; font-size: 13px; color: #333; pointer-events: none;
+        }
+        .dark-mode .window-title-text { color: #eee; }
+
+        /* Window Content */
+        .window-content { flex-grow: 1; position: relative; background: #fff; overflow: hidden; }
+        .dark-mode .window-content { background: #1e1e1e; }
+        iframe.app-frame { width: 100%; height: 100%; border: none; background: #fff;}
+        
+        .iframe-shield { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 999; display: none; }
+        .mac-window.is-dragging .iframe-shield, .mac-window.is-resizing .iframe-shield { display: block; }
+
+        /* Resizer Handles */
+        .resizer { position: absolute; z-index: 20; }
+        .resizer-r { right: 0; top: 0; width: 8px; height: 100%; cursor: ew-resize !important; }
+        .resizer-b { bottom: 0; left: 0; width: 100%; height: 8px; cursor: ns-resize !important; }
+        .resizer-br { right: 0; bottom: 0; width: 12px; height: 12px; cursor: nwse-resize !important; z-index: 21; }
+
+        /* ==========================================================================
+           6. INTERNAL APP STYLES (Calculator, Terminal, Notes, etc.)
+           ========================================================================== */
+        
         /* Terminal */
-        .terminal-wrap { background: #1e1e1e; color: #22c55e; padding: 15px; font-family: monospace; height: 100%; overflow-y: auto; font-size: 14px; }
-        .term-input { background: transparent; border: none; color: #ddd; outline: none; font-family: monospace; width: 50%; }
+        .app-terminal {
+            background: rgba(30,30,30,0.95); color: #4af626; padding: 15px; font-family: 'Courier New', Courier, monospace;
+            height: 100%; overflow-y: auto; font-size: 14px; display: flex; flex-direction: column;
+        }
+        .term-history { white-space: pre-wrap; margin-bottom: 5px; line-height: 1.4; }
+        .term-input-line { display: flex; align-items: center; }
+        .term-prompt { margin-right: 8px; color: #f1f1f1; }
+        .term-input {
+            flex-grow: 1; background: transparent; border: none; color: #4af626; outline: none;
+            font-family: inherit; font-size: inherit; caret-color: #4af626;
+        }
+
+        /* Calculator */
+        .app-calc { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: 2fr repeat(5, 1fr); height: 100%; background: #444; gap: 1px; }
+        .calc-screen { grid-column: span 4; background: #2d2d2d; color: white; font-size: 64px; display: flex; align-items: flex-end; justify-content: flex-end; padding: 20px; font-weight: 300; letter-spacing: -2px; }
+        .calc-btn { background: #666; color: white; border: none; font-size: 24px; cursor: default !important; display: flex; align-items: center; justify-content: center; transition: background 0.1s; }
+        .calc-btn:active { background: #888; }
+        .calc-btn.op { background: #ff9f0a; font-size: 32px; font-weight: 500;} .calc-btn.op:active { background: #c97c06; }
+        .calc-btn.top { background: #555; font-size: 20px;}
+        .calc-btn.zero { grid-column: span 2; justify-content: flex-start; padding-left: 30px;}
 
         /* Notes */
-        .notes-wrap { height: 100%; display: flex; }
-        .notes-sidebar { width: 150px; background: #f5f5f7; border-right: 1px solid #ddd; padding: 15px; }
-        .notes-editor { flex-grow: 1; padding: 20px; outline: none; border: none; resize: none; font-size: 16px; background: #fff; color: #222; font-family: -apple-system;}
+        .app-notes { display: flex; height: 100%; background: #fff; }
+        .notes-sidebar { width: 220px; background: #f5f5f7; border-right: 1px solid #ddd; display: flex; flex-direction: column; }
+        .notes-header { padding: 15px; font-weight: bold; border-bottom: 1px solid #ddd; background: #ececec; color: #333; }
+        .notes-list { flex-grow: 1; overflow-y: auto; }
+        .note-item { padding: 12px 15px; border-bottom: 1px solid #eaeaea; cursor: default !important; }
+        .note-item.active { background: #ffdf70; }
+        .note-item-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; color: #222;}
+        .note-item-desc { font-size: 12px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .notes-editor-pane { flex-grow: 1; display: flex; flex-direction: column; }
+        .notes-toolbar { height: 40px; border-bottom: 1px solid #ddd; display: flex; align-items: center; padding: 0 15px; gap: 15px; color: #555; font-size: 18px; }
+        .notes-textarea { flex-grow: 1; border: none; outline: none; padding: 20px; font-size: 16px; font-family: -apple-system; resize: none; color: #222; cursor: text !important;}
+
+        /* Tic Tac Toe */
+        .app-ttt { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; background: #222; color: white;}
+        .ttt-title { font-size: 24px; margin-bottom: 20px; font-weight: bold; }
+        .ttt-board { display: grid; grid-template-columns: repeat(3, 100px); grid-template-rows: repeat(3, 100px); gap: 4px; background: #555; border: 4px solid #555; border-radius: 8px;}
+        .ttt-cell { background: #333; display: flex; align-items: center; justify-content: center; font-size: 64px; font-weight: bold; cursor: pointer !important; transition: background 0.2s;}
+        .ttt-cell:hover { background: #444; }
+        .ttt-cell.x { color: #ff3b30; } .ttt-cell.o { color: #007aff; }
+        .ttt-reset { margin-top: 20px; padding: 8px 20px; border-radius: 16px; background: #007aff; color: white; border: none; font-size: 14px; cursor: pointer !important;}
 
     </style>
 </head>
 <body>
 
-    <div id="desktop-background">
-        <video id="live-wallpaper" autoplay loop muted playsinline>
-            <source src="https://assets.mixkit.co/videos/preview/mixkit-waves-coming-to-the-beach-5016-large.mp4" type="video/mp4">
-        </video>
+    <div id="video-background">
+        <iframe src="https://www.youtube.com/embed/6sY5jQZdzAY?autoplay=1&mute=1&loop=1&playlist=6sY5jQZdzAY&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
         <div id="wallpaper-overlay"></div>
     </div>
-
 
     <div id="menu-bar">
         <div class="menu-group">
             <div class="menu-item apple-logo"></div>
-            <div class="menu-item app-name" id="mb-app-name">Finder</div>
+            <div class="menu-item app-name" id="top-app-name">Finder</div>
             <div class="menu-item">File</div>
             <div class="menu-item">Edit</div>
             <div class="menu-item">View</div>
@@ -246,342 +306,560 @@
             <div class="menu-item">Window</div>
             <div class="menu-item">Help</div>
         </div>
-        <div class="menu-group">
-            <div class="menu-item status-icon">🔋 100%</div>
-            <div class="menu-item status-icon">📶</div>
-            <div class="menu-item control-center-icon">🎛️</div>
-            <div class="menu-item" id="mb-clock">Wed Nov 8 9:41 AM</div>
+        <div class="menu-group status-icons">
+            <div class="menu-item">🔋 100%</div>
+            <div class="menu-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M12 3C7.6 3 3.5 4.6 0.3 7.3l1.4 1.8C4.4 6.8 8 5.4 12 5.4s7.6 1.4 10.3 3.7l1.4-1.8C20.5 4.6 16.4 3 12 3zm0 4.8c-3.1 0-6 1.1-8.3 3l1.4 1.8C6.9 11.2 9.3 10.2 12 10.2s5.1 1 7-2.4l1.4-1.8C18 7.9 15.1 6.8 12 7.8zm0 4.8c-1.8 0-3.4.6-4.7 1.7l1.4 1.8c.9-.8 2.1-1.2 3.3-1.2s2.4.4 3.3 1.2l1.4-1.8C15.4 13.2 13.8 12.6 12 12.6zm0 4.8c-.5 0-1 .2-1.4.5l1.4 1.8 1.4-1.8c-.4-.3-.9-.5-1.4-.5z"/></svg>
+            </div>
+            <div class="menu-item">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M18 15v3H6v-3H4v3c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-3h-2zM7 9l1.4 1.4L11 7.8V16h2V7.8l2.6 2.6L17 9l-5-5-5 5z"/></svg>
+            </div>
+            <div class="menu-item" id="top-clock">Wed Nov 8 9:41 AM</div>
         </div>
     </div>
 
-
     <div id="window-layer"></div>
 
-
-    <div id="dock-container">
-        <div id="dock">
-            </div>
+    <div id="dock-wrapper">
+        <div id="dock"></div>
     </div>
 
 
     <script>
         /**
-         * =========================================
-         * SYSTEM CONFIGURATION & APP REGISTRY
-         * =========================================
-         * Defines all available applications, their icons, types, and content.
-         * Using public domain icons/CDNs where possible for the simulation.
+         * 1. RELIABLE ICON SVG DATA URIS
+         * We encode raw SVG strings to Base64 to guarantee icons always load instantly, 
+         * without relying on external CDNs that break.
          */
-        const ICON_BASE = "https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/";
-        
-        const APP_REGISTRY = [
-            // === Left Side Apps ===
-            { id: 'finder', name: 'Finder', icon: ICON_BASE + 'finder.png', type: 'iframe', url: 'https://en.wikipedia.org/wiki/macOS' },
-            { id: 'launchpad', name: 'Launchpad', icon: ICON_BASE + 'launchpad.png', type: 'static', html: '<div style="display:flex;height:100%;align-items:center;justify-content:center;font-size:30px;color:#888;">Apps Grid Placeholder</div>' },
-            { id: 'safari', name: 'Safari', icon: ICON_BASE + 'safari.png', type: 'iframe', url: 'https://www.wikipedia.org', width: 900, height: 600 },
-            { id: 'messages', name: 'Messages', icon: ICON_BASE + 'messages.png', type: 'static', html: '<div style="padding:20px;"><h3>iMessage</h3><hr><p><b>Craig:</b> The demo looks great!</p></div>' },
-            { id: 'mail', name: 'Mail', icon: ICON_BASE + 'mail.png', type: 'static', html: '<div style="padding:20px;"><h3>Inbox (9,342)</h3><hr><p>Alert: Security threat...</p></div>' },
-            { id: 'maps', name: 'Maps', icon: ICON_BASE + 'maps.png', type: 'iframe', url: 'https://www.openstreetmap.org/export/embed.html?bbox=-120.05%2C38.9%2C-119.9%2C39.1&layer=mapnik', width: 800, height: 600 }, // Tahoe area
-            { id: 'photos', name: 'Photos', icon: ICON_BASE + 'photos.png', type: 'iframe', url: 'https://source.unsplash.com/random/800x600/?nature,water' },
-            { id: 'facetime', name: 'FaceTime', icon: ICON_BASE + 'facetime.png', type: 'static', dark: true, html: '<div style="display:flex;height:100%;align-items:center;justify-content:center;background:#222;color:#555;">No Camera Detected</div>' },
-            { id: 'calendar', name: 'Calendar', icon: ICON_BASE + 'calendar.png', type: 'static', html: '<div style="display:flex;height:100%;align-items:center;justify-content:center;font-size:80px;color:#e74c3c;">WED<br>8</div>' },
-            { id: 'contacts', name: 'Contacts', icon: ICON_BASE + 'contacts.png', type: 'static', html: '<div style="padding:20px;"><b>All Contacts</b><hr>Apple Inc.<br>Doe, John</div>' },
-            { id: 'reminders', name: 'Reminders', icon: ICON_BASE + 'reminders.png', type: 'static', html: '<ul style="padding:30px;line-height:2;"><li>✅ Build massive JS OS</li><li>⬜️ Fix bugs</li></ul>' },
-            { id: 'notes', name: 'Notes', icon: ICON_BASE + 'notes.png', type: 'custom_notes', width: 700, height: 500 },
-            { id: 'tv', name: 'TV', icon: ICON_BASE + 'tv.png', type: 'iframe', url: 'https://www.youtube.com/embed/COKRY_08f2M', dark: true, width: 800, height: 450 },
-            { id: 'music', name: 'Music', icon: ICON_BASE + 'music.png', type: 'iframe', url: 'https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M', dark: true, width: 400, height: 600 },
-            { id: 'news', name: 'News', icon: ICON_BASE + 'news.png', type: 'iframe', url: 'https://www.bbc.com/news' },
-            { id: 'stocks', name: 'Stocks', icon: ICON_BASE + 'stocks.png', type: 'iframe', dark: true, url: 'https://s.tradingview.com/embed-widget/mini-symbol-overview/?symbol=NASDAQ%3AAAPL&colorTheme=dark' },
-            { id: 'calculator', name: 'Calculator', icon: ICON_BASE + 'calculator.png', type: 'custom_calc', dark: true, width: 300, height: 450 },
-            // THE SPECIAL LIQUID CHAT APP
-            { id: 'liquidchat', name: 'Liquid Chat', icon: 'https://cdn-icons-png.flaticon.com/512/733/733585.png', type: 'special_liquid', width: 440, height: 640 },
-            
-            // === Separator defined by null ===
-            null, 
-            
-            // === Right Side Apps/Folders ===
-            { id: 'downloads', name: 'Downloads', icon: 'https://cdn-icons-png.flaticon.com/512/3767/3767084.png', type: 'static', html: 'Folder content...' },
-            { id: 'terminal', name: 'Terminal', icon: ICON_BASE + 'terminal.png', type: 'custom_term', dark: true, width: 600, height: 400 },
-            { id: 'trash', name: 'Trash', icon: ICON_BASE + 'trash.png', type: 'static', html: '<div style="display:flex;height:100%;align-items:center;justify-content:center;color:#888;">Trash is empty</div>' },
-        ];
+        const encodeSVG = (svgString) => `data:image/svg+xml;base64,${btoa(svgString)}`;
 
+        // Ultra-reliable Mac-like SVG definitions
+        const ICONS = {
+            finder: encodeSVG(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#E6F2FF"/><path d="M0 22C0 9.8 9.8 0 22 0h28v100H22C9.8 100 0 90.2 0 78V22z" fill="#007AFF"/><path d="M30 40c0-4.4 3.6-8 8-8s8 3.6 8 8-3.6 8-8 8-8-3.6-8-8zm32 0c0-4.4 3.6-8 8-8s8 3.6 8 8-3.6 8-8 8-8-3.6-8-8zm-16 25c-5 0-15-5-15-5s5 15 15 15 15-15 15-15-10 5-15 5z" fill="#fff"/><path d="M46 0h8v100h-8z" fill="#005ecb"/></svg>`),
+            safari: encodeSVG(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#fff"/><circle cx="50" cy="50" r="40" fill="#007AFF"/><path d="M50 15v8M50 77v8M85 50h-8M23 50h-8M74.7 25.3l-5.7 5.7M31 69l-5.7 5.7M74.7 74.7l-5.7-5.7M31 31l-5.7-5.7" stroke="#fff" stroke-width="3"/><path d="M43 43l-15 30 30-15 15-30-30 15z" fill="#FF3B30"/><path d="M57 57L43 43l-15 30 29-16z" fill="#fff"/></svg>`),
+            messages: encodeSVG(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#34C759"/><path d="M75 50c0 13.8-11.2 25-25 25-4 0-7.8-.9-11.2-2.6L20 78l4.4-16C21.6 58.4 20 54.4 20 50c0-13.8 11.2-25 25-25s25 11.2 25 25z" fill="#fff"/></svg>`),
+            mail: encodeSVG(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#007AFF"/><path d="M15 30l35 25 35-25M15 30v40h70V30" fill="none" stroke="#fff" stroke-width="6" stroke-linejoin="round"/></svg>`),
+            maps: encodeSVG(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#34C759"/><path d="M15 20l23-10 24 10 23-10v70l-23 10-24-10-23 10V20z" fill="#E5E5EA"/><path d="M38 10v70M62 20v70" stroke="#C7C7CC" stroke-width="2"/><path d="M45 40l10 20-5 5-15-15 10-10z" fill="#007AFF"/><circle cx="50" cy="50" r="4" fill="#FF3B30"/></svg>`),
+            photos: encodeSVG(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#fff"/><circle cx="50" cy="30" r="15" fill="#FF3B30" opacity="0.8"/><circle cx="70" cy="50" r="15" fill="#FF9500" opacity="0.8"/><circle cx="50" cy="70" r="15" fill="#34C759" opacity="0.8"/><circle cx="30" cy="50" r="15" fill="#007AFF" opacity="0.8"/></svg>`),
+            calendar: encodeSVG(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#fff"/><rect width="100" height="30" rx="22" fill="#FF3B30"/><path d="M0 30h100v10H0z" fill="#FF3B30"/><text x="50" y="22" font-family="Arial" font-size="16" font-weight="bold" fill="#fff" text-anchor="middle">JUL</text><text x="50" y="75" font-family="Arial" font-size="45" font-weight="bold" fill="#000" text-anchor="middle">17</text></svg>`),
+            notes: encodeSVG(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#FFF200"/><rect width="100" height="25" rx="22" fill="#FFCC00"/><path d="M0 25h100v5H0z" fill="#FFCC00"/><path d="M20 45h60M20 65h60M20 85h40" stroke="#C7C7CC" stroke-width="4" stroke-linecap="round"/></svg>`),
+            music: encodeSVG(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#FF2D55"/><path d="M35 70c0-5.5 4.5-10 10-10h15V30l15-5v35c0-5.5 4.5-10 10-10h15" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round"/><circle cx="45" cy="70" r="10" fill="#fff"/><circle cx="85" cy="60" r="10" fill="#fff"/></svg>`),
+            settings: encodeSVG(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#8E8E93"/><circle cx="50" cy="50" r="30" fill="#D1D1D6"/><circle cx="50" cy="50" r="15" fill="#8E8E93"/><path d="M50 5L55 20h-10zM50 95l5-15h-10zM5 50l15 5v-10zM95 50l-15 5v-10z" fill="#D1D1D6"/></svg>`),
+            terminal: encodeSVG(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#1E1E1E"/><path d="M20 30l15 15-15 15" fill="none" stroke="#34C759" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M45 60h30" stroke="#34C759" stroke-width="6" stroke-linecap="round"/></svg>`),
+            calculator: encodeSVG(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#FF9500"/><rect x="20" y="20" width="60" height="15" rx="5" fill="#fff"/><circle cx="30" cy="55" r="8" fill="#fff"/><circle cx="50" cy="55" r="8" fill="#fff"/><circle cx="70" cy="55" r="8" fill="#fff"/><circle cx="30" cy="80" r="8" fill="#fff"/><circle cx="50" cy="80" r="8" fill="#fff"/><circle cx="70" cy="80" r="8" fill="#fff"/></svg>`),
+            trash: encodeSVG(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#E5E5EA"/><path d="M30 30h40v50H30z" fill="none" stroke="#8E8E93" stroke-width="4"/><path d="M20 30h60M40 30V20h20v10M40 40v30M60 40v30" stroke="#8E8E93" stroke-width="4" stroke-linecap="round"/></svg>`),
+            tictactoe: encodeSVG(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#5856D6"/><path d="M35 20v60M65 20v60M20 35h60M20 65h60" stroke="#fff" stroke-width="4" stroke-linecap="round"/><path d="M25 25l15 15M40 25L25 40" stroke="#FF3B30" stroke-width="4" stroke-linecap="round"/><circle cx="80" cy="80" r="8" fill="none" stroke="#34C759" stroke-width="4"/></svg>`),
+            liquidchat: encodeSVG(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FF2D55"/><stop offset="50%" stop-color="#5856D6"/><stop offset="100%" stop-color="#007AFF"/></linearGradient></defs><rect width="100" height="100" rx="22" fill="url(#g)"/><path d="M25 50c0-13.8 11.2-25 25-25s25 11.2 25 25-11.2 25-25 25c-4 0-7.8-.9-11.2-2.6L20 78l4.4-16C21.6 58.4 20 54.4 20 50z" fill="#fff"/></svg>`)
+        };
 
         /**
-         * =========================================
-         * WINDOW MANAGER SYSTEM (The Core Engine)
-         * =========================================
-         * Handles spawning, closing, dragging, and z-ordering of windows.
+         * 2. APP REGISTRY
+         * Configuration for all OS apps.
          */
-        class WindowManager {
+        const APP_REGISTRY = [
+            { id: 'finder', name: 'Finder', icon: ICONS.finder, type: 'iframe', url: 'https://en.wikipedia.org/wiki/MacOS' },
+            { id: 'safari', name: 'Safari', icon: ICONS.safari, type: 'iframe', url: 'https://en.wikipedia.org/wiki/Main_Page', w: 1000, h: 650 },
+            { id: 'messages', name: 'Messages', icon: ICONS.messages, type: 'static', html: '<div style="padding:20px;"><h3>Messages</h3><p>Welcome to macOS Sonoma simulation.</p></div>' },
+            { id: 'maps', name: 'Maps', icon: ICONS.maps, type: 'iframe', url: 'https://www.openstreetmap.org/export/embed.html?bbox=-120.15%2C38.9%2C-119.95%2C39.1&layer=mapnik', w: 800, h: 550 },
+            { id: 'liquidchat', name: 'Liquid Chat', icon: ICONS.liquidchat, type: 'liquid', w: 440, h: 640 },
+            { id: 'notes', name: 'Notes', icon: ICONS.notes, type: 'app_notes', w: 750, h: 500 },
+            { id: 'music', name: 'Music', icon: ICONS.music, type: 'iframe', dark: true, url: 'https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M', w: 500, h: 600 },
+            { id: 'calculator', name: 'Calculator', icon: ICONS.calculator, type: 'app_calc', dark: true, w: 320, h: 480 },
+            { id: 'tictactoe', name: 'Game', icon: ICONS.tictactoe, type: 'app_ttt', dark: true, w: 400, h: 450 },
+            null, // Separator
+            { id: 'terminal', name: 'Terminal', icon: ICONS.terminal, type: 'app_term', dark: true, w: 600, h: 400 },
+            { id: 'settings', name: 'Settings', icon: ICONS.settings, type: 'static', html: '<div style="padding:40px;text-align:center;"><h2>System Preferences</h2><br>Everything is perfectly configured.</div>' },
+            { id: 'trash', name: 'Trash', icon: ICONS.trash, type: 'static', html: '<div style="padding:40px;text-align:center;color:#888;">Empty</div>' }
+        ];
+
+        /**
+         * 3. CLOCK LOGIC
+         */
+        function updateClock() {
+            const now = new Date();
+            const opts = { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' };
+            document.getElementById('top-clock').innerText = now.toLocaleDateString('en-US', opts).replace(/,/g, '');
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        /**
+         * 4. DOCK MANAGER (Advanced Magnification Math)
+         */
+        class DockManager {
             constructor() {
-                this.layer = document.getElementById('window-layer');
-                this.windows = {}; // Track open window instances
-                this.zIndexBase = 100;
-                this.isDragging = false;
-                this.dragTarget = null;
-                this.dragOffset = { x:0, y:0 };
-
-                // Global Mouse Listeners for Dragging
-                document.addEventListener('mousemove', this.handleDragMove.bind(this));
-                document.addEventListener('mouseup', this.handleDragEnd.bind(this));
-
-                this.renderDock();
-                this.startClock();
+                this.dock = document.getElementById('dock');
+                this.items = [];
+                this.baseSize = 56;
+                this.maxScale = 1.6;
+                this.effectRadius = 250; 
+                this.render();
+                
+                // Attach smooth math-based magnification
+                document.addEventListener('mousemove', (e) => this.handleHover(e));
+                document.addEventListener('mouseleave', () => this.resetScale());
             }
 
-            // --- System Init ---
-            startClock() {
-                const update = () => {
-                    const now = new Date();
-                    // Format: Wed Nov 8 9:41 AM
-                    const options = { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' };
-                    document.getElementById('mb-clock').innerText = now.toLocaleTimeString('en-US', options).replace(/,/g, '');
-                };
-                update();
-                setInterval(update, 1000); // Update every second
-            }
-
-            renderDock() {
-                const dockContainer = document.getElementById('dock');
-                APP_REGISTRY.forEach(appData => {
-                    if (appData === null) {
+            render() {
+                APP_REGISTRY.forEach(app => {
+                    if (!app) {
                         const sep = document.createElement('div');
                         sep.className = 'dock-separator';
-                        dockContainer.appendChild(sep);
+                        this.dock.appendChild(sep);
                     } else {
                         const item = document.createElement('div');
                         item.className = 'dock-item';
-                        item.id = `dock-${appData.id}`;
-                        item.onclick = () => this.openApp(appData.id);
+                        item.id = `dock-${app.id}`;
+                        item.onclick = () => windowManager.openApp(app.id);
+                        
                         item.innerHTML = `
-                            <img class="dock-icon-img" src="${appData.icon}">
-                            <div class="dock-dot" id="dot-${appData.id}"></div>
+                            <div class="dock-label">${app.name}</div>
+                            <div class="dock-icon" style="background-image: url('${app.icon}')"></div>
+                            <div class="dock-dot" id="dot-${app.id}"></div>
                         `;
-                        dockContainer.appendChild(item);
+                        this.dock.appendChild(item);
+                        this.items.push(item);
                     }
                 });
             }
 
-            // --- Window Operations ---
-            openApp(appId) {
-                const appData = APP_REGISTRY.find(a => a && a.id === appId);
-                if (!appData) return;
+            handleHover(e) {
+                const dockRect = this.dock.getBoundingClientRect();
+                // Only magnify if near the dock
+                if (e.clientY < dockRect.top - 50) {
+                    this.resetScale(); return;
+                }
 
-                // If already open, bring to front
+                this.items.forEach(item => {
+                    const rect = item.getBoundingClientRect();
+                    const centerX = rect.left + rect.width / 2;
+                    const distance = Math.abs(e.clientX - centerX);
+                    
+                    let scale = 1;
+                    if (distance < this.effectRadius) {
+                        // Gaussian-like curve for smooth scaling of adjacent icons
+                        const ratio = 1 - (distance / this.effectRadius);
+                        scale = 1 + (this.maxScale - 1) * Math.pow(ratio, 2);
+                    }
+                    
+                    // Apply scale and push up based on scale
+                    const translateY = (1 - scale) * (this.baseSize / 2);
+                    const margin = (scale - 1) * 15;
+                    
+                    item.style.transform = `scale(${scale}) translateY(${translateY}px)`;
+                    item.style.margin = `0 ${margin}px`;
+                    
+                    // Adjust label
+                    const label = item.querySelector('.dock-label');
+                    if(label) label.style.transform = `scale(${1/scale}) translateY(-10px)`;
+                });
+            }
+
+            resetScale() {
+                this.items.forEach(item => {
+                    item.style.transform = `scale(1) translateY(0)`;
+                    item.style.margin = `0`;
+                    const label = item.querySelector('.dock-label');
+                    if(label) label.style.transform = ``;
+                });
+            }
+        }
+
+        /**
+         * 5. WINDOW MANAGER (Genie effect, Resizing, Dragging)
+         */
+        class WindowManager {
+            constructor() {
+                this.layer = document.getElementById('window-layer');
+                this.windows = {};
+                this.zIndexBase = 100;
+                
+                // Drag State
+                this.dragState = { active: false, el: null, x:0, y:0 };
+                this.resizeState = { active: false, el: null, startX:0, startY:0, startW:0, startH:0, dir:'' };
+
+                document.addEventListener('mousemove', (e) => this.handleMove(e));
+                document.addEventListener('mouseup', () => this.handleUp());
+            }
+
+            openApp(appId) {
+                const app = APP_REGISTRY.find(a => a && a.id === appId);
+                if (!app) return;
+
                 if (this.windows[appId]) {
                     this.bringToFront(appId);
                     return;
                 }
 
-                // Mark Dock Dot active
                 document.getElementById(`dot-${appId}`).classList.add('active');
 
-                // Create Window DOM Structure
                 const win = document.createElement('div');
-                win.className = `mac-window ${appData.type === 'special_liquid' ? 'liquid-type' : ''}`;
+                const isDark = app.dark ? 'dark-mode' : '';
+                const isLiquid = app.type === 'liquid' ? 'liquid-app' : '';
+                win.className = `mac-window ${isDark} ${isLiquid}`;
                 win.id = `win-${appId}`;
-                //Random spawn position
-                win.style.left = `${100 + Math.random()*150}px`; 
-                win.style.top = `${80 + Math.random()*100}px`;
-                if(appData.width) win.style.width = `${appData.width}px`;
-                if(appData.height) win.style.height = `${appData.height}px`;
                 
-                const isDark = appData.dark ? 'dark' : '';
+                // Spawn logic
+                const w = app.w || 700; const h = app.h || 500;
+                const left = (window.innerWidth - w) / 2 + (Math.random()*40-20);
+                const top = (window.innerHeight - h) / 2 + (Math.random()*40-20);
                 
-                // Build Content based on type
+                win.style.width = `${w}px`; win.style.height = `${h}px`;
+                win.style.left = `${left}px`; win.style.top = `${top}px`;
+
                 let innerContent = '';
-                if(appData.type === 'special_liquid') {
-                    // Special Structure for Liquid Chat
+                
+                // Title Bar Generation
+                const trafficLights = `
+                    <div class="traffic-lights">
+                        <div class="traffic-btn tb-close" onclick="windowManager.closeApp('${appId}')"><span class="traffic-btn-icon">×</span></div>
+                        <div class="traffic-btn tb-min" onclick="windowManager.minimizeApp('${appId}')"><span class="traffic-btn-icon">–</span></div>
+                        <div class="traffic-btn tb-max" onclick="windowManager.maximizeApp('${appId}')"><span class="traffic-btn-icon">+</span></div>
+                    </div>`;
+
+                if (app.type === 'liquid') {
                     innerContent = `
-                        <div class="liquid-container">
-                            <div id="glcanvas-container"><canvas id="glcanvas"></canvas></div>
-                            <div class="liquid-content-layer">
-                                ${this.getTitleBarHTML(appData, 'dark')}
-                                <div class="window-content dark">
+                        <div class="liquid-wrapper">
+                            <div id="glcanvas-bg"><canvas id="glcanvas"></canvas></div>
+                            <div class="liquid-ui">
+                                <div class="title-bar" onmousedown="windowManager.startDrag(event, '${appId}')">
+                                    ${trafficLights}
+                                    <div class="window-title-text">${app.name}</div>
+                                </div>
+                                <div class="window-content dark-mode">
                                     <div class="iframe-shield"></div>
-                                    <iframe class="app-iframe" src="https://deadsimplechat.com/J4fFLy4Ek"></iframe>
+                                    <iframe class="app-frame" src="${app.url}"></iframe>
                                 </div>
                             </div>
                         </div>`;
                 } else {
-                    // Standard Window Structure
-                    innerContent = this.getTitleBarHTML(appData, isDark);
-                    innerContent += `<div class="window-content ${isDark}">
-                                        <div class="iframe-shield"></div>
-                                        ${this.getAppBodyHTML(appData)}
-                                     </div>`;
+                    innerContent = `
+                        <div class="resizer resizer-r" onmousedown="windowManager.startResize(event, '${appId}', 'r')"></div>
+                        <div class="resizer resizer-b" onmousedown="windowManager.startResize(event, '${appId}', 'b')"></div>
+                        <div class="resizer resizer-br" onmousedown="windowManager.startResize(event, '${appId}', 'br')"></div>
+                        <div class="title-bar" onmousedown="windowManager.startDrag(event, '${appId}')">
+                            ${trafficLights}
+                            <div class="window-title-text">${app.name}</div>
+                        </div>
+                        <div class="window-content">
+                            <div class="iframe-shield"></div>
+                            ${this.generateAppContent(app)}
+                        </div>`;
                 }
 
                 win.innerHTML = innerContent;
+                win.onmousedown = () => this.bringToFront(appId);
                 this.layer.appendChild(win);
                 this.windows[appId] = win;
 
-                // Attach drag listener to title bar
-                const titleBar = win.querySelector('.title-bar');
-                titleBar.onmousedown = (e) => this.handleDragStart(e, win);
-                win.onmousedown = () => this.bringToFront(appId);
-
-                // Initialize special apps/WebGL after insertion
+                // Animate In
                 setTimeout(() => {
                     win.classList.add('active');
                     this.bringToFront(appId);
-                    if(appData.type === 'special_liquid') this.initLiquidShader();
-                    if(appData.type === 'custom_calc') this.initCalculator(win);
-                    if(appData.type === 'custom_term') this.initTerminal(win);
+                    this.initSpecialApps(app, win);
                 }, 10);
             }
 
             closeApp(appId) {
                 const win = this.windows[appId];
-                if(win) {
-                    win.classList.remove('active');
-                    win.classList.add('closing');
-                    document.getElementById(`dot-${appId}`).classList.remove('active');
+                if (!win) return;
+                win.classList.remove('active');
+                document.getElementById(`dot-${appId}`).classList.remove('active');
+                setTimeout(() => {
+                    if(win.parentNode) win.remove();
                     delete this.windows[appId];
-                    setTimeout(() => win.remove(), 300); // Remove after animation
-                    this.updateMenuBar("Finder");
+                    this.updateTopBar('Finder');
+                }, 300);
+            }
+
+            minimizeApp(appId) {
+                const win = this.windows[appId];
+                const dockIcon = document.getElementById(`dock-${appId}`);
+                if(!win || !dockIcon) return;
+                
+                // Calculate dock icon position for Genie effect target
+                const rect = dockIcon.getBoundingClientRect();
+                const targetX = rect.left + rect.width/2 - win.offsetLeft;
+                const targetY = rect.top + rect.height/2 - win.offsetTop;
+                
+                win.style.transformOrigin = `${targetX}px ${targetY}px`;
+                win.classList.remove('active');
+                win.style.transform = `scale(0.05)`;
+                win.style.opacity = `0`;
+                
+                // Clicking dock icon will reopen it (handled in openApp)
+            }
+
+            maximizeApp(appId) {
+                const win = this.windows[appId];
+                if(win.dataset.maximized === 'true') {
+                    win.style.width = win.dataset.oldW; win.style.height = win.dataset.oldH;
+                    win.style.left = win.dataset.oldX; win.style.top = win.dataset.oldY;
+                    win.dataset.maximized = 'false';
+                } else {
+                    win.dataset.oldW = win.style.width; win.dataset.oldH = win.style.height;
+                    win.dataset.oldX = win.style.left; win.dataset.oldY = win.style.top;
+                    win.style.width = '100vw'; win.style.height = `calc(100vh - var(--menu-bar-height) - var(--dock-height))`;
+                    win.style.left = '0px'; win.style.top = '0px';
+                    win.dataset.maximized = 'true';
                 }
             }
 
             bringToFront(appId) {
                 this.zIndexBase++;
-                this.windows[appId].style.zIndex = this.zIndexBase;
-                const appData = APP_REGISTRY.find(a => a && a.id === appId);
-                this.updateMenuBar(appData.name);
-            }
-
-            updateMenuBar(name) {
-                document.getElementById('mb-app-name').innerText = name;
-            }
-
-            // --- HTML Generators ---
-            getTitleBarHTML(appData, darkClass) {
-                return `
-                <div class="title-bar ${darkClass}">
-                    <div class="traffic-lights">
-                        <div class="traffic-btn tb-close" onclick="wm.closeApp('${appData.id}')"><span class="traffic-btn-icon">×</span></div>
-                        <div class="traffic-btn tb-min"><span class="traffic-btn-icon">–</span></div>
-                        <div class="traffic-btn tb-max"><span class="traffic-btn-icon">+</span></div>
-                    </div>
-                    <div class="window-title-text">${appData.name}</div>
-                </div>`;
-            }
-
-            getAppBodyHTML(appData) {
-                switch(appData.type) {
-                    case 'iframe': return `<iframe class="app-iframe" src="${appData.url}"></iframe>`;
-                    case 'static': return appData.html;
-                    case 'custom_calc': return this.getCalculatorHTML();
-                    case 'custom_notes': return `<div class="notes-wrap"><div class="notes-sidebar">Notes</div><textarea class="notes-editor">Meeting Notes:\n- Discuss massive JS project\n- Review Tahoe designs</textarea></div>`;
-                    case 'custom_term': return `<div class="terminal-wrap" id="term-output">Last login: Today on ttys000<br>macbook-pro:~ user$ <span id="term-typed"></span><span class="cursor">_</span></div>`;
-                    default: return 'Error loading content';
+                const win = this.windows[appId];
+                if(win) {
+                    win.style.zIndex = this.zIndexBase;
+                    // Reset Genie effect if it was minimized
+                    if(!win.classList.contains('active')) {
+                        win.style.transformOrigin = `center center`;
+                        win.classList.add('active');
+                        win.style.transform = `scale(1) translateY(0)`;
+                        win.style.opacity = `1`;
+                    }
+                    const app = APP_REGISTRY.find(a => a && a.id === appId);
+                    this.updateTopBar(app.name);
                 }
             }
-            
-            getCalculatorHTML() {
-                return `<div class="calc-grid">
-                        <div class="calc-display" id="calc-disp">0</div>
+
+            updateTopBar(name) {
+                document.getElementById('top-app-name').innerText = name;
+            }
+
+            generateAppContent(app) {
+                if(app.type === 'iframe') return `<iframe class="app-frame" src="${app.url}"></iframe>`;
+                if(app.type === 'static') return app.html;
+                if(app.type === 'app_calc') return `
+                    <div class="app-calc">
+                        <div class="calc-screen" id="calc-${app.id}">0</div>
                         <button class="calc-btn top">AC</button><button class="calc-btn top">+/-</button><button class="calc-btn top">%</button><button class="calc-btn op">÷</button>
                         <button class="calc-btn num">7</button><button class="calc-btn num">8</button><button class="calc-btn num">9</button><button class="calc-btn op">×</button>
                         <button class="calc-btn num">4</button><button class="calc-btn num">5</button><button class="calc-btn num">6</button><button class="calc-btn op">-</button>
                         <button class="calc-btn num">1</button><button class="calc-btn num">2</button><button class="calc-btn num">3</button><button class="calc-btn op">+</button>
                         <button class="calc-btn num zero">0</button><button class="calc-btn num">.</button><button class="calc-btn op">=</button>
-                       </div>`;
+                    </div>`;
+                if(app.type === 'app_notes') return `
+                    <div class="app-notes">
+                        <div class="notes-sidebar">
+                            <div class="notes-header">iCloud</div>
+                            <div class="notes-list">
+                                <div class="note-item active"><div class="note-item-title">System Architecture</div><div class="note-item-desc">Building the massive JS OS...</div></div>
+                                <div class="note-item"><div class="note-item-title">Groceries</div><div class="note-item-desc">Apples, Milk, Bread</div></div>
+                            </div>
+                        </div>
+                        <div class="notes-editor-pane">
+                            <div class="notes-toolbar">Aa  📝  🗑️</div>
+                            <textarea class="notes-textarea">System Architecture\n\nBuilding the massive JS OS requires precision. The liquid glass effect is looking perfect over the Tahoe wallpaper.</textarea>
+                        </div>
+                    </div>`;
+                if(app.type === 'app_term') return `
+                    <div class="app-terminal" id="term-${app.id}" onclick="document.getElementById('ti-${app.id}').focus()">
+                        <div class="term-history" id="th-${app.id}">Last login: Today on console<br>Welcome to macOS Simulation.<br></div>
+                        <div class="term-input-line">
+                            <span class="term-prompt">user@macbook ~ %</span>
+                            <input type="text" class="term-input" id="ti-${app.id}" autocomplete="off" spellcheck="false">
+                        </div>
+                    </div>`;
+                if(app.type === 'app_ttt') return `
+                    <div class="app-ttt">
+                        <div class="ttt-title">Tic-Tac-Toe</div>
+                        <div class="ttt-board" id="ttt-${app.id}">
+                            <div class="ttt-cell"></div><div class="ttt-cell"></div><div class="ttt-cell"></div>
+                            <div class="ttt-cell"></div><div class="ttt-cell"></div><div class="ttt-cell"></div>
+                            <div class="ttt-cell"></div><div class="ttt-cell"></div><div class="ttt-cell"></div>
+                        </div>
+                        <button class="ttt-reset" onclick="windowManager.resetTTT('${app.id}')">Reset Game</button>
+                    </div>`;
+                return '';
             }
 
-            // --- Drag Physics ---
-            handleDragStart(e, winElement) {
-                if(e.target.closest('.traffic-btn')) return; // Don't drag if clicking buttons
-                this.isDragging = true;
-                this.dragTarget = winElement;
-                // Enable iframe shields so mouse doesn't get stuck in them
-                winElement.classList.add('dragging');
+            // Drag Physics
+            startDrag(e, appId) {
+                if(e.target.closest('.traffic-btn')) return;
+                this.bringToFront(appId);
+                const win = this.windows[appId];
+                if(win.dataset.maximized === 'true') return; // Cannot drag maximized
+
+                this.dragState.active = true;
+                this.dragState.el = win;
+                win.classList.add('is-dragging');
+                win.style.transition = 'none';
                 
-                const rect = winElement.getBoundingClientRect();
-                this.dragOffset.x = e.clientX - rect.left;
-                this.dragOffset.y = e.clientY - rect.top;
-                winElement.style.transition = 'none'; // Disable transitions for smooth drag
+                const rect = win.getBoundingClientRect();
+                this.dragState.x = e.clientX - rect.left;
+                this.dragState.y = e.clientY - rect.top;
             }
 
-            handleDragMove(e) {
-                if(!this.isDragging || !this.dragTarget) return;
-                const x = e.clientX - this.dragOffset.x;
-                const y = e.clientY - this.dragOffset.y;
-                // Simple boundary check
-                const maxY = window.innerHeight - 50;
-                this.dragTarget.style.left = `${x}px`;
-                this.dragTarget.style.top = `${Math.min(Math.max(0, y), maxY)}px`;
+            // Resize Physics
+            startResize(e, appId, dir) {
+                e.stopPropagation(); e.preventDefault();
+                this.bringToFront(appId);
+                const win = this.windows[appId];
+                if(win.dataset.maximized === 'true') return;
+
+                this.resizeState.active = true;
+                this.resizeState.el = win;
+                this.resizeState.dir = dir;
+                win.classList.add('is-resizing');
+                win.style.transition = 'none';
+
+                this.resizeState.startX = e.clientX;
+                this.resizeState.startY = e.clientY;
+                const rect = win.getBoundingClientRect();
+                this.resizeState.startW = rect.width;
+                this.resizeState.startH = rect.height;
             }
 
-            handleDragEnd() {
-                if(this.isDragging && this.dragTarget) {
-                     this.dragTarget.classList.remove('dragging');
-                     // Re-enable transitions for open/close animations
-                     this.dragTarget.style.transition = 'opacity 0.2s ease-out, transform 0.2s ease-out';
+            handleMove(e) {
+                if(this.dragState.active && this.dragState.el) {
+                    const x = e.clientX - this.dragState.x;
+                    const y = Math.max(0, e.clientY - this.dragState.y); // Prevent dragging above menu bar
+                    this.dragState.el.style.left = `${x}px`;
+                    this.dragState.el.style.top = `${y}px`;
                 }
-                this.isDragging = false;
-                this.dragTarget = null;
+                
+                if(this.resizeState.active && this.resizeState.el) {
+                    const dx = e.clientX - this.resizeState.startX;
+                    const dy = e.clientY - this.resizeState.startY;
+                    const dir = this.resizeState.dir;
+                    
+                    if(dir.includes('r')) this.resizeState.el.style.width = `${Math.max(300, this.resizeState.startW + dx)}px`;
+                    if(dir.includes('b')) this.resizeState.el.style.height = `${Math.max(200, this.resizeState.startH + dy)}px`;
+                }
             }
 
-            // --- Custom App Initializers ---
-            initCalculator(win) {
-                const display = win.querySelector('#calc-disp');
-                let current = '0';
-                win.querySelectorAll('.calc-btn').forEach(btn => {
-                   btn.onclick = () => {
-                       const val = btn.innerText;
-                       if(val === 'AC') current = '0';
-                       else if(val === '=') try { current = eval(current.replace('×','*').replace('÷','/')).toString(); } catch { current = 'Error'; }
-                       else if(current === '0' && !isNaN(val)) current = val;
-                       else current += val;
-                       display.innerText = current.substring(0, 9);
-                   } 
+            handleUp() {
+                if(this.dragState.active) {
+                    this.dragState.el.classList.remove('is-dragging');
+                    this.dragState.el.style.transition = 'opacity 0.25s, transform 0.25s';
+                    this.dragState.active = false;
+                    this.dragState.el = null;
+                }
+                if(this.resizeState.active) {
+                    this.resizeState.el.classList.remove('is-resizing');
+                    this.resizeState.el.style.transition = 'opacity 0.25s, transform 0.25s';
+                    this.resizeState.active = false;
+                    this.resizeState.el = null;
+                }
+            }
+
+            // App Specific Logic Initialization
+            initSpecialApps(app, win) {
+                if(app.type === 'liquid') this.initLiquidShader();
+                
+                if(app.type === 'app_calc') {
+                    const screen = win.querySelector(`#calc-${app.id}`);
+                    let current = '0';
+                    win.querySelectorAll('.calc-btn').forEach(btn => {
+                        btn.onclick = () => {
+                            const val = btn.innerText;
+                            if(val === 'AC') current = '0';
+                            else if(val === '=') {
+                                try { current = eval(current.replace('×','*').replace('÷','/')).toString(); } 
+                                catch { current = 'Error'; }
+                            }
+                            else if(current === '0' && !isNaN(val)) current = val;
+                            else current += val;
+                            screen.innerText = current.substring(0, 10);
+                        };
+                    });
+                }
+
+                if(app.type === 'app_term') {
+                    const input = win.querySelector(`#ti-${app.id}`);
+                    const history = win.querySelector(`#th-${app.id}`);
+                    input.addEventListener('keydown', (e) => {
+                        if(e.key === 'Enter') {
+                            const cmd = input.value;
+                            history.innerHTML += `user@macbook ~ % ${cmd}<br>`;
+                            if(cmd === 'clear') history.innerHTML = '';
+                            else if(cmd.length > 0) history.innerHTML += `-bash: ${cmd}: command not found<br>`;
+                            input.value = '';
+                            win.querySelector('.app-terminal').scrollTop = 9999;
+                        }
+                    });
+                }
+
+                if(app.type === 'app_ttt') {
+                    this.resetTTT(app.id);
+                }
+            }
+
+            resetTTT(appId) {
+                const win = this.windows[appId];
+                if(!win) return;
+                const cells = win.querySelectorAll('.ttt-cell');
+                let turn = 'X';
+                cells.forEach(c => {
+                    c.innerText = ''; c.className = 'ttt-cell';
+                    c.onclick = () => {
+                        if(c.innerText !== '') return;
+                        c.innerText = turn;
+                        c.classList.add(turn.toLowerCase());
+                        turn = turn === 'X' ? 'O' : 'X';
+                    };
                 });
             }
-            
-            initTerminal(win) {
-                const output = win.querySelector('#term-typed');
-                let txt = "ping google.com...";
-                let i = 0;
-                const type = () => {
-                    if (i < txt.length) { output.innerHTML += txt.charAt(i); i++; setTimeout(type, 100); }
-                    else { setTimeout(() => { output.parentElement.innerHTML += "<br>PING google.com (142.250.190.78): 56 data bytes<br>64 bytes from 142.250.190.78: icmp_seq=0 ttl=116 time=14.2 ms<br>macbook-pro:~ user$ _"; }, 500); }
-                };
-                setTimeout(type, 800);
-            }
 
-
-            // --- WEBGL LIQUID SHADER ENGINE (Ported & Optimized) ---
+            // The specific WebGL Liquid Rainbow Shader requested
             initLiquidShader() {
                 const canvas = document.getElementById('glcanvas');
                 if(!canvas) return;
                 const gl = canvas.getContext('webgl');
-                // Resize canvas to fit container
                 canvas.width = canvas.parentElement.clientWidth;
                 canvas.height = canvas.parentElement.clientHeight;
                 gl.viewport(0, 0, canvas.width, canvas.height);
 
                 const vsSource = `attribute vec2 position;void main(){gl_Position=vec4(position,0.0,1.0);}`;
-                // A slightly brighter, more vibrant shader for the Tahoe vibe
-                const fsSource = `precision highp float;uniform vec2 u_resolution;uniform float u_time;vec2 hash(vec2 p){p=vec2(dot(p,vec2(127.1,311.7)),dot(p,vec2(269.5,183.3)));return -1.0+2.0*fract(sin(p)*43758.5453123);}float noise(in vec2 p){const float K1=0.366025404;const float K2=0.211324865;vec2 i=floor(p+(p.x+p.y)*K1);vec2 a=p-i+(i.x+i.y)*K2;float m=step(a.y,a.x);vec2 o=vec2(m,1.0-m);vec2 b=a-o+K2;vec2 c=a-1.0+2.0*K2;vec3 h=max(0.5-vec3(dot(a,a),dot(b,b),dot(c,c)),0.0);vec3 n=h*h*h*h*vec3(dot(a,hash(i+0.0)),dot(b,hash(i+o)),dot(c,hash(i+1.0)));return dot(n,vec3(70.0));}float fbm(vec2 uv){float f=0.0;uv*=2.0;f+=0.5000*noise(uv);uv=2.0*uv;f+=0.2500*noise(uv);uv=2.0*uv;f+=0.1250*noise(uv);return f;}void main(){vec2 uv=gl_FragCoord.xy/u_resolution.xy;uv.x*=u_resolution.x/u_resolution.y;vec2 p=uv*2.0;float t=u_time*0.25;float q=fbm(p-t);vec2 r=vec2(fbm(p+q+t*0.5),fbm(p-q-t*0.3));float d=fbm(p+r);float dx=fbm(p+r+vec2(0.02,0.0))-d;float dy=fbm(p+r+vec2(0.0,0.02))-d;vec3 normal=normalize(vec3(dx*8.0,dy*8.0,1.0));vec3 rainbow=0.5+0.5*cos(u_time*0.5+normal.xyx*6.0+vec3(0.0,2.0,4.0));vec3 lightDir=normalize(vec3(1.0,1.0,1.0));float specular=pow(max(dot(normal,lightDir),0.0),30.0)*1.8;gl_FragColor=vec4(rainbow*0.9+vec3(specular),1.0);}`;
+                const fsSource = `
+                    precision highp float;uniform vec2 u_resolution;uniform float u_time;
+                    vec2 hash(vec2 p){p=vec2(dot(p,vec2(127.1,311.7)),dot(p,vec2(269.5,183.3)));return -1.0+2.0*fract(sin(p)*43758.5453123);}
+                    float noise(in vec2 p){
+                        const float K1=0.366025404;const float K2=0.211324865;
+                        vec2 i=floor(p+(p.x+p.y)*K1);vec2 a=p-i+(i.x+i.y)*K2;float m=step(a.y,a.x);
+                        vec2 o=vec2(m,1.0-m);vec2 b=a-o+K2;vec2 c=a-1.0+2.0*K2;
+                        vec3 h=max(0.5-vec3(dot(a,a),dot(b,b),dot(c,c)),0.0);
+                        vec3 n=h*h*h*h*vec3(dot(a,hash(i+0.0)),dot(b,hash(i+o)),dot(c,hash(i+1.0)));
+                        return dot(n,vec3(70.0));
+                    }
+                    float fbm(vec2 uv){float f=0.0;uv*=2.0;f+=0.5*noise(uv);uv=2.0*uv;f+=0.25*noise(uv);uv=2.0*uv;f+=0.125*noise(uv);return f;}
+                    void main(){
+                        vec2 uv=gl_FragCoord.xy/u_resolution.xy;uv.x*=u_resolution.x/u_resolution.y;
+                        vec2 p=uv*2.0;float t=u_time*0.25;
+                        float q=fbm(p-t);vec2 r=vec2(fbm(p+q+t*0.5),fbm(p-q-t*0.3));
+                        float d=fbm(p+r);float dx=fbm(p+r+vec2(0.02,0.0))-d;float dy=fbm(p+r+vec2(0.0,0.02))-d;
+                        vec3 normal=normalize(vec3(dx*8.0,dy*8.0,1.0));
+                        vec3 rainbow=0.5+0.5*cos(u_time*0.5+normal.xyx*6.0+vec3(0.0,2.0,4.0));
+                        vec3 lightDir=normalize(vec3(1.0,1.0,1.0));float specular=pow(max(dot(normal,lightDir),0.0),30.0)*1.8;
+                        gl_FragColor=vec4(rainbow*0.9+vec3(specular),1.0);
+                    }`;
 
-                const compileShader = (type, source) => { const s = gl.createShader(type); gl.shaderSource(s, source); gl.compileShader(s); return s; };
-                const program = gl.createProgram();
-                gl.attachShader(program, compileShader(gl.VERTEX_SHADER, vsSource));
-                gl.attachShader(program, compileShader(gl.FRAGMENT_SHADER, fsSource));
-                gl.linkProgram(program); gl.useProgram(program);
-                const vertices = new Float32Array([-1,-1,1,-1,-1,1,1,1]);
-                gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
-                const position = gl.getAttribLocation(program, "position"); gl.enableVertexAttribArray(position); gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
-                const timeLoc = gl.getUniformLocation(program, "u_time"); const resLoc = gl.getUniformLocation(program, "u_resolution");
-                let startTime = Date.now();
-                const render = () => { gl.uniform2f(resLoc, canvas.width, canvas.height); gl.uniform1f(timeLoc, (Date.now()-startTime)/1000.0); gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); requestAnimationFrame(render); };
+                const s = gl.createShader(gl.VERTEX_SHADER); gl.shaderSource(s, vsSource); gl.compileShader(s);
+                const fs = gl.createShader(gl.FRAGMENT_SHADER); gl.shaderSource(fs, fsSource); gl.compileShader(fs);
+                const prog = gl.createProgram(); gl.attachShader(prog, s); gl.attachShader(prog, fs);
+                gl.linkProgram(prog); gl.useProgram(prog);
+
+                const vert = new Float32Array([-1,-1,1,-1,-1,1,1,1]);
+                gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer()); gl.bufferData(gl.ARRAY_BUFFER, vert, gl.STATIC_DRAW);
+                const pos = gl.getAttribLocation(prog, "position"); gl.enableVertexAttribArray(pos); gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+                
+                const timeLoc = gl.getUniformLocation(prog, "u_time"); 
+                const resLoc = gl.getUniformLocation(prog, "u_resolution");
+                const startTime = Date.now();
+                
+                const render = () => {
+                    gl.uniform2f(resLoc, canvas.width, canvas.height); 
+                    gl.uniform1f(timeLoc, (Date.now()-startTime)/1000.0); 
+                    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4); 
+                    requestAnimationFrame(render); 
+                };
                 render();
             }
         }
 
-        // Initialize the Operating System
-        const wm = new WindowManager();
+        // Initialize OS
+        const dockManager = new DockManager();
+        const windowManager = new WindowManager();
 
     </script>
 </body>
