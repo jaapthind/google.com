@@ -6,7 +6,7 @@
     <title>Ice Age Board Game - Ultimate Public Edition</title>
     <style>
         /* ==========================================================================
-           1. STRICT IFRAME/GITHUB PAGES LAYOUT ENGINE (Zero Scroll)
+           1. STRICT IFRAME LAYOUT ENGINE (Zero Scroll)
            ========================================================================== */
         html, body {
             width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden;
@@ -17,11 +17,10 @@
 
         * { box-sizing: inherit; }
 
-        /* SUDDEN DEATH RED GLOW */
         body.sudden-death { background: #3a0000; }
 
         /* ==========================================================================
-           2. SETUP SCREEN (Restored & Upgraded)
+           2. SETUP SCREEN & STRICT PROFANITY FILTER
            ========================================================================== */
         #setup-screen {
             position: absolute; inset: 0; background: rgba(13, 19, 33, 0.98); 
@@ -32,7 +31,7 @@
             background: #111; border: 3px solid #00E5FF; padding: 4vmin; text-align: center; 
             border-radius: 10px; max-width: 600px; width: 100%; box-shadow: 0 0 30px rgba(0, 229, 255, 0.2);
         }
-        .setup-box h1 { color: #FFC107; font-size: clamp(2rem, 6vmin, 4rem); margin: 0 0 1vmin 0; font-weight: 900; text-transform: uppercase;}
+        .setup-box h1 { color: #FFC107; font-size: clamp(2rem, 6vmin, 4rem); margin: 0 0 1vmin 0; font-weight: 900;}
         .setup-box h3 { color: #00E5FF; margin: 0 0 3vmin 0; }
         
         .setup-row {
@@ -45,7 +44,7 @@
         }
         .setup-row input:focus { border-color: #FFC107; }
         .color-dot { width: 4vmin; height: 4vmin; border-radius: 50%; border: 2px solid #FFF; }
-        #setup-error { color: #FF1744; font-weight: bold; margin-bottom: 15px; display: none; }
+        #setup-error { color: #FF1744; font-weight: bold; margin-bottom: 15px; display: none; background: rgba(255,0,0,0.2); padding: 10px; border-radius: 5px; border: 1px solid #FF1744;}
 
         /* ==========================================================================
            3. MASTER GAME LAYOUT
@@ -84,6 +83,7 @@
         .s-event { color: #FF1744; font-size: clamp(1rem, 3vmin, 1.5rem); }
         .s-market { background: #D500F9; color: #FFF; }
         .s-cave { background: #00E5FF; color: #000; }
+        .s-jackpot { background: #00E676; color: #000; }
 
         .token-container { position: absolute; bottom: 2px; display: flex; flex-wrap: wrap; justify-content: center; width: 100%; gap: 1px; z-index: 20;}
         
@@ -91,7 +91,7 @@
             width: clamp(15px, 3.5vmin, 28px); height: clamp(15px, 3.5vmin, 28px); border-radius: 50%;
             border: 2px solid #FFF; color: #FFF; font-weight: bold; display: flex; align-items: center; justify-content: center;
             font-size: clamp(0.7rem, 2vmin, 1.2rem); box-shadow: 0 2px 5px rgba(0,0,0,0.8);
-            transition: transform 0.3s ease;
+            transition: transform 0.15s linear;
         }
 
         /* ==========================================================================
@@ -127,8 +127,12 @@
         .btn-cyan { background: #00E5FF; color: #000; }
 
         /* ==========================================================================
-           6. BULLETPROOF SYNCHRONOUS MODAL
+           6. DICE ANIMATION & MODALS
            ========================================================================== */
+        #dice-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 90000; }
+        .dice-box { width: 100px; height: 100px; background: #FFF; border: 5px solid #000; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 60px; font-weight: bold; color: #000; animation: shake 0.5s infinite; }
+        @keyframes shake { 0% { transform: rotate(0deg) scale(1); } 25% { transform: rotate(15deg) scale(1.1); } 50% { transform: rotate(0deg) scale(1); } 75% { transform: rotate(-15deg) scale(1.1); } 100% { transform: rotate(0deg) scale(1); } }
+
         #simple-modal {
             position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: none; align-items: center; justify-content: center; z-index: 99999; padding: 2vmin;
         }
@@ -139,7 +143,6 @@
         .modal-content p { font-size: clamp(1.1rem, 3vmin, 1.5rem); margin-bottom: 3vmin; line-height: 1.4; }
         #modal-btn-container { display: flex; gap: 1vmin; justify-content: center; flex-wrap: wrap; }
 
-        /* FLOATING TEXT FX */
         .float-text {
             position: absolute; font-size: 24px; font-weight: bold; pointer-events: none;
             animation: floatUp 1s ease-out forwards; z-index: 100; text-shadow: 2px 2px 0 #000;
@@ -148,6 +151,10 @@
     </style>
 </head>
 <body>
+
+    <div id="dice-overlay">
+        <div class="dice-box" id="dice-face">🎲</div>
+    </div>
 
     <div id="setup-screen">
         <div class="setup-box">
@@ -164,9 +171,7 @@
                 </select>
             </div>
             
-            <div id="player-inputs">
-                </div>
-            
+            <div id="player-inputs"></div>
             <button id="btn-start" class="btn btn-cyan" style="margin-top: 20px;">Deploy Explorers</button>
         </div>
     </div>
@@ -174,8 +179,7 @@
     <div id="game-container">
         <div id="left-col">
             <div id="board-wrapper">
-                <div id="board">
-                    </div>
+                <div id="board"></div>
             </div>
         </div>
 
@@ -184,7 +188,9 @@
             
             <div id="controls" class="panel">
                 <div id="turn-indicator">Game Start</div>
-                <div style="font-size: clamp(0.9rem, 2vmin, 1.2rem); margin-bottom: 1vmin; color: #888;">Turn <span id="turn-counter">1</span>/40</div>
+                <div style="font-size: clamp(0.9rem, 2vmin, 1.2rem); margin-bottom: 1vmin; color: #888;">
+                    Turn <span id="turn-counter">1</span>/40 | Jackpot: <span id="jackpot-counter" style="color:#00E676; font-weight:bold;">0 🌰</span>
+                </div>
                 <button id="btn-roll" class="btn">ROLL 🎲</button>
                 <div id="log"></div>
             </div>
@@ -201,27 +207,38 @@
 
 <script>
     /* =========================================================================
-       1. PROFANITY FILTER & SETUP LOGIC
+       1. MILITARY-GRADE PROFANITY FILTER & SETUP LOGIC
        ========================================================================= */
     const colors = ['#F44336', '#4CAF50', '#2196F3', '#FFEB3B'];
     
-    // Comprehensive bad word roots (catches sexual terms, slurs, standard cursing)
-    const badWords = ['fuck', 'shit', 'bitch', 'asshole', 'dick', 'pussy', 'cock', 'cunt', 'whore', 'slut', 'fag', 'nigg', 'sex', 'porn', 'cum', 'tits', 'boob', 'penis', 'vagina', 'xxx', 'rape', 'incest', 'masturbat'];
+    const rawBadWords = [
+        'anal','anus','arse','ass','ballsack','balls','bastard','bitch','biatch','bloody','blowjob','bollock','bollok',
+        'boner','boob','bugger','bum','butt','buttplug','clitoris','cock','coon','crap','cunt','damn','dick','dildo',
+        'dyke','fag','feck','fellate','fellatio','felching','fuck','fudgepacker','flange','goddamn','hell','homo',
+        'jerk','jizz','knob','labia','lmao','lmfao','muff','nigg','omg','penis','piss','poop','prick','pube','pussy',
+        'queer','scrotum','sex','shit','slut','smegma','spunk','tit','tosser','turd','twat','vagina','wank','whore','wtf'
+    ];
 
     function isNameClean(name) {
-        // Strip symbols and spaces to catch people bypassing the filter (e.g. "s.e.x" or "f_u_c_k")
-        let stripped = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+        // Strip out all non-alphanumeric characters (removes spaces, periods, symbols)
+        let stripped = name.toLowerCase().replace(/[^a-z0-9]/gi, '');
+        
+        // Translate L33t Speak back to letters
+        stripped = stripped.replace(/1/g, 'i').replace(/0/g, 'o').replace(/@/g, 'a')
+                           .replace(/\$/g, 's').replace(/5/g, 's').replace(/3/g, 'e')
+                           .replace(/4/g, 'a').replace(/7/g, 't');
+        
+        // Check normal string and the aggressively stripped string
         let normal = name.toLowerCase();
         
-        for (let i = 0; i < badWords.length; i++) {
-            if (stripped.includes(badWords[i]) || normal.includes(badWords[i])) {
+        for (let i = 0; i < rawBadWords.length; i++) {
+            if (stripped.includes(rawBadWords[i]) || normal.includes(rawBadWords[i])) {
                 return false;
             }
         }
         return true;
     }
 
-    // Generate Inputs dynamically based on dropdown
     const countSelect = document.getElementById('player-count');
     const inputsContainer = document.getElementById('player-inputs');
 
@@ -238,35 +255,29 @@
         }
     }
     countSelect.addEventListener('change', renderInputs);
-    renderInputs(); // Initial render
+    renderInputs();
 
     document.getElementById('btn-start').addEventListener('click', () => {
         let count = parseInt(countSelect.value);
         let errorDiv = document.getElementById('setup-error');
         errorDiv.style.display = 'none';
 
-        // Validation & Filter Check
         for (let i = 0; i < count; i++) {
             let nameVal = document.getElementById(`p${i}-name`).value.trim();
             if (nameVal === "") {
                 errorDiv.innerText = "Error: Names cannot be blank.";
-                errorDiv.style.display = 'block';
-                return;
+                errorDiv.style.display = 'block'; return;
             }
             if (!isNameClean(nameVal)) {
-                errorDiv.innerText = `Error: The name "${nameVal}" contains prohibited language. Please change it.`;
-                errorDiv.style.display = 'block';
-                return;
+                errorDiv.innerText = `Error: The name "${nameVal}" contains prohibited language. Please use a clean name.`;
+                errorDiv.style.display = 'block'; return;
             }
-            
-            // Push valid player to state
             state.players.push({
                 id: i, name: nameVal, color: colors[i], 
                 pos: 0, acorns: 4, laps: 0, skip: false, ally: null
             });
         }
 
-        // Start Game Animation
         document.getElementById('setup-screen').style.opacity = '0';
         setTimeout(() => {
             document.getElementById('setup-screen').style.display = 'none';
@@ -285,11 +296,10 @@
         {c:1, r:9}, {c:1, r:8}, {c:1, r:7}, {c:1, r:6}, {c:1, r:5}, {c:1, r:4}, {c:1, r:3}, {c:1, r:2} 
     ];
 
-    // Advanced Event Deck
     const Events = [
-        { desc: "Glacier Collapse! Everyone loses 1 🌰.", f: (p) => { state.players.forEach(pl => loseAcorns(pl, 1)); } },
+        { desc: "Glacier Collapse! Everyone loses 1 🌰 to the Jackpot.", f: (p) => { state.players.forEach(pl => loseAcorns(pl, 1, true)); } },
         { desc: "Golden Find! Collect 2 🌰.", f: (p) => gainAcorns(p, 2) },
-        { desc: "Avalanche! Move back 3 spaces.", f: (p) => moveToken(p, -3, false) }, 
+        { desc: "Avalanche! Move back 3 spaces.", f: (p) => moveTokenStepByStep(p, -3, false) }, 
         { desc: "Ice Slide! Move straight to the next Free Space.", f: (p) => jumpTo(p, "Free space") },
         { desc: "Lost in the Tundra. Go back to Start.", f: (p) => teleport(p, 0) },
         { desc: "Ancient Tree! Collect 4 🌰.", f: (p) => gainAcorns(p, 4) },
@@ -302,7 +312,6 @@
         { name: "Squirrel", effect: "Gains +1 🌰 on Free Spaces" }
     ];
 
-    // Board Configuration
     const SpaceData = [
         { t: "START", class: "s-start" }, 
         { t: "+1 🌰", action: (p) => gainAcorns(p, 1) }, 
@@ -311,12 +320,12 @@
         { t: "Go Start", action: (p) => teleport(p, 0) }, 
         { t: "Ice Cave", class: "s-cave", action: (p) => triggerIceCave(p) }, 
         { t: "EVENT", class: "s-event", action: (p) => triggerEvent(p) }, 
-        { t: "+3 Spaces", action: (p) => moveToken(p, 3, true) }, 
+        { t: "+3 Spaces", action: (p) => moveTokenStepByStep(p, 3, true) }, 
         { t: "Jaap STOP", class: "s-jaap", action: (p) => triggerJaap(p) }, 
         { t: "Free space" }, 
         { t: "EVENT", class: "s-event", action: (p) => triggerEvent(p) }, 
         { t: "Jaap (+2🌰)", action: (p) => { gainAcorns(p, 2); jumpTo(p, "Jaap STOP"); return true; } }, 
-        { t: "Market", class: "s-market", action: (p) => showMarket(p) }, 
+        { t: "JACKPOT", class: "s-jackpot", action: (p) => claimJackpot(p) }, 
         { t: "EVENT", class: "s-event", action: (p) => triggerEvent(p) }, 
         { t: "+1 🌰", action: (p) => gainAcorns(p, 1) }, 
         { t: "EVENT", class: "s-event", action: (p) => triggerEvent(p) }, 
@@ -325,10 +334,10 @@
         { t: "Free space" }, 
         { t: "Bridge" }, 
         { t: "Free space" },
-        { t: "-4 Spaces", action: (p) => moveToken(p, -4, true) }, 
-        { t: "-2 🌰", action: (p) => loseAcorns(p, 2) }, 
+        { t: "-4 Spaces", action: (p) => moveTokenStepByStep(p, -4, true) }, 
+        { t: "-2 🌰", action: (p) => loseAcorns(p, 2, true) }, 
         { t: "Jaap STOP", class: "s-jaap", action: (p) => triggerJaap(p) }, 
-        { t: "-8 Spaces", action: (p) => moveToken(p, -8, true) }, 
+        { t: "-8 Spaces", action: (p) => moveTokenStepByStep(p, -8, true) }, 
         { t: "EVENT", class: "s-event", action: (p) => triggerEvent(p) },
         { t: "+1 🌰", action: (p) => gainAcorns(p, 1) }, 
         { t: "End", class: "s-jaap" },
@@ -342,10 +351,11 @@
        3. GAME STATE
        ========================================================================= */
     let state = {
-        players: [], // Populated by setup
+        players: [],
         turn: 0,
         totalTurns: 1,
-        suddenDeath: false
+        suddenDeath: false,
+        jackpot: 0
     };
 
     function initGame() {
@@ -359,7 +369,6 @@
             div.innerHTML = `<span>${sp.t}</span><div id="tc-${i}" class="token-container"></div>`;
             board.appendChild(div);
         }
-        
         state.players.forEach(p => drawToken(p));
         updateHUD(); startTurn();
     }
@@ -377,15 +386,11 @@
 
     function updateHUD() {
         const hud = document.getElementById('hud'); hud.innerHTML = '';
-        
-        // CROWN SYSTEM MATH: Find the max acorns
         let maxAcorns = Math.max(...state.players.map(p => p.acorns));
 
         state.players.forEach((p, i) => {
-            // Apply Crown if they are tied for 1st, but only if they have more than 0 acorns
             let isLeader = p.acorns === maxAcorns && p.acorns > 0;
             let crownIcon = isLeader ? '👑 ' : '';
-
             hud.innerHTML += `
                 <div class="player-card ${i === state.turn ? 'active' : ''}" style="border-top-color:${p.color};">
                     <div style="color:${p.color}; font-weight:900; font-size: 1.1rem;">${crownIcon}${p.name}</div>
@@ -395,6 +400,7 @@
                 </div>`;
         });
         document.getElementById('turn-counter').innerText = state.totalTurns;
+        document.getElementById('jackpot-counter').innerText = `${state.jackpot} 🌰`;
     }
 
     function log(msg) {
@@ -414,27 +420,22 @@
         setTimeout(() => f.remove(), 1000);
     }
 
-    // BULLETPROOF MODAL ENGINE
     function showMsg(title, text, callback) {
         document.getElementById('simple-modal').style.display = 'flex';
         document.getElementById('sm-title').innerText = title;
         document.getElementById('sm-text').innerHTML = text;
-        
         let btnContainer = document.getElementById('modal-btn-container');
         btnContainer.innerHTML = `<button class="btn btn-cyan" id="modal-ok-btn" style="width: auto; padding: 1.5vmin 4vmin;">CONTINUE</button>`;
-        
         document.getElementById('modal-ok-btn').onclick = () => {
             document.getElementById('simple-modal').style.display = 'none';
             if (callback) callback();
         };
     }
 
-    // MULTI-BUTTON MODAL
     function showChoice(title, text, buttons) {
         document.getElementById('simple-modal').style.display = 'flex';
         document.getElementById('sm-title').innerText = title;
         document.getElementById('sm-text').innerHTML = text;
-        
         let btnContainer = document.getElementById('modal-btn-container');
         btnContainer.innerHTML = '';
         buttons.forEach(b => {
@@ -450,35 +451,29 @@
     }
 
     /* =========================================================================
-       5. TURN ENGINE & MOVEMENT
+       5. TURN ENGINE, ANIMATED DICE & STEP-BY-STEP MOVEMENT
        ========================================================================= */
     function startTurn() {
         let p = state.players[state.turn];
         document.getElementById('turn-indicator').innerText = `${p.name}'s Turn`;
         document.getElementById('turn-indicator').style.color = p.color;
         
-        // 40-TURN SUDDEN DEATH TRIGGER
         if (state.totalTurns > 40 && !state.suddenDeath) {
-            state.suddenDeath = true;
-            document.body.classList.add('sudden-death');
+            state.suddenDeath = true; document.body.classList.add('sudden-death');
             showMsg("💥 METEOR SHOWER 💥", "40 Turns reached! Sudden Death activated. Everyone loses 1 🌰 at the start of their turn!", () => processTurnStart(p));
             return;
         }
-
         processTurnStart(p);
     }
 
     function processTurnStart(p) {
-        if (state.suddenDeath) { loseAcorns(p, 1); }
-
+        if (state.suddenDeath) { loseAcorns(p, 1, false); }
         if (p.skip) {
-            p.skip = false;
-            document.getElementById('btn-roll').disabled = true;
-            log(`🛑 ${p.name} loses their turn (Vehicle Broken).`);
+            p.skip = false; document.getElementById('btn-roll').disabled = true;
+            log(`🛑 ${p.name} loses their turn.`);
             showMsg("Turn Skipped", `${p.name}, your vehicle is broken. You lose this turn.`, passTurn);
             return;
         }
-        
         document.getElementById('btn-roll').disabled = false;
     }
 
@@ -486,47 +481,66 @@
         let p = state.players[state.turn];
         document.getElementById('btn-roll').disabled = true; 
         
-        let roll = Math.floor(Math.random() * 6) + 1;
-        if (p.ally && p.ally.name === "Caveman") {
-            roll += 1;
-            log(`🦴 Caveman ally adds +1 to the roll!`);
-        }
+        let baseRoll = Math.floor(Math.random() * 6) + 1;
+        let finalRoll = baseRoll;
+        if (p.ally && p.ally.name === "Caveman") { finalRoll += 1; log(`🦴 Caveman ally adds +1 to the roll!`); }
 
-        log(`🎲 ${p.name} moves ${roll} spaces.`);
-        moveToken(p, roll, true);
+        // 3D Animated Dice
+        let overlay = document.getElementById('dice-overlay');
+        let diceFace = document.getElementById('dice-face');
+        overlay.style.display = 'flex';
+        
+        let shuffle = setInterval(() => { diceFace.innerText = Math.floor(Math.random() * 6) + 1; }, 50);
+        
+        setTimeout(() => {
+            clearInterval(shuffle);
+            diceFace.innerText = finalRoll;
+            diceFace.style.color = '#FF1744';
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                diceFace.style.color = '#000';
+                log(`🎲 ${p.name} moves ${finalRoll} spaces.`);
+                moveTokenStepByStep(p, finalRoll, true);
+            }, 800);
+        }, 1000);
     });
 
-    function moveToken(p, spaces, evaluateAfter = true) {
-        p.pos += spaces;
+    // Step-by-Step Movement (Fixes the teleporting issue safely)
+    function moveTokenStepByStep(p, spacesLeft, evaluateAfter = true) {
+        if (spacesLeft === 0) {
+            // Reached destination, now evaluate rules
+            let enemy = state.players.find(o => o.id !== p.id && o.pos === p.pos);
+            if (enemy && evaluateAfter) {
+                log(`⚔️ ${p.name} landed on ${enemy.name}! DUEL INITIATED!`);
+                handleDuel(p, enemy, () => evaluateSpace(p));
+            } else if (evaluateAfter) {
+                evaluateSpace(p);
+            } else {
+                passTurn();
+            }
+            return;
+        }
 
-        // Lap logic
+        let direction = spacesLeft > 0 ? 1 : -1;
+        p.pos += direction;
+
+        // Wrap around logic
         if (p.pos >= 36) {
-            p.pos = p.pos - 36;
-            p.laps++;
-            gainAcorns(p, 2);
-            log(`🏁 ${p.name} completed a lap! (+2 🌰)`);
+            p.pos = 0; p.laps++; gainAcorns(p, 2); log(`🏁 ${p.name} completed a lap! (+2 🌰)`);
             if(p.laps >= 3) {
-                showMsg("🏆 WINNER!", `<span style="color:${p.color}; font-weight:bold;">${p.name}</span> finished 3 laps and wins the game with ${p.acorns} 🌰!`, () => location.reload());
+                showMsg("🏆 WINNER!", `<span style="color:${p.color}; font-weight:bold;">${p.name}</span> finished 3 laps and wins the game!`, () => location.reload());
                 return;
             }
         } else if (p.pos < 0) {
-            p.pos = 36 + p.pos; 
+            p.pos = 35; 
         }
 
         drawToken(p);
-
-        // Duel Logic: Are they landing on someone?
-        let enemy = state.players.find(o => o.id !== p.id && o.pos === p.pos);
-        if (enemy && evaluateAfter) {
-            log(`⚔️ ${p.name} landed on ${enemy.name}! DUEL INITIATED!`);
-            handleDuel(p, enemy, () => {
-                evaluateSpace(p); // Evaluate the space AFTER the duel
-            });
-        } else if (evaluateAfter) {
-            evaluateSpace(p);
-        } else {
-            passTurn();
-        }
+        
+        // Loop using setTimeout to create animation
+        setTimeout(() => {
+            moveTokenStepByStep(p, spacesLeft > 0 ? spacesLeft - 1 : spacesLeft + 1, evaluateAfter);
+        }, 200); // Speed of hopping
     }
 
     function handleDuel(attacker, defender, callback) {
@@ -541,7 +555,7 @@
             `${attacker.name} rolled a <b>${r1}</b>.<br>${defender.name} rolled a <b>${r2}</b>.<br><br>
             <span style="color:${winner.color}; font-weight:bold; font-size:1.5em;">${winner.name} Wins!</span><br>Steals 1 🌰.`, 
         () => {
-            loseAcorns(loser, 1);
+            loseAcorns(loser, 1, false);
             gainAcorns(winner, 1);
             callback();
         });
@@ -568,19 +582,14 @@
         let sp = SpaceData[p.pos] || { t: "Free space" };
         log(`📍 ${p.name} landed on: ${sp.t}`);
         
-        // Ally Buff: Squirrel
         if (sp.t.includes("Free space") && p.ally && p.ally.name === "Squirrel") {
-            log(`🐿️ Squirrel found a nut on a free space!`);
-            gainAcorns(p, 1);
+            log(`🐿️ Squirrel found a nut on a free space!`); gainAcorns(p, 1);
         }
-
         updateHUD();
 
         if (sp.action) {
             let requiresClickToPass = sp.action(p); 
-            if (!requiresClickToPass) {
-                passTurn();
-            }
+            if (!requiresClickToPass) passTurn();
         } else {
             passTurn();
         }
@@ -596,12 +605,31 @@
         updateHUD();
     }
 
-    function loseAcorns(p, amt) {
+    function loseAcorns(p, amt, toJackpot = false) {
         let loss = Math.min(p.acorns, amt);
         p.acorns -= loss;
-        if(loss > 0) showFloatText(p, `-${loss}`, '#FF1744');
-        log(`🔻 ${p.name} lost ${loss} 🌰.`);
+        if(loss > 0) {
+            showFloatText(p, `-${loss}`, '#FF1744');
+            if(toJackpot) {
+                state.jackpot += loss;
+                log(`🔻 ${p.name} lost ${loss} 🌰 to the Jackpot.`);
+            } else {
+                log(`🔻 ${p.name} lost ${loss} 🌰.`);
+            }
+        }
         updateHUD();
+    }
+
+    function claimJackpot(p) {
+        if (state.jackpot > 0) {
+            let pot = state.jackpot;
+            state.jackpot = 0;
+            gainAcorns(p, pot);
+            showMsg("💰 JACKPOT! 💰", `You found the hidden Tundra stash! You collect ${pot} 🌰!`, passTurn);
+        } else {
+            showMsg("JACKPOT", "The Jackpot is empty right now.", passTurn);
+        }
+        return true;
     }
 
     function triggerJaap(p) {
@@ -625,10 +653,8 @@
     }
 
     function triggerIceCave(p) {
-        // Find all "Free space" indexes
         let freeSpaces = [];
         SpaceData.forEach((s, i) => { if (s.t === "Free space") freeSpaces.push(i); });
-        
         let target = freeSpaces[Math.floor(Math.random() * freeSpaces.length)];
         showMsg("ICE CAVE", "You fell into an Ice Cave and are warping across the board to a random Free Space!", () => teleport(p, target));
         return true;
@@ -651,11 +677,10 @@
             text: `Hire ${c.name} (3🌰)\n${c.effect}`,
             class: "btn-cyan",
             action: () => {
-                loseAcorns(p, 3);
+                loseAcorns(p, 3, false);
                 p.ally = c;
                 log(`🤝 ${p.name} hired the ${c.name}!`);
-                updateHUD();
-                passTurn();
+                updateHUD(); passTurn();
             }
         }));
         buttons.push({ text: "Leave Market", action: passTurn });
@@ -670,7 +695,7 @@
         let richest = others[0];
         
         if (richest.acorns > 0) {
-            loseAcorns(richest, 1);
+            loseAcorns(richest, 1, false);
             gainAcorns(p, 1);
             log(`🦝 ${p.name} stole 1 🌰 from ${richest.name}!`);
         } else {
@@ -681,8 +706,7 @@
     function passTurn() {
         state.turn = (state.turn + 1) % state.players.length;
         if (state.turn === 0) state.totalTurns++; 
-        updateHUD();
-        startTurn();
+        updateHUD(); startTurn();
     }
 
 </script>
