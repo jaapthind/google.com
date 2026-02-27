@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ICE AGE: THE BOARD GAME</title>
+    <title>ICE AGE: THE BOARD GAME (BULLETPROOF EDITION)</title>
     <style>
         /* ==========================================================================
            1. STRICT IFRAME/GITHUB PAGES LAYOUT ENGINE (Zero Scroll Guarantee)
@@ -35,7 +35,7 @@
         /* ==========================================================================
            2. SETUP SCREEN (Perfectly Centered)
            ========================================================================== */
-        #setup-container { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; transition: opacity 0.5s ease; padding: 2vmin; background: rgba(13, 19, 33, 0.98); }
+        #setup-container { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; transition: opacity 0.4s ease; padding: 2vmin; background: rgba(13, 19, 33, 0.98); }
         #setup-screen { width: 100%; max-width: 700px; padding: 4vmin; text-align: center; display: flex; flex-direction: column; gap: 2.5vmin; border: 2px solid var(--cyan); box-shadow: 0 0 30px rgba(0,229,255,0.2); }
         
         .title-text { color: var(--cyan); font-size: clamp(3rem, 10vmin, 6rem); margin: 0; font-family: 'Carter One'; text-shadow: 4px 4px 0px #000; letter-spacing: 2px;}
@@ -117,19 +117,8 @@
         .token { width: clamp(14px, 3.5vmin, 30px); height: clamp(14px, 3.5vmin, 30px); border-radius: 50%; border: 2px solid #FFF; color: #FFF; font-weight: bold; display: flex; align-items: center; justify-content: center; font-size: clamp(0.6rem, 1.8vmin, 1.2rem); z-index: 100; will-change: transform; transition: transform 0.2s linear; box-shadow: 0 4px 8px rgba(0,0,0,0.9); text-shadow: 1px 1px 2px #000; }
 
         /* ==========================================================================
-           5. ACTION BANNER & 3D OVERLAYS
+           5. OVERLAYS & MODALS
            ========================================================================== */
-        #action-banner {
-            position: fixed; top: 50%; left: 0; width: 100%; transform: translateY(-50%) scaleY(0); 
-            background: rgba(0,0,0,0.95); border-top: 5px solid var(--gold); border-bottom: 5px solid var(--gold); 
-            color: #FFF; text-align: center; padding: 5vmin; z-index: 999999; 
-            font-family: 'Carter One'; font-size: clamp(2.5rem, 8vmin, 6rem); 
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; justify-content: center; flex-direction: column;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.9);
-        }
-        #action-banner.active { transform: translateY(-50%) scaleY(1); }
-        #action-desc { font-family: 'Nunito'; font-size: clamp(1.2rem, 3.5vmin, 2.5rem); color: var(--cyan); margin-top: 2vmin; font-weight: 900; text-shadow: 2px 2px 0 #000;}
-
         /* TRUE 3D DICE */
         #dice-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 99999; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.2s; backdrop-filter: blur(5px);}
         #dice-overlay.active { opacity: 1; pointer-events: all; }
@@ -139,7 +128,7 @@
         .cube-face { position: absolute; width: 100%; height: 100%; background: #FFF; border: 5px solid var(--gold); border-radius: 2vmin; display: flex; align-items: center; justify-content: center; font-family: 'Carter One'; font-size: 12vmin; color: #000; backface-visibility: hidden; box-shadow: inset 0 0 20px rgba(0,0,0,0.5);}
         .cube-face-1 { transform: rotateY(  0deg) translateZ(12.5vmin); } .cube-face-2 { transform: rotateY( 90deg) translateZ(12.5vmin); } .cube-face-3 { transform: rotateY(180deg) translateZ(12.5vmin); } .cube-face-4 { transform: rotateY(-90deg) translateZ(12.5vmin); } .cube-face-5 { transform: rotateX( 90deg) translateZ(12.5vmin); } .cube-face-6 { transform: rotateX(-90deg) translateZ(12.5vmin); }
 
-        /* MODALS */
+        /* MODALS (The fix for the freezing - Forces user to click before proceeding) */
         #modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 99999; opacity: 0; pointer-events: none; transition: 0.2s; padding: 2vmin; backdrop-filter: blur(8px);}
         #modal-overlay.active { opacity: 1; pointer-events: all; }
         .modal { padding: 5vmin; text-align: center; width: 100%; max-width: 650px; max-height: 90vh; overflow-y: auto; transform: scale(0.9) translateY(20px); opacity: 0; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); background: #111; border: 3px solid var(--cyan); border-radius: 2vmin; box-shadow: 0 20px 50px rgba(0,229,255,0.3); }
@@ -166,11 +155,6 @@
 
     <div id="bg-canvas"></div>
     <div id="particle-layer"></div>
-
-    <div id="action-banner">
-        <div id="action-title">ACTION!</div>
-        <div id="action-desc">Description of action</div>
-    </div>
 
     <div id="dice-overlay">
         <div class="scene">
@@ -321,7 +305,7 @@
 
         rollCenter3DDice: function(finalNumber, callback) {
             let overlay = document.getElementById('dice-overlay'); let cube = document.getElementById('cube');
-            document.getElementById('btn-roll').disabled = true; overlay.classList.add('active');
+            overlay.classList.add('active');
             
             let xSpin = (Math.floor(Math.random() * 2) + 3) * 360; let ySpin = (Math.floor(Math.random() * 2) + 3) * 360;
             let xTarget = 0, yTarget = 0;
@@ -340,25 +324,12 @@
                     setTimeout(() => { cube.style.transition = 'none'; cube.style.transform = `rotateX(0deg) rotateY(0deg)`; void cube.offsetWidth; cube.style.transition = 'transform 1.2s cubic-bezier(0.25, 1, 0.5, 1)'; }, 200);
                     callback();
                 }, 600);
-            }, 1200); // Sped up dice roll
-        },
-
-        showActionBanner: function(title, desc, colorString, callback) {
-            let banner = document.getElementById('action-banner');
-            document.getElementById('action-title').innerText = title;
-            document.getElementById('action-title').style.color = colorString;
-            document.getElementById('action-desc').innerText = desc;
-            banner.classList.add('active');
-            
-            setTimeout(() => {
-                banner.classList.remove('active');
-                setTimeout(callback, 350); 
-            }, 1800);
+            }, 1200); 
         }
     };
 
     /* =========================================================================
-       MODULE 3: PURE BOARD MATRIX & RULES DATA 
+       MODULE 3: PURE BOARD MATRIX & THE EVENT DECK
        ========================================================================= */
     const gridMap = [
         {c:1, r:1}, {c:2, r:1}, {c:3, r:1}, {c:4, r:1}, {c:5, r:1}, {c:6, r:1}, {c:7, r:1}, {c:8, r:1}, {c:9, r:1}, {c:10, r:1}, 
@@ -367,23 +338,42 @@
         {c:1, r:9}, {c:1, r:8}, {c:1, r:7}, {c:1, r:6}, {c:1, r:5}, {c:1, r:4}, {c:1, r:3}, {c:1, r:2} 
     ];
 
+    /* THE FIX: The "wait" variable now universally controls whether an action 
+       must call nextTurn() itself (via a modal) or if it's instant.
+    */
     const SpaceData = [
-        { t: "START", class: "s-start" }, { t: "+1 🌰", f: (p) => addAcorns(p, 1) }, { t: "?", class: "s-event" },
+        { t: "START", class: "s-start" }, 
+        { t: "+1 🌰", wait: false, f: (p) => addAcorns(p, 1) }, 
+        { t: "?", class: "s-event" },
         { t: "Ally", wait: true, f: (p) => showAllyMenu(p) }, 
-        { t: "Go Start", wait: true, f: (p) => teleportTo(p, 0) }, // FIXED BUG: Teleports safely
-        { t: "+1 Roll", wait: true, f: (p) => triggerExtraRoll(p) }, // FIXED BUG: Auto rolls instantly
+        { t: "Go Start", wait: true, f: (p) => teleportTo(p, 0) }, 
+        { t: "+1 Roll", wait: true, f: (p) => triggerExtraRoll(p) }, 
         { t: "?", class: "s-event" }, { t: "?", class: "s-event" }, 
         { t: "+3 Spaces", wait: true, f: (p) => movePlayer(p, 3) }, 
-        { t: "Jaap STOP", class: "s-jaap" }, { t: "Next Free", wait: true, class: "s-cyan", f: (p) => jumpTo(p, "Free space") }, 
-        { t: "?", class: "s-event" }, { t: "Next Jaap (+2🌰)", wait: true, f: (p) => { addAcorns(p, 2); jumpTo(p, "Jaap STOP"); } }, 
-        { t: "Ally", wait: true, f: (p) => showAllyMenu(p) }, { t: "?", class: "s-event" }, { t: "Jaap STOP", class: "s-jaap" }, 
-        { t: "?", class: "s-event" }, { t: "+1 🌰", f: (p) => addAcorns(p, 1) }, { t: "?", class: "s-event" }, { t: "?", class: "s-event" }, 
-        { t: "Next Ally", wait: true, f: (p) => jumpTo(p, "Ally") }, { t: "Jaap STOP", class: "s-jaap" }, { t: "?", class: "s-event" }, 
-        { t: "Ally", wait: true, f: (p) => showAllyMenu(p) }, { t: "Free space" }, { t: "Bridge" }, { t: "Free space" },
-        { t: "-4 Spaces", wait: true, f: (p) => movePlayer(p, -4) }, { t: "-2 🌰", f: (p) => { loseAcorns(p, 2); AudioEngine.sfxHurt(); } }, 
-        { t: "Jaap STOP", class: "s-jaap" }, { t: "Trade", wait: true, f: (p) => showTradeMenu(p) }, { t: "Trade", wait: true, f: (p) => showTradeMenu(p) },
-        { t: "-8 Spaces (+2🌰)", wait: true, f: (p) => { addAcorns(p, 2); movePlayer(p, -8); } }, { t: "?", class: "s-event" },
-        { t: "+1 🌰", f: (p) => addAcorns(p, 1) }, { t: "End", class: "s-end" }
+        { t: "Jaap STOP", class: "s-jaap" }, 
+        { t: "Next Free", wait: true, class: "s-cyan", f: (p) => jumpTo(p, "Free space") }, 
+        { t: "?", class: "s-event" }, 
+        { t: "Next Jaap (+2🌰)", wait: true, f: (p) => { addAcorns(p, 2); jumpTo(p, "Jaap STOP"); } }, 
+        { t: "Ally", wait: true, f: (p) => showAllyMenu(p) }, 
+        { t: "?", class: "s-event" }, 
+        { t: "Jaap STOP", class: "s-jaap" }, 
+        { t: "?", class: "s-event" }, 
+        { t: "+1 🌰", wait: false, f: (p) => addAcorns(p, 1) }, 
+        { t: "?", class: "s-event" }, { t: "?", class: "s-event" }, 
+        { t: "Next Ally", wait: true, f: (p) => jumpTo(p, "Ally") }, 
+        { t: "Jaap STOP", class: "s-jaap" }, 
+        { t: "?", class: "s-event" }, 
+        { t: "Ally", wait: true, f: (p) => showAllyMenu(p) }, 
+        { t: "Free space" }, { t: "Bridge" }, { t: "Free space" },
+        { t: "-4 Spaces", wait: true, f: (p) => movePlayer(p, -4) }, 
+        { t: "-2 🌰", wait: false, f: (p) => { loseAcorns(p, 2); AudioEngine.sfxHurt(); } }, 
+        { t: "Jaap STOP", class: "s-jaap" }, 
+        { t: "Trade", wait: true, f: (p) => showTradeMenu(p) }, 
+        { t: "Trade", wait: true, f: (p) => showTradeMenu(p) },
+        { t: "-8 Spaces (+2🌰)", wait: true, f: (p) => { addAcorns(p, 2); movePlayer(p, -8); } }, 
+        { t: "?", class: "s-event" },
+        { t: "+1 🌰", wait: false, f: (p) => addAcorns(p, 1) }, 
+        { t: "End", class: "s-end" }
     ];
 
     const AlliesList = [
@@ -395,11 +385,10 @@
         { name: "Scout", p: "Start with +3 🌰 instantly" }, { name: "Shaman", p: "All 1s rolled become 6s" }
     ];
 
-    /* EXPANDED PUBLIC EVENT DECK (Over 20+ Clean Thematic Cards) */
     const Events = [
-        { t: "Glacier Collapse!", desc: "Everyone loses 1 🌰.", f: (p) => { state.players.forEach(o=>{if(!o.dead) loseAcorns(o,1);}); AudioEngine.sfxHurt(); } },
-        { t: "Golden Find!", desc: "Collect 2 Golden Acorns.", f: (p) => addAcorns(p, 2) }, 
-        { t: "Ancient Tree!", desc: "Collect 5 Golden Acorns.", f: (p) => addAcorns(p, 5) }, 
+        { t: "Glacier Collapse!", desc: "Everyone loses 1 🌰.", wait: false, f: (p) => { state.players.forEach(o=>{if(!o.dead) loseAcorns(o,1);}); AudioEngine.sfxHurt(); } },
+        { t: "Golden Find!", desc: "Collect 2 Golden Acorns.", wait: false, f: (p) => addAcorns(p, 2) }, 
+        { t: "Ancient Tree!", desc: "Collect 5 Golden Acorns.", wait: false, f: (p) => addAcorns(p, 5) }, 
         { t: "Villager's Gift", desc: "Gain a free Ally!", wait: true, f: (p) => showAllyMenu(p) },
         { t: "Thief in the Night", desc: "Steal 1 🌰 from a player.", wait: true, f: (p) => showTargetMenu(p, 1) }, 
         { t: "Ice Slide", desc: "Advance directly to a Free Space.", wait: true, f: (p) => jumpTo(p, "Free space") }, 
@@ -407,10 +396,10 @@
         { t: "Lost in the Tundra", desc: "Go back to Start.", wait: true, f: (p) => teleportTo(p, 0) },
         { t: "Wandering Trader", desc: "Swap allies with another player.", wait: true, f: (p) => showSwapMenu(p) },
         { t: "Avalanche!", desc: "Move back 3 spaces.", wait: true, f: (p) => { AudioEngine.sfxHurt(); movePlayer(p, -3); } },
-        { t: "Spring Thaw", desc: "Collect 1 🌰 for every lap completed.", f: (p) => addAcorns(p, p.laps) },
+        { t: "Spring Thaw", desc: "Collect 1 🌰 for every lap completed.", wait: false, f: (p) => addAcorns(p, p.laps) },
         { t: "Secret Stash", desc: "Roll dice to collect acorns.", wait: true, f: (p) => { let r = Math.floor(Math.random()*6)+1; addAcorns(p, r); log(`Rolled ${r} for stash!`, "gain"); nextTurn(); } },
         { t: "Shortcut!", desc: "Move straight to the Bridge.", wait: true, f: (p) => jumpTo(p, "Bridge") },
-        { t: "Eagle Swoop", desc: "Steal 1 🌰 from all players.", f: (p) => { let s=0; state.players.forEach(o=>{if(o!=p && o.acorns>0 && !o.dead){loseAcorns(o,1); s++;}}); addAcorns(p, s); AudioEngine.sfxHurt(); } },
+        { t: "Eagle Swoop", desc: "Steal 1 🌰 from all players.", wait: false, f: (p) => { let s=0; state.players.forEach(o=>{if(o!=p && o.acorns>0 && !o.dead){loseAcorns(o,1); s++;}}); addAcorns(p, s); AudioEngine.sfxHurt(); } },
         { t: "Sabotage", desc: "Target player loses their next turn.", wait: true, f: (p) => { 
             let targets = state.players.filter(o => o.id !== p.id && !o.dead);
             let btns = targets.map(t => ({ t: t.name, a: () => { t.skip = true; log(`${t.name} was sabotaged!`, "lose"); nextTurn(); }}));
@@ -439,7 +428,7 @@
             for(let i=0; i<num; i++) {
                 state.players.push({
                     id: i, name: document.getElementById(`p${i}-name`).value, color: colors[i],
-                    pos: 0, acorns: 4, laps: 0, ally: null, skip: false, dead: false
+                    pos: 0, acorns: 4, laps: 0, ally: null, skip: false, extraTurn: false, dead: false
                 });
             }
             
@@ -467,7 +456,7 @@
     });
 
     /* =========================================================================
-       MODULE 5: GAME ENGINE LOGIC 
+       MODULE 5: CORE ENGINE LOGIC
        ========================================================================= */
     function addAcorns(p, amt) {
         if(amt <= 0) return; p.acorns += amt;
@@ -524,13 +513,13 @@
         l.scrollTop = 0;
     }
 
-    /* THE FIX: AUTOMATIC SKIP LOGIC SO YOU DON'T HAVE TO CLICK ROLL */
+    /* THE FIX: BULLETPROOF TURN STATE */
     function setTurn() {
         let p = state.players[state.turn]; document.getElementById('turn-indicator').innerText = `${p.name}'s Turn`;
         document.getElementById('turn-indicator').style.color = p.color; 
         
         if(state.totalTurns > 40) {
-            if(!Settings.isSuddenDeath) { Settings.isSuddenDeath = true; FX.showActionBanner("METEOR SHOWER", "Sudden Death! Everyone loses 1 🌰 per turn!", "var(--red)", () => {}); }
+            if(!Settings.isSuddenDeath) { Settings.isSuddenDeath = true; createChoiceModal("METEOR SHOWER", [{t: "Survive", a: () => {}}]); document.getElementById('modal-desc').innerHTML = `<span style="color:var(--red);">Sudden Death! Everyone loses 1 🌰 per turn!</span>`; }
             FX.spawnMeteor(); AudioEngine.sfxMeteor(); loseAcorns(p, 1);
         }
         updateHUD();
@@ -539,9 +528,9 @@
             p.skip = false;
             document.getElementById('btn-roll').disabled = true;
             log(`🛑 ${p.name} is skipped this turn.`, "lose");
-            FX.showActionBanner("SKIPPED", `${p.name} loses this turn.`, "var(--red)", () => {
-                AudioEngine.sfxHurt(); setTimeout(nextTurn, 800);
-            });
+            
+            createChoiceModal("SKIPPED", [{t: "End Turn", a: () => { AudioEngine.sfxHurt(); nextTurn(); }}]);
+            document.getElementById('modal-desc').innerHTML = `<span style="color: var(--red); font-size: clamp(1.5rem, 4vmin, 3rem);">Vehicle Broken. You lose this turn.</span>`;
             return;
         }
         document.getElementById('btn-roll').disabled = false;
@@ -549,7 +538,9 @@
 
     function nextTurn() {
         state.totalTurns++; 
-        do { state.turn = (state.turn + 1) % state.players.length; } while (state.players[state.turn].dead || state.finishers.includes(state.players[state.turn])); 
+        let p = state.players[state.turn];
+        if (p.extraTurn) { p.extraTurn = false; log(`⭐ ${p.name} takes an extra turn!`, "event"); }
+        else { do { state.turn = (state.turn + 1) % state.players.length; } while (state.players[state.turn].dead || state.finishers.includes(state.players[state.turn])); }
         setTurn();
     }
 
@@ -558,6 +549,7 @@
        ========================================================================= */
     document.getElementById('btn-roll').addEventListener('click', () => {
         let p = state.players[state.turn];
+        document.getElementById('btn-roll').disabled = true; // Lock button to prevent double-clicks
         let baseRoll = Math.floor(Math.random() * 6) + 1;
         let bonus = (p.ally && p.ally.name === "Caveman") ? 1 : 0;
         let finalRoll = baseRoll + bonus;
@@ -571,13 +563,11 @@
         });
     });
 
-    /* THE FIX: +1 ROLL AUTOMATICALLY FIRES DICE OVERLAY */
+    /* THE FIX: +1 ROLL WORKS PROPERLY IN THE QUEUE */
     function triggerExtraRoll(p) {
-        log(`⭐ ${p.name} gets a free automatic roll!`, "event");
-        setTimeout(() => {
-            let r = Math.floor(Math.random() * 6) + 1;
-            FX.rollCenter3DDice(r, () => { log(`🎲 Extra roll: ${r}`); movePlayer(p, r); });
-        }, 500);
+        log(`⭐ ${p.name} gets a free extra roll!`, "event");
+        p.extraTurn = true;
+        nextTurn();
     }
 
     /* THE FIX: TELEPORT SAFELY WITHOUT MESSING UP LAPS */
@@ -664,7 +654,7 @@
                         <div class="vs-text">VS</div>
                         <div class="duel-player" id="dp2"><div class="duel-avatar" style="background:${enemy.color}">${enemy.name.charAt(0)}</div><h3 style="color:${enemy.color}; font-size: 3vmin;">${enemy.name}</h3><div id="dd2" style="font-size: 8vmin; width: 12vmin; height: 12vmin; background:#FFF; color:#000; border-radius:1vmin; display:flex; align-items:center; justify-content:center; margin-top:1vmin;">?</div></div>
                     </div>`;
-                document.getElementById('modal-btns').innerHTML = `<button class="btn btn-red" id="btn-start-duel">ROLL</button>`;
+                document.getElementById('modal-btns').innerHTML = `<button class="btn btn-red" id="btn-start-duel">ROLL FOR COMBAT</button>`;
                 
                 document.getElementById('btn-start-duel').onclick = () => {
                     document.getElementById('btn-start-duel').classList.add('hidden');
@@ -678,7 +668,7 @@
                             clearInterval(interval); let winner = r1 > r2 ? p : enemy; let loser = r1 > r2 ? enemy : p;
                             if(r1 > r2) { d1.style.color="var(--gold)"; document.getElementById('dp2').style.opacity="0.3"; } else { d2.style.color="var(--gold)"; document.getElementById('dp1').style.opacity="0.3"; }
                             AudioEngine.sfxWin();
-                            document.getElementById('modal-btns').innerHTML = `<h2 style="width:100%; color:var(--gold);">${winner.name} WINS!</h2><button class="btn btn-cyan" id="btn-end-duel">Steal Acorn</button>`;
+                            document.getElementById('modal-btns').innerHTML = `<h2 style="width:100%; color:var(--gold);">${winner.name} WINS!</h2><button class="btn btn-cyan" id="btn-end-duel">Steal Acorn & Continue</button>`;
                             document.getElementById('btn-end-duel').onclick = () => { closeModal(); loseAcorns(loser, 1); addAcorns(winner, 1); log(`⚔️ ${winner.name} stole 1 🌰 from ${loser.name}!`, "event"); triggerSpaceLogic(p, sp); };
                         }
                     }, 80);
@@ -689,39 +679,39 @@
         triggerSpaceLogic(p, sp);
     }
 
-    // THE FIX: Safe CSS Color Strings inside Action Banner
+    /* THE FIX: THE BULLETPROOF MODAL QUEUE (No more skipped turns or freezing) */
     function triggerSpaceLogic(p, sp) {
         if (sp.class === 's-jaap') {
-            if (p.ally && p.ally.name === "Mammoth") { log(`Mammoth ignores Jaap!`); nextTurn(); }
-            else {
-                FX.showActionBanner("JAAP STOP", "Vehicle broken. Skip next turn.", "var(--red)", () => {
-                    p.skip = true; AudioEngine.sfxHurt(); nextTurn(); 
-                });
+            if (p.ally && p.ally.name === "Mammoth") { 
+                log(`Mammoth ignores Jaap!`); 
+                setTimeout(nextTurn, 500); 
+            } else {
+                createChoiceModal("JAAP STOP", [{t: "End Turn", a: () => { p.skip = true; AudioEngine.sfxHurt(); nextTurn(); }}]);
+                document.getElementById('modal-desc').innerHTML = `<span style="color: var(--red); font-size: clamp(1.5rem, 4vmin, 3rem);">Vehicle Broken. You will lose your next turn.</span>`;
             }
         }
         else if (sp.class === 's-event') {
-            if (p.ally && p.ally.name === "Elder") { log(`Elder ignores Event!`); nextTurn(); return; }
+            if (p.ally && p.ally.name === "Elder") { log(`Elder ignores Event!`); setTimeout(nextTurn, 500); return; }
+            
             let ev = Events[Math.floor(Math.random() * Events.length)];
-            FX.showActionBanner("EVENT DRAWN", ev.t, "var(--cyan)", () => {
-                createChoiceModal("EVENT DRAWN", [{t: "Resolve", a: () => { 
-                    if (ev.wait) ev.f(p); 
-                    else { ev.f(p); updateHUD(); nextTurn(); } 
-                }}]);
-                document.getElementById('modal-desc').innerHTML = `<span style="color: var(--cyan); font-size: clamp(1.5rem, 4vmin, 2.5rem);">${ev.desc}</span>`;
-            });
+            createChoiceModal("EVENT DRAWN", [{t: "Resolve Card", a: () => { 
+                if (ev.wait) { ev.f(p); } 
+                else { ev.f(p); updateHUD(); nextTurn(); } 
+            }}]);
+            document.getElementById('modal-desc').innerHTML = `<span style="color: var(--cyan); font-size: clamp(2rem, 5vmin, 4rem);">${ev.t}<br><br><span style="color:#FFF; font-size: 60%;">${ev.desc}</span></span>`;
         }
         else if (sp.f) { 
-            if(sp.t !== "START" && sp.t !== "End" && sp.t !== "Free space" && sp.t !== "Bridge") {
-                 FX.showActionBanner("SPACE TRIGGERED", sp.t, "var(--gold)", () => {
-                     sp.f(p); updateHUD(); 
-                     if (!sp.wait) setTimeout(nextTurn, 500); 
-                 });
-            } else {
-                 sp.f(p); updateHUD(); 
-                 if (!sp.wait) setTimeout(nextTurn, 500);
-            }
+            // Action Space (+1 acorn, Ally, etc)
+            createChoiceModal("SPACE TRIGGERED", [{t: "Continue", a: () => { 
+                if (sp.wait) { sp.f(p); } 
+                else { sp.f(p); updateHUD(); nextTurn(); } 
+            }}]);
+            document.getElementById('modal-desc').innerHTML = `<span style="color: var(--gold); font-size: clamp(2rem, 5vmin, 4rem);">${sp.t}</span>`;
         }
-        else { setTimeout(nextTurn, 500); }
+        else { 
+            // Blank space, start space, end space
+            setTimeout(nextTurn, 500); 
+        }
     }
 
     /* =========================================================================
@@ -760,14 +750,14 @@
         let choices = avail.sort(() => 0.5 - Math.random()).slice(0, 3);
         let btns = choices.map(c => ({ t: `${c.name}\n(${c.p})`, a: () => { p.ally = c; log(`🤝 Allied with ${c.name}`, "event"); updateHUD(); nextTurn(); } }));
         btns.push({ t: "Pass", a: () => { log("Passed on ally."); nextTurn(); } });
-        createChoiceModal(`Choose Ally`, btns);
+        createChoiceModal(`Choose Ally to Hire`, btns);
     }
 
     function showTradeMenu(p) {
         let btns = [
             { t: "Buy Ally (4🌰)", a: () => { if(p.acorns>=4){ loseAcorns(p,4); showAllyMenu(p);} else {log("Not enough acorns!"); AudioEngine.sfxHurt(); nextTurn();} } },
             { t: "Sell Ally (+2🌰)", a: () => { if(p.ally){p.ally=null; addAcorns(p,2); log("Sold ally.", "gain");} else {log("No ally to sell!", "lose");} updateHUD(); nextTurn(); } },
-            { t: "Leave", a: () => nextTurn() }
+            { t: "Leave Market", a: () => nextTurn() }
         ];
         createChoiceModal("Villager Market", btns);
     }
