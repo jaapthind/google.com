@@ -3,335 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ICE AGE: THE BOARD GAME (BULLETPROOF EDITION)</title>
+    <title>Ice Age Board Game - Classic Edition</title>
     <style>
-        /* ==========================================================================
-           1. STRICT IFRAME/GITHUB PAGES LAYOUT ENGINE (Zero Scroll Guarantee)
-           ========================================================================== */
-        @import url('https://fonts.googleapis.com/css2?family=Carter+One&family=Nunito:wght@400;700;900&display=swap');
-
-        :root {
-            --gold: #FFC107; --cyan: #00E5FF; --red: #FF1744; --green: #00E676; --purple: #D500F9;
-            --glass-bg: rgba(20, 25, 30, 0.9); --glass-border: rgba(255, 255, 255, 0.2);
+        /* CORE GITHUB RESIZING - NO SCROLLBARS */
+        html, body {
+            width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden;
+            font-family: Arial, sans-serif; background: #0d1321; color: #FFF;
+            position: absolute; inset: 0; box-sizing: border-box; user-select: none;
         }
 
-        /* HARD LOCK TO VIEWPORT - ABSOLUTELY NO SCROLLING */
-        html, body { 
-            width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden; 
-            box-sizing: border-box; touch-action: none; font-family: 'Nunito', sans-serif; 
-            background: #0d1321; color: #FFF; position: absolute; inset: 0;
+        * { box-sizing: inherit; }
+
+        /* BASIC LAYOUT */
+        #game-container {
+            display: flex; width: 100%; height: 100%; padding: 10px; gap: 10px;
         }
 
-        * { box-sizing: inherit; user-select: none; -webkit-tap-highlight-color: transparent; }
-
-        #bg-canvas { position: absolute; inset: 0; z-index: -10; background: radial-gradient(circle at center, #003a5c 0%, #0d1321 100%); }
-
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.5); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb { background: var(--cyan); border-radius: 10px; }
-
-        .glass-panel { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 1.5vmin; position: relative; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.5); }
-
-        /* ==========================================================================
-           2. SETUP SCREEN (Perfectly Centered)
-           ========================================================================== */
-        #setup-container { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; transition: opacity 0.4s ease; padding: 2vmin; background: rgba(13, 19, 33, 0.98); }
-        #setup-screen { width: 100%; max-width: 700px; padding: 4vmin; text-align: center; display: flex; flex-direction: column; gap: 2.5vmin; border: 2px solid var(--cyan); box-shadow: 0 0 30px rgba(0,229,255,0.2); }
-        
-        .title-text { color: var(--cyan); font-size: clamp(3rem, 10vmin, 6rem); margin: 0; font-family: 'Carter One'; text-shadow: 4px 4px 0px #000; letter-spacing: 2px;}
-        .subtitle-text { color: var(--gold); font-size: clamp(1.2rem, 3.5vmin, 2rem); margin: 0 0 2vmin 0; letter-spacing: 0.5vmin; text-transform: uppercase; font-weight: 900;}
-
-        .setup-row { display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.6); padding: 1.5vmin 2.5vmin; border-radius: 1vmin; border: 1px solid var(--glass-border); transition: 0.3s;}
-        .setup-row:focus-within { border-color: var(--cyan); box-shadow: 0 0 15px rgba(0,229,255,0.3); }
-        .setup-row input { font-size: clamp(1.2rem, 3vmin, 1.8rem); padding: 1vmin; width: 70%; background: #000; color: #FFF; border: 1px solid var(--cyan); border-radius: 0.5vmin; font-weight: bold; outline: none; text-align: center;}
-        .player-color-dot { width: 5vmin; height: 5vmin; border-radius: 50%; border: 3px solid #FFF; box-shadow: 0 0 10px rgba(0,0,0,0.8);}
-
-        .btn { background: var(--gold); border: 2px solid #FFF; padding: 2vmin 4vmin; font-size: clamp(1.2rem, 4vmin, 2rem); font-family: 'Carter One'; cursor: pointer; border-radius: 1vmin; color: #000; text-transform: uppercase; transition: transform 0.1s; width: 100%; will-change: transform; box-shadow: 0 5px 15px rgba(0,0,0,0.5);}
-        .btn:active { transform: scale(0.95); }
-        .btn-cyan { background: var(--cyan); }
-        .btn-red { background: var(--red); color: white; }
-        
-        select.btn { text-align: center; appearance: none; background: #111; color: #FFF; border-color: var(--cyan); padding: 1.5vmin;}
-
-        /* ==========================================================================
-           3. MASTER GAME LAYOUT (Fluid Flexbox for Landscape/Portrait)
-           ========================================================================== */
-        #game-interface { display: none; width: 100%; height: 100%; padding: 1vmin; gap: 1vmin; position: absolute; inset: 0;}
-        
-        @media (min-aspect-ratio: 1/1) {
-            #game-interface { flex-direction: row; }
-            #left-col { flex: 1; display: flex; align-items: center; justify-content: center; min-width: 0; min-height: 0; padding: 1vmin;}
-            #right-col { flex: 0 0 450px; max-width: 45vw; display: flex; flex-direction: column; gap: 1vmin; height: 100%; min-height: 0; }
-            #hud { height: 45%; overflow-y: auto; flex-direction: column; }
-            #controls { height: 55%; }
+        /* MOBILE VS DESKTOP SPLIT */
+        @media (min-aspect-ratio: 1/1) { /* Desktop */
+            #game-container { flex-direction: row; }
+            #left-col { flex: 1; display: flex; align-items: center; justify-content: center; }
+            #right-col { width: 400px; display: flex; flex-direction: column; gap: 10px; }
         }
-        @media (max-aspect-ratio: 1/1) {
-            #game-interface { flex-direction: column; }
-            #left-col { flex: 0 0 55%; display: flex; justify-content: center; align-items: center; width: 100%; min-height: 0; padding: 1vmin;}
-            #right-col { flex: 1; display: flex; flex-direction: column; gap: 1vmin; width: 100%; min-height: 0; }
-            #hud { height: 40%; flex-direction: row; flex-wrap: wrap; overflow-y: auto; }
-            #controls { height: 60%; }
+        @media (max-aspect-ratio: 1/1) { /* Mobile */
+            #game-container { flex-direction: column; }
+            #left-col { flex: 0 0 55%; display: flex; align-items: center; justify-content: center; }
+            #right-col { flex: 1; display: flex; flex-direction: column; gap: 10px; }
         }
 
-        /* HUD STYLES */
-        #hud { display: flex; gap: 1vmin; width: 100%; align-content: flex-start;}
-        .hud-player { flex: 1; min-width: 45%; padding: 1.5vmin; text-align: center; border-radius: 1vmin; display: flex; flex-direction: column; justify-content: center; border-top: 5px solid; background: rgba(0,0,0,0.7); position: relative;}
-        .hud-player.active { background: rgba(255, 193, 7, 0.15) !important; border: 2px solid var(--gold); border-top: 5px solid var(--gold); box-shadow: 0 0 20px rgba(255,193,7,0.2);}
-        .hud-player.eliminated { opacity: 0.3; filter: grayscale(1); }
-        .p-name { font-size: clamp(1rem, 2.5vmin, 1.4rem); font-weight: 900; text-transform: uppercase; text-shadow: 2px 2px 0 #000;} 
-        .p-acorns { font-size: clamp(2rem, 6vmin, 3.5rem); color: var(--gold); font-family: 'Carter One'; display: flex; align-items: center; justify-content: center; gap: 0.5vmin; margin: 0.5vmin 0; text-shadow: 2px 2px 5px rgba(0,0,0,0.9);}
+        /* THE BOARD */
+        #board-wrapper {
+            position: relative; width: 100%; height: 100%; max-width: 100vh; max-height: 100vw; aspect-ratio: 1/1;
+        }
+        #board {
+            display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(10, 1fr);
+            gap: 2px; width: 100%; height: 100%; background: #222; border: 2px solid #555; padding: 4px;
+        }
+
+        .space {
+            background: #FFF; border: 1px solid #000; color: #000; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; text-align: center; font-size: clamp(0.6rem, 2vmin, 1rem);
+            font-weight: bold; position: relative;
+        }
+        .s-start { background: #FFC107; }
+        .s-jaap { background: #FF1744; color: #FFF; }
+        .s-event { color: #FF1744; font-size: clamp(1rem, 3vmin, 1.5rem); }
+
+        .token-container {
+            position: absolute; bottom: 2px; display: flex; flex-wrap: wrap; justify-content: center; width: 100%; gap: 2px;
+        }
+        .token {
+            width: clamp(15px, 3.5vmin, 25px); height: clamp(15px, 3.5vmin, 25px); border-radius: 50%;
+            border: 2px solid #FFF; color: #FFF; font-weight: bold; display: flex; align-items: center; justify-content: center;
+            font-size: clamp(0.7rem, 2vmin, 1rem); z-index: 10;
+        }
+
+        /* UI ELEMENTS */
+        .panel { background: #1a2332; border: 1px solid #333; border-radius: 8px; padding: 10px; }
+        #hud { display: flex; flex-wrap: wrap; gap: 5px; height: 40%; overflow-y: auto; }
+        .player-card { flex: 1; min-width: 45%; background: #000; border-top: 5px solid; padding: 10px; text-align: center; border-radius: 5px; }
+        .player-card.active { border: 2px solid #FFC107; border-top: 5px solid #FFC107; background: #332a00; }
         
-        /* CONTROLS & LOG STYLES */
-        #controls { display: flex; flex-direction: column; padding: 1.5vmin; align-items: center; background: rgba(0,0,0,0.8); border: 1px solid var(--glass-border);}
-        #turn-indicator { font-size: clamp(1.5rem, 4vmin, 2.5rem); margin-bottom: 1vmin; font-family: 'Carter One'; text-align: center; text-shadow: 2px 2px 0 #000; width: 100%; background: rgba(255,255,255,0.05); border-radius: 1vmin; padding: 1vmin;}
-        .control-buttons { display: flex; gap: 1vmin; width: 100%; margin-bottom: 1vmin; }
-        
-        #log { color: #FFF; width: 100%; flex: 1; padding: 1.5vmin; overflow-y: auto; font-family: monospace; font-size: clamp(0.9rem, 2.2vmin, 1.2rem); background: #000; border: 1px solid rgba(255,255,255,0.2); border-radius: 1vmin; box-shadow: inset 0 0 15px rgba(0,0,0,0.9);}
-        .log-entry { border-bottom: 1px dotted rgba(255,255,255,0.2); padding: 0.8vmin 0; animation: slideIn 0.3s ease-out; }
-        .log-time { color: #666; margin-right: 5px; }
-        .log-gain { color: var(--gold); font-weight: bold; }
-        .log-lose { color: var(--red); font-weight: bold; }
-        .log-event { color: var(--cyan); font-weight: bold; }
-        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+        #controls { height: 60%; display: flex; flex-direction: column; align-items: center; }
+        #log { flex: 1; width: 100%; background: #000; color: #00E676; font-family: monospace; overflow-y: auto; padding: 10px; border-radius: 5px; margin-top: 10px; font-size: 14px;}
+        .log-entry { margin-bottom: 5px; border-bottom: 1px dotted #333; padding-bottom: 5px; }
 
-        /* ==========================================================================
-           4. RESPONSIVE GAME BOARD (Perfect Square)
-           ========================================================================== */
-        #board-wrapper { position: relative; width: 100%; height: 100%; max-width: 100vh; max-height: 100vw; aspect-ratio: 1/1; display: flex; justify-content: center; align-items: center; }
-        #board { display: grid; grid-template-columns: repeat(10, 1fr); grid-template-rows: repeat(10, 1fr); gap: 2px; width: 100%; height: 100%; padding: 4px; position: absolute; background: rgba(0,0,0,0.6); border-radius: 1.5vmin; border: 2px solid var(--glass-border); box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+        .btn {
+            background: #FFC107; border: none; padding: 15px; font-size: 20px; font-weight: bold;
+            border-radius: 5px; cursor: pointer; width: 100%; margin-bottom: 10px; text-transform: uppercase;
+        }
+        .btn:active { transform: scale(0.98); }
+        .btn:disabled { background: #555; cursor: not-allowed; color: #888; }
 
-        #center-island { grid-column: 2 / 10; grid-row: 2 / 10; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; border-radius: 1vmin; overflow: hidden; border: 2px solid rgba(255,255,255,0.2); box-shadow: inset 0 0 50px rgba(0,0,0,0.9);}
-        .biome { display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Carter One'; font-size: clamp(1.2rem, 3.5vmin, 3.5rem); color: #FFF; text-align: center; z-index: 1; padding: 2%; line-height: 1.1; text-shadow: 3px 3px 5px rgba(0,0,0,0.9);}
-        .b-grass { background: #1b5e20; } .b-mtn { background: #37474f; } .b-vill { background: #4e342e; } .b-snow { background: #01579b; }
-
-        .space { background: #FFF; border: 1px solid #000; border-radius: 4px; color: #000; font-weight: 900; font-size: clamp(0.4rem, 1.5vmin, 0.9rem); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 1px; position: relative; line-height: 1; box-shadow: inset 0 0 5px rgba(0,0,0,0.3); }
-        .space.glow { border: 2px solid var(--gold); background: #fffde7; box-shadow: 0 0 10px var(--gold); z-index: 50;}
-        
-        .s-start { background: var(--gold); font-family: 'Carter One'; font-size: clamp(0.7rem, 2vmin, 1.2rem); text-shadow: 1px 1px 0 #FFF;}
-        .s-jaap { background: var(--red); color: #FFF; border-radius: 50%; aspect-ratio: 1/1; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);}
-        .s-event { color: var(--red); font-size: clamp(1.5rem, 4vmin, 3rem); font-family: 'Carter One'; text-shadow: 1px 1px 0 #FFF;}
-        .s-cyan { background: var(--cyan); }
-        .s-end { background: var(--red); font-family: 'Carter One'; color: #FFF; }
-
-        .token-container { display: flex; flex-wrap: wrap; gap: 1px; justify-content: center; position: absolute; bottom: 2px; width: 100%; z-index: 20; }
-        .token { width: clamp(14px, 3.5vmin, 30px); height: clamp(14px, 3.5vmin, 30px); border-radius: 50%; border: 2px solid #FFF; color: #FFF; font-weight: bold; display: flex; align-items: center; justify-content: center; font-size: clamp(0.6rem, 1.8vmin, 1.2rem); z-index: 100; will-change: transform; transition: transform 0.2s linear; box-shadow: 0 4px 8px rgba(0,0,0,0.9); text-shadow: 1px 1px 2px #000; }
-
-        /* ==========================================================================
-           5. OVERLAYS & MODALS (The Fix)
-           ========================================================================== */
-        /* TRUE 3D DICE */
-        #dice-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 99999; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.2s; backdrop-filter: blur(5px);}
-        #dice-overlay.active { opacity: 1; pointer-events: all; }
-
-        .scene { width: 25vmin; height: 25vmin; perspective: 1200px; }
-        .cube { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1); will-change: transform; }
-        .cube-face { position: absolute; width: 100%; height: 100%; background: #FFF; border: 5px solid var(--gold); border-radius: 2vmin; display: flex; align-items: center; justify-content: center; font-family: 'Carter One'; font-size: 12vmin; color: #000; backface-visibility: hidden; box-shadow: inset 0 0 20px rgba(0,0,0,0.5);}
-        .cube-face-1 { transform: rotateY(  0deg) translateZ(12.5vmin); } .cube-face-2 { transform: rotateY( 90deg) translateZ(12.5vmin); } .cube-face-3 { transform: rotateY(180deg) translateZ(12.5vmin); } .cube-face-4 { transform: rotateY(-90deg) translateZ(12.5vmin); } .cube-face-5 { transform: rotateX( 90deg) translateZ(12.5vmin); } .cube-face-6 { transform: rotateX(-90deg) translateZ(12.5vmin); }
-
-        /* MODALS (Strictly synchronized to avoid freezing) */
-        #modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 99999; opacity: 0; pointer-events: none; transition: 0.2s; padding: 2vmin; backdrop-filter: blur(8px);}
-        #modal-overlay.active { opacity: 1; pointer-events: all; }
-        
-        .modal { padding: 5vmin; text-align: center; width: 100%; max-width: 650px; max-height: 90vh; overflow-y: auto; transform: scale(0.9) translateY(20px); opacity: 0; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); background: #111; border: 3px solid var(--cyan); border-radius: 2vmin; box-shadow: 0 20px 50px rgba(0,229,255,0.3); }
-        #modal-overlay.active .modal { transform: scale(1) translateY(0); opacity: 1; }
-        
-        .modal h2 { font-size: clamp(1.5rem, 5vmin, 3.5rem); color: var(--gold); margin: 0 0 2.5vmin 0; font-family: 'Carter One'; text-shadow: 2px 2px 0 #000;}
-        .modal-btns { display: flex; gap: 2vmin; justify-content: center; flex-wrap: wrap; margin-top: 3vmin;}
-
-        /* DUEL ARENA */
-        .duel-arena { display: flex; justify-content: space-between; align-items: center; width: 100%; margin: 3vmin 0; padding: 3vmin; background: #000; border-radius: 2vmin; border: 2px solid var(--red); box-shadow: inset 0 0 30px rgba(255,23,68,0.3);}
-        .duel-player { display: flex; flex-direction: column; align-items: center; width: 40%; }
-        .duel-avatar { width: 12vmin; height: 12vmin; border-radius: 50%; border: 4px solid #FFF; margin-bottom: 1vmin; display: flex; align-items: center; justify-content: center; font-size: 5vmin; font-weight: bold; font-family: 'Carter One'; color: #FFF; box-shadow: 0 10px 20px rgba(0,0,0,0.8);}
-        .vs-text { font-size: 6vmin; color: var(--red); font-family: 'Carter One'; text-shadow: 3px 3px 0 #000; animation: pulse 1s infinite alternate;}
-        @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.2); } }
-
-        /* PARTICLES */
-        #particle-layer { position: fixed; inset: 0; pointer-events: none; z-index: 100000; overflow: hidden; perspective: 1000px; }
-        .acorn-3d { position: absolute; font-size: 8vmin; top:0; left:0; will-change: transform, opacity; z-index: 999999; pointer-events: none; filter: drop-shadow(0 15px 15px rgba(0,0,0,0.9));}
-        .confetti { position: absolute; top:0; left:0; width: 1.5vmin; height: 1.5vmin; z-index: 999999; pointer-events: none; will-change: transform; box-shadow: 0 0 5px rgba(0,0,0,0.5);}
-        .meteor { position: absolute; top: -50px; width: 15px; height: 15px; background: #FF5722; border-radius: 50%; box-shadow: 0 0 20px #FF5722, 0 0 40px #FFC107; z-index: 14; pointer-events: none; will-change: transform;}
-        .meteor::after { content: ''; position: absolute; top: 0; left: 50%; width: 4px; height: 150px; background: linear-gradient(to bottom, rgba(255,193,7,1), transparent); transform: translateX(-50%); }
+        /* BULLETPROOF MODAL */
+        #simple-modal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 9999; padding: 20px;
+        }
+        .modal-content {
+            background: #222; border: 3px solid #00E5FF; padding: 30px; text-align: center; border-radius: 10px; max-width: 500px; width: 100%;
+        }
+        .modal-content h2 { color: #FFC107; margin-top: 0; }
+        .modal-content p { font-size: 18px; margin-bottom: 20px; }
+        #modal-btn-container { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
     </style>
 </head>
 <body>
 
-    <div id="bg-canvas"></div>
-    <div id="particle-layer"></div>
-
-    <div id="dice-overlay">
-        <div class="scene">
-            <div class="cube" id="cube">
-                <div class="cube-face cube-face-1">1</div><div class="cube-face cube-face-2">2</div><div class="cube-face cube-face-3">3</div>
-                <div class="cube-face cube-face-4">4</div><div class="cube-face cube-face-5">5</div><div class="cube-face cube-face-6">6</div>
-            </div>
-        </div>
-    </div>
-
-    <div id="setup-container">
-        <div id="setup-screen" class="glass-panel">
-            <h1 class="title-text">ICE AGE</h1>
-            <h2 class="subtitle-text">THE BOARD GAME</h2>
-            
-            <select id="player-count" class="btn">
-                <option value="2">2 Explorers (Duel Mode)</option>
-                <option value="3">3 Explorers</option>
-                <option value="4" selected>4 Explorers</option>
-            </select>
-            
-            <div id="player-inputs"></div>
-            <button id="btn-start-game" class="btn btn-cyan" style="margin-top: 3vmin; font-size: clamp(1.5rem, 5vmin, 2.5rem);">Deploy Explorers</button>
-        </div>
-    </div>
-
-    <div id="game-interface">
+    <div id="game-container">
         <div id="left-col">
             <div id="board-wrapper">
                 <div id="board">
-                    <div id="center-island">
-                        <div class="biome b-grass">GRASSY<br>PLAINS</div>
-                        <div class="biome b-mtn">FROZEN<br>PEAKS</div>
-                        <div class="biome b-vill">ANCIENT<br>VILLAGE</div>
-                        <div class="biome b-snow">SNOWY<br>TUNDRA</div>
                     </div>
-                </div>
             </div>
         </div>
 
         <div id="right-col">
-            <div id="hud"></div>
-            <div id="controls" class="glass-panel">
-                <div id="turn-indicator">Player's Turn</div>
-                <div class="control-buttons">
-                    <button id="btn-roll" class="btn" style="flex: 2; font-size: clamp(2rem, 5vmin, 3rem); padding: 2.5vmin;">ROLL 🎲</button>
+            <div id="hud" class="panel">
                 </div>
-                <div class="control-buttons">
-                    <button id="btn-rules" class="btn btn-cyan" style="flex: 1; font-size: clamp(1rem, 2.5vmin, 1.2rem);">RULES</button>
-                    <button id="btn-audio" class="btn btn-purple" style="flex: 1; font-size: clamp(1rem, 2.5vmin, 1.2rem);">MUTE AUDIO</button>
-                </div>
+            
+            <div id="controls" class="panel">
+                <h2 id="turn-indicator" style="margin: 0 0 10px 0; text-align: center;">Game Start</h2>
+                <div id="dice-display" style="font-size: 40px; margin-bottom: 10px;">🎲</div>
+                <button id="btn-roll" class="btn">ROLL DICE</button>
                 <div id="log"></div>
             </div>
         </div>
     </div>
 
-    <div id="modal-overlay">
-        <div class="modal" id="modal-box">
-            <h2 id="modal-title">System Alert</h2>
-            <div id="modal-content-area"><div id="modal-desc">Description</div></div>
-            <div id="modal-btns" class="modal-btns"></div>
+    <div id="simple-modal">
+        <div class="modal-content">
+            <h2 id="sm-title">Title</h2>
+            <p id="sm-text">Description</p>
+            <div id="modal-btn-container">
+                </div>
         </div>
     </div>
 
 <script>
     /* =========================================================================
-       MODULE 1: AUDIO ENGINE & SETTINGS
-       ========================================================================= */
-    const Settings = { muted: false, isSuddenDeath: false };
-
-    const AudioEngine = {
-        ctx: new (window.AudioContext || window.webkitAudioContext)(),
-        playTone: function(freq, type, duration, volMod=1) {
-            if(Settings.muted) return;
-            try {
-                let osc = this.ctx.createOscillator(); let gain = this.ctx.createGain();
-                osc.type = type; osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
-                gain.gain.setValueAtTime(0.8 * volMod, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
-                osc.connect(gain); gain.connect(this.ctx.destination);
-                osc.start(); osc.stop(this.ctx.currentTime + duration);
-            } catch(e) {}
-        },
-        sfxCoin: function() { this.playTone(800, 'square', 0.1, 0.4); setTimeout(() => this.playTone(1200, 'square', 0.15, 0.4), 50); },
-        sfxLose: function() { this.playTone(200, 'sawtooth', 0.2, 0.5); },
-        sfxJump: function() { this.playTone(400, 'sine', 0.1, 0.2); },
-        sfxHurt: function() { this.playTone(100, 'square', 0.3, 0.6); },
-        sfxDiceTick: function() { this.playTone(900, 'triangle', 0.05, 0.2); },
-        sfxWin: function() { this.playTone(400, 'square', 0.2, 0.6); setTimeout(() => this.playTone(500, 'square', 0.2, 0.6), 200); setTimeout(() => this.playTone(600, 'square', 0.5, 0.6), 400); },
-        sfxMeteor: function() { this.playTone(150, 'sawtooth', 0.5, 0.8); setTimeout(() => this.playTone(100, 'square', 0.8, 1), 100); }
-    };
-
-    document.getElementById('btn-audio').addEventListener('click', (e) => {
-        Settings.muted = !Settings.muted;
-        e.target.innerText = Settings.muted ? "UNMUTE AUDIO" : "MUTE AUDIO";
-        e.target.style.background = Settings.muted ? "var(--red)" : "var(--purple)";
-    });
-
-    /* =========================================================================
-       MODULE 2: GPU-ACCELERATED FX ENGINE
-       ========================================================================= */
-    const FX = {
-        layer: document.getElementById('particle-layer'),
-        
-        shootConfetti: function() {
-            const colors = ['#FFC107', '#00E5FF', '#FF1744', '#00E676', '#FFFFFF'];
-            let ww = window.innerWidth; let wh = window.innerHeight;
-            for(let i=0; i<80; i++) {
-                let c = document.createElement('div'); c.className = 'confetti';
-                c.style.background = colors[Math.floor(Math.random() * colors.length)];
-                let startX = Math.random() * ww;
-                c.style.transform = `translate3d(${startX}px, -20px, 0)`;
-                c.style.transition = `transform ${Math.random()*2 + 2}s linear, opacity 1s`;
-                this.layer.appendChild(c);
-                requestAnimationFrame(() => { c.style.transform = `translate3d(${startX}px, ${wh + 20}px, 0) rotate(${Math.random()*720}deg)`; });
-                setTimeout(() => c.remove(), 4000);
-            }
-        },
-
-        spawnMeteor: function() {
-            let m = document.createElement('div'); m.className = 'meteor';
-            let startX = Math.random() * window.innerWidth;
-            m.style.transform = `translate3d(${startX}px, -100px, 0)`;
-            m.style.transition = `transform 0.8s linear`;
-            this.layer.appendChild(m);
-            requestAnimationFrame(() => { m.style.transform = `translate3d(${startX - 300}px, ${window.innerHeight + 100}px, 0)`; });
-            setTimeout(() => m.remove(), 800);
-        },
-        
-        spawn3DAcorn: function(playerId, type) {
-            if(type==='gain') AudioEngine.sfxCoin(); else AudioEngine.sfxLose();
-            let el = document.getElementById(`tok-${playerId}`) || document.getElementById(`hud-p${playerId}`); if(!el) return;
-            let rect = el.getBoundingClientRect(); 
-            let acorn = document.createElement('div'); acorn.className = 'acorn-3d'; acorn.innerText = '🌰';
-            let startY = rect.top; let endY = type === 'gain' ? startY - 250 : startY + window.innerHeight;
-            
-            acorn.style.transform = `translate3d(${rect.left}px, ${startY}px, 0) scale(0.5)`;
-            acorn.style.transition = type === 'gain' ? 'transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.8s' : 'transform 1s ease-in, opacity 1s';
-            if(type==='lose') acorn.style.filter = 'grayscale(1) drop-shadow(0 10px 10px rgba(255,0,0,0.8))';
-            
-            this.layer.appendChild(acorn);
-            requestAnimationFrame(() => {
-                acorn.style.transform = `translate3d(${rect.left}px, ${endY}px, 0) scale(2.5) rotate(${type==='gain'?360:-180}deg)`;
-                acorn.style.opacity = '0';
-            });
-            setTimeout(() => acorn.remove(), 1000);
-        },
-
-        rollCenter3DDice: function(finalNumber, callback) {
-            let overlay = document.getElementById('dice-overlay'); let cube = document.getElementById('cube');
-            overlay.classList.add('active');
-            
-            let xSpin = (Math.floor(Math.random() * 2) + 3) * 360; let ySpin = (Math.floor(Math.random() * 2) + 3) * 360;
-            let xTarget = 0, yTarget = 0;
-            switch(finalNumber) {
-                case 1: xTarget = 0; yTarget = 0; break; case 2: xTarget = 0; yTarget = -90; break; case 3: xTarget = 0; yTarget = -180; break;
-                case 4: xTarget = 0; yTarget = 90; break; case 5: xTarget = -90; yTarget = 0; break; case 6: xTarget = 90; yTarget = 0; break;
-            }
-
-            cube.style.transform = `rotateX(${xSpin + xTarget}deg) rotateY(${ySpin + yTarget}deg)`;
-            let ticks = 0; let tickInt = setInterval(() => { AudioEngine.sfxDiceTick(); ticks++; if(ticks>6) clearInterval(tickInt); }, 150);
-
-            setTimeout(() => {
-                AudioEngine.sfxWin();
-                setTimeout(() => {
-                    overlay.classList.remove('active');
-                    setTimeout(() => { cube.style.transition = 'none'; cube.style.transform = `rotateX(0deg) rotateY(0deg)`; void cube.offsetWidth; cube.style.transition = 'transform 1.2s cubic-bezier(0.25, 1, 0.5, 1)'; }, 200);
-                    callback();
-                }, 600);
-            }, 1200); 
-        }
-    };
-
-    /* =========================================================================
-       MODULE 3: PURE BOARD MATRIX & THE EVENT DECK
+       1. GAME DATA & RULES
        ========================================================================= */
     const gridMap = [
         {c:1, r:1}, {c:2, r:1}, {c:3, r:1}, {c:4, r:1}, {c:5, r:1}, {c:6, r:1}, {c:7, r:1}, {c:8, r:1}, {c:9, r:1}, {c:10, r:1}, 
@@ -340,458 +130,264 @@
         {c:1, r:9}, {c:1, r:8}, {c:1, r:7}, {c:1, r:6}, {c:1, r:5}, {c:1, r:4}, {c:1, r:3}, {c:1, r:2} 
     ];
 
-    /* THE FIX: `wait` dictates if a space naturally creates its own UI pause */
+    const Events = [
+        "Glacier Collapse! Everyone loses 1 🌰.",
+        "Golden Find! Collect 2 🌰.",
+        "Avalanche! Move back 3 spaces.",
+        "Ice Slide! Move forward to a Free Space."
+    ];
+
+    // The Space Logic: Keep it simple. It either runs an action or does nothing.
     const SpaceData = [
         { t: "START", class: "s-start" }, 
-        { t: "+1 🌰", wait: false, f: (p) => addAcorns(p, 1) }, 
-        { t: "?", class: "s-event" },
-        { t: "Ally", wait: true, f: (p) => showAllyMenu(p) }, 
-        { t: "Go Start", wait: true, f: (p) => teleportTo(p, 0) }, 
-        { t: "+1 Roll", wait: true, f: (p) => triggerExtraRoll(p) }, 
-        { t: "?", class: "s-event" }, { t: "?", class: "s-event" }, 
-        { t: "+3 Spaces", wait: true, f: (p) => movePlayer(p, 3) }, 
-        { t: "Jaap STOP", class: "s-jaap" }, 
-        { t: "Next Free", wait: true, class: "s-cyan", f: (p) => jumpTo(p, "Free space") }, 
-        { t: "?", class: "s-event" }, 
-        { t: "Next Jaap (+2🌰)", wait: true, f: (p) => { addAcorns(p, 2); jumpTo(p, "Jaap STOP"); } }, 
-        { t: "Ally", wait: true, f: (p) => showAllyMenu(p) }, 
-        { t: "?", class: "s-event" }, 
-        { t: "Jaap STOP", class: "s-jaap" }, 
-        { t: "?", class: "s-event" }, 
-        { t: "+1 🌰", wait: false, f: (p) => addAcorns(p, 1) }, 
-        { t: "?", class: "s-event" }, { t: "?", class: "s-event" }, 
-        { t: "Next Ally", wait: true, f: (p) => jumpTo(p, "Ally") }, 
-        { t: "Jaap STOP", class: "s-jaap" }, 
-        { t: "?", class: "s-event" }, 
-        { t: "Ally", wait: true, f: (p) => showAllyMenu(p) }, 
-        { t: "Free space" }, { t: "Bridge" }, { t: "Free space" },
-        { t: "-4 Spaces", wait: true, f: (p) => movePlayer(p, -4) }, 
-        { t: "-2 🌰", wait: false, f: (p) => { loseAcorns(p, 2); AudioEngine.sfxHurt(); } }, 
-        { t: "Jaap STOP", class: "s-jaap" }, 
-        { t: "Trade", wait: true, f: (p) => showTradeMenu(p) }, 
-        { t: "Trade", wait: true, f: (p) => showTradeMenu(p) },
-        { t: "-8 Spaces (+2🌰)", wait: true, f: (p) => { addAcorns(p, 2); movePlayer(p, -8); } }, 
-        { t: "?", class: "s-event" },
-        { t: "+1 🌰", wait: false, f: (p) => addAcorns(p, 1) }, 
-        { t: "End", class: "s-end" }
-    ];
-
-    const AlliesList = [
-        { name: "Mammoth", p: "Skip Jaaps" }, { name: "Caveman", p: "+1 to Rolls" }, 
-        { name: "Squirrel", p: "Start = +4 🌰" }, { name: "Llama", p: "Lap = +2 🌰" }, 
-        { name: "White Dog", p: "Bridge = +1 🌰" }, { name: "Leopard", p: "Free = +1 🌰" },
-        { name: "Saber-tooth", p: "Corner = +1 🌰" }, { name: "Yak", p: "Pass = +1 🌰" }, 
-        { name: "White Wolf", p: "Defend Duels" }, { name: "Elder", p: "Immune to Events" },
-        { name: "Scout", p: "Start with +3 🌰 instantly" }, { name: "Shaman", p: "All 1s rolled become 6s" }
-    ];
-
-    const Events = [
-        { t: "Glacier Collapse!", desc: "Everyone loses 1 🌰.", wait: false, f: (p) => { state.players.forEach(o=>{if(!o.dead) loseAcorns(o,1);}); AudioEngine.sfxHurt(); } },
-        { t: "Golden Find!", desc: "Collect 2 Golden Acorns.", wait: false, f: (p) => addAcorns(p, 2) }, 
-        { t: "Ancient Tree!", desc: "Collect 5 Golden Acorns.", wait: false, f: (p) => addAcorns(p, 5) }, 
-        { t: "Villager's Gift", desc: "Gain a free Ally!", wait: true, f: (p) => showAllyMenu(p) },
-        { t: "Thief in the Night", desc: "Steal 1 🌰 from a player.", wait: true, f: (p) => showTargetMenu(p, 1) }, 
-        { t: "Ice Slide", desc: "Advance directly to a Free Space.", wait: true, f: (p) => jumpTo(p, "Free space") }, 
-        { t: "Lucky Find", desc: "Move 3 spaces & collect 1 🌰.", wait: true, f: (p) => { addAcorns(p, 1); movePlayer(p, 3); } },
-        { t: "Lost in the Tundra", desc: "Go back to Start.", wait: true, f: (p) => teleportTo(p, 0) },
-        { t: "Wandering Trader", desc: "Swap allies with another player.", wait: true, f: (p) => showSwapMenu(p) },
-        { t: "Avalanche!", desc: "Move back 3 spaces.", wait: true, f: (p) => { AudioEngine.sfxHurt(); movePlayer(p, -3); } },
-        { t: "Spring Thaw", desc: "Collect 1 🌰 for every lap completed.", wait: false, f: (p) => addAcorns(p, p.laps) },
-        { t: "Secret Stash", desc: "Roll dice to collect acorns.", wait: true, f: (p) => { let r = Math.floor(Math.random()*6)+1; addAcorns(p, r); log(`Rolled ${r} for stash!`, "gain"); nextTurn(); } },
-        { t: "Shortcut!", desc: "Move straight to the Bridge.", wait: true, f: (p) => jumpTo(p, "Bridge") },
-        { t: "Eagle Swoop", desc: "Steal 1 🌰 from all players.", wait: false, f: (p) => { let s=0; state.players.forEach(o=>{if(o!=p && o.acorns>0 && !o.dead){loseAcorns(o,1); s++;}}); addAcorns(p, s); AudioEngine.sfxHurt(); } },
-        { t: "Sabotage", desc: "Target player loses their next turn.", wait: true, f: (p) => { 
-            let targets = state.players.filter(o => o.id !== p.id && !o.dead);
-            let btns = targets.map(t => ({ t: t.name, a: () => { t.skip = true; log(`${t.name} was sabotaged!`, "lose"); nextTurn(); }}));
-            if(btns.length === 0) btns.push({t: "Nobody", a: () => nextTurn()});
-            createChoiceModal("Sabotage:", btns);
-        }}
+        { t: "+1 🌰", action: (p) => gainAcorns(p, 1) }, 
+        { t: "EVENT", class: "s-event", action: (p) => triggerEvent(p) },
+        { t: "Go Start", action: (p) => teleport(p, 0) }, 
+        { t: "+1 Roll", action: (p) => { showMsg("EXTRA ROLL", "You get to roll again!", () => rollDice(p)); return true; /* true means don't pass turn */ } }, 
+        { t: "EVENT", class: "s-event", action: (p) => triggerEvent(p) }, 
+        { t: "+3 Spaces", action: (p) => moveToken(p, 3) }, 
+        { t: "Jaap STOP", class: "s-jaap", action: (p) => { p.skip = true; showMsg("JAAP STOP", "Vehicle broken. Skip next turn.", passTurn); return true; } }, 
+        { t: "Free space" }, 
+        { t: "EVENT", class: "s-event", action: (p) => triggerEvent(p) }, 
+        { t: "Jaap (+2🌰)", action: (p) => { gainAcorns(p, 2); jumpTo(p, "Jaap STOP"); return true; } }, 
+        { t: "EVENT", class: "s-event", action: (p) => triggerEvent(p) }, 
+        { t: "Jaap STOP", class: "s-jaap", action: (p) => { p.skip = true; showMsg("JAAP STOP", "Vehicle broken. Skip next turn.", passTurn); return true; } }, 
+        { t: "EVENT", class: "s-event", action: (p) => triggerEvent(p) }, 
+        { t: "+1 🌰", action: (p) => gainAcorns(p, 1) }, 
+        { t: "EVENT", class: "s-event", action: (p) => triggerEvent(p) }, 
+        { t: "Jaap STOP", class: "s-jaap", action: (p) => { p.skip = true; showMsg("JAAP STOP", "Vehicle broken. Skip next turn.", passTurn); return true; } }, 
+        { t: "EVENT", class: "s-event", action: (p) => triggerEvent(p) }, 
+        { t: "Free space" }, 
+        { t: "Bridge" }, 
+        { t: "Free space" },
+        { t: "-4 Spaces", action: (p) => moveToken(p, -4) }, 
+        { t: "-2 🌰", action: (p) => loseAcorns(p, 2) }, 
+        { t: "Jaap STOP", class: "s-jaap", action: (p) => { p.skip = true; showMsg("JAAP STOP", "Vehicle broken. Skip next turn.", passTurn); return true; } }, 
+        { t: "-8 Spaces", action: (p) => moveToken(p, -8) }, 
+        { t: "EVENT", class: "s-event", action: (p) => triggerEvent(p) },
+        { t: "+1 🌰", action: (p) => gainAcorns(p, 1) }, 
+        { t: "End", class: "s-jaap" },
+        // Pad out the rest to 36 spaces to complete the square board
+        { t: "Free space" }, { t: "+1 🌰", action: (p) => gainAcorns(p, 1) }, { t: "EVENT", class: "s-event", action: (p) => triggerEvent(p) },
+        { t: "Jaap STOP", class: "s-jaap", action: (p) => { p.skip = true; showMsg("JAAP STOP", "Vehicle broken. Skip next turn.", passTurn); return true; } },
+        { t: "Free space" }, { t: "Bridge" }, { t: "Free space" }, { t: "+2 🌰", action: (p) => gainAcorns(p, 2) }
     ];
 
     /* =========================================================================
-       MODULE 4: STATE MANAGEMENT & SETUP
+       2. STATE & SETUP
        ========================================================================= */
-    let state = { players: [], turn: 0, finishers: [], firstLapFinished: false, totalTurns: 0 };
     const colors = ['#F44336', '#4CAF50', '#2196F3', '#FFEB3B'];
+    let state = {
+        players: [
+            { id: 0, name: "Player 1", color: colors[0], pos: 0, acorns: 4, laps: 0, skip: false },
+            { id: 1, name: "Player 2", color: colors[1], pos: 0, acorns: 4, laps: 0, skip: false },
+            { id: 2, name: "Player 3", color: colors[2], pos: 0, acorns: 4, laps: 0, skip: false },
+            { id: 3, name: "Player 4", color: colors[3], pos: 0, acorns: 4, laps: 0, skip: false }
+        ],
+        turn: 0
+    };
 
-    document.addEventListener("DOMContentLoaded", () => {
-        document.getElementById('player-count').addEventListener('change', (e) => {
-            const c = document.getElementById('player-inputs'); c.innerHTML = '';
-            for(let i=0; i<e.target.value; i++) {
-                c.innerHTML += `<div class="setup-row"><input type="text" id="p${i}-name" value="Player ${i+1}" maxlength="12"><div class="player-color-dot" style="background:${colors[i]};"></div></div>`;
-            }
-        });
-        document.getElementById('player-count').dispatchEvent(new Event('change'));
-
-        document.getElementById('btn-start-game').addEventListener('click', () => {
-            const num = document.getElementById('player-count').value;
-            for(let i=0; i<num; i++) {
-                state.players.push({
-                    id: i, name: document.getElementById(`p${i}-name`).value, color: colors[i],
-                    pos: 0, acorns: 4, laps: 0, ally: null, skip: false, extraTurn: false, dead: false
-                });
-            }
-            
-            const setupContainer = document.getElementById('setup-container'); setupContainer.style.opacity = '0';
-            setTimeout(() => {
-                setupContainer.style.display = 'none'; 
-                document.getElementById('game-interface').style.display = 'flex'; 
-                AudioEngine.ctx.resume(); buildBoard(); updateHUD(); setTurn();
-                log("🚀 GAME STARTED. MAY THE BEST EXPLORER WIN.", "event");
-            }, 500);
-        });
-
-        document.getElementById('btn-rules').addEventListener('click', () => {
-            createChoiceModal("RULEBOOK", [{t: "Close", a: () => {}}]);
-            document.getElementById('modal-content-area').innerHTML = `
-                <div style="text-align: left; font-size: clamp(1.2rem, 3vmin, 1.8rem); line-height: 1.6; color: #FFF;">
-                    <p><strong>Start:</strong> Distribute 4 golden acorns.</p>
-                    <p><strong>Laps:</strong> 1st gets +1 bonus. Everyone gets +2 per lap.</p>
-                    <p style="color: var(--cyan);"><strong>Endgame (3-4 P):</strong> 1st (+3🌰), 2nd (+2🌰), 3rd (+1🌰). Last eliminated.</p>
-                    <p style="color: var(--gold);"><strong>Endgame (2 P):</strong> First to finish lap 3 gets +3🌰. Game ends instantly. Winner based on total acorns.</p>
-                    <p><strong>Combat:</strong> Land on an enemy to enter Duel Arena. Winner steals 1 acorn.</p>
-                    <p style="color: var(--red);"><strong>Sudden Death:</strong> If the game exceeds 40 turns, a Meteor Shower begins. Everyone loses 1 acorn per turn.</p>
-                </div>`;
-        });
-    });
+    function initGame() {
+        const board = document.getElementById('board');
+        for (let i = 0; i < 36; i++) {
+            let sp = SpaceData[i] || { t: "Free space" }; // Fallback
+            let div = document.createElement('div');
+            div.className = `space ${sp.class || ''}`;
+            div.id = `space-${i}`;
+            div.style.gridColumn = gridMap[i].c;
+            div.style.gridRow = gridMap[i].r;
+            div.innerHTML = `<span>${sp.t}</span><div id="tc-${i}" class="token-container"></div>`;
+            board.appendChild(div);
+        }
+        
+        state.players.forEach(p => drawToken(p));
+        updateHUD();
+        startTurn();
+    }
 
     /* =========================================================================
-       MODULE 5: CORE ENGINE LOGIC
+       3. CORE LOGIC
        ========================================================================= */
-    function addAcorns(p, amt) {
-        if(amt <= 0) return; p.acorns += amt;
-        log(`${p.name} gained ${amt} 🌰.`, "gain"); FX.spawn3DAcorn(p.id, 'gain'); updateHUD();
-    }
-    
-    function loseAcorns(p, amt) {
-        let actualLoss = Math.min(p.acorns, amt); if(actualLoss <= 0) return; p.acorns -= actualLoss;
-        log(`${p.name} lost ${actualLoss} 🌰.`, "lose"); FX.spawn3DAcorn(p.id, 'lose'); updateHUD();
-    }
-
-    function buildBoard() {
-        const b = document.getElementById('board'); 
-        document.querySelectorAll('.space').forEach(e => e.remove());
-        SpaceData.forEach((sp, i) => {
-            let div = document.createElement('div'); div.className = `space ${sp.class || ''}`; div.id = `space-${i}`; div.style.gridColumn = gridMap[i].c; div.style.gridRow = gridMap[i].r;
-            div.innerHTML = `<span>${sp.t}</span><div id="tc-${i}" class="token-container"></div>`; b.appendChild(div);
-        });
-        state.players.forEach(p => drawToken(p, false));
-    }
-
-    function drawToken(p, hopping = false) {
-        if(p.dead) return;
-        let old = document.getElementById(`tok-${p.id}`); if(old) old.remove();
-        let tok = document.createElement('div'); tok.id = `tok-${p.id}`; tok.className = 'token';
-        if (hopping) { 
-            AudioEngine.sfxJump(); 
-            tok.style.transition = 'transform 0.15s ease-out'; tok.style.transform = 'translateY(-4vmin) scale(1.3)';
-            setTimeout(() => { tok.style.transform = 'translateY(0) scale(1)'; }, 150);
-        }
-        tok.style.background = p.color; tok.innerText = p.name.charAt(0);
+    function drawToken(p) {
+        let old = document.getElementById(`tok-${p.id}`);
+        if (old) old.remove();
+        let tok = document.createElement('div');
+        tok.id = `tok-${p.id}`;
+        tok.className = 'token';
+        tok.style.background = p.color;
+        tok.innerText = p.name.charAt(0);
         document.getElementById(`tc-${p.pos}`).appendChild(tok);
-        
-        let space = document.getElementById(`space-${p.pos}`); space.classList.add('glow');
-        setTimeout(() => space.classList.remove('glow'), 800);
     }
 
     function updateHUD() {
-        const h = document.getElementById('hud'); h.innerHTML = '';
+        const hud = document.getElementById('hud');
+        hud.innerHTML = '';
         state.players.forEach((p, i) => {
-            h.innerHTML += `<div id="hud-p${p.id}" class="hud-player ${i === state.turn ? 'active' : ''} ${p.dead ? 'eliminated' : ''}" style="border-top-color:${p.color};">
-                <div class="p-name" style="color:${p.color}">${p.name}</div>
-                <div class="p-acorns">${p.acorns} 🌰</div>
-                <div style="font-size: clamp(0.9rem, 2.5vmin, 1.4rem); font-weight:bold;">Laps: <span style="color:var(--cyan);">${p.laps}/3</span></div>
-                <div style="color:var(--gold); font-size: clamp(0.8rem, 2.2vmin, 1.2rem); font-weight:900; background:rgba(0,0,0,0.8); padding:0.5vmin; border-radius:0.5vmin; margin-top:0.5vmin;">${p.ally ? p.ally.name : 'NO ALLY'}</div>
-            </div>`;
+            hud.innerHTML += `
+                <div class="player-card ${i === state.turn ? 'active' : ''}" style="border-top-color:${p.color};">
+                    <div style="color:${p.color}; font-weight:bold;">${p.name}</div>
+                    <div style="font-size: 24px; color: #FFC107; margin: 5px 0;">${p.acorns} 🌰</div>
+                    <div>Laps: ${p.laps}/3</div>
+                </div>`;
         });
     }
 
-    function log(msg, type = "normal") {
-        const l = document.getElementById('log'); let t = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
-        let cClass = ""; if(type==="gain") cClass = "log-gain"; if(type==="lose") cClass = "log-lose"; if(type==="event") cClass = "log-event";
-        l.innerHTML = `<div class="log-entry"><span class="log-time">[${t}]</span> <span class="${cClass}">${msg}</span></div>` + l.innerHTML; 
-        l.scrollTop = 0;
+    function log(msg) {
+        const l = document.getElementById('log');
+        l.innerHTML = `<div class="log-entry">${msg}</div>` + l.innerHTML;
     }
 
-    function setTurn() {
-        let p = state.players[state.turn]; document.getElementById('turn-indicator').innerText = `${p.name}'s Turn`;
-        document.getElementById('turn-indicator').style.color = p.color; 
+    // A foolproof modal to pause the game safely
+    function showMsg(title, text, callback) {
+        document.getElementById('simple-modal').style.display = 'flex';
+        document.getElementById('sm-title').innerText = title;
+        document.getElementById('sm-text').innerText = text;
         
-        if(state.totalTurns > 40) {
-            if(!Settings.isSuddenDeath) { Settings.isSuddenDeath = true; createChoiceModal("METEOR SHOWER", [{t: "Survive", a: () => {}}]); document.getElementById('modal-desc').innerHTML = `<span style="color:var(--red);">Sudden Death! Everyone loses 1 🌰 per turn!</span>`; }
-            FX.spawnMeteor(); AudioEngine.sfxMeteor(); loseAcorns(p, 1);
-        }
-        updateHUD();
-
-        if (p.skip) {
-            p.skip = false;
-            document.getElementById('btn-roll').disabled = true;
-            log(`🛑 ${p.name} is skipped this turn.`, "lose");
-            
-            createChoiceModal("SKIPPED", [{t: "End Turn", a: () => { AudioEngine.sfxHurt(); nextTurn(); }}]);
-            document.getElementById('modal-desc').innerHTML = `<span style="color: var(--red); font-size: clamp(1.5rem, 4vmin, 3rem);">Vehicle Broken. You lose this turn.</span>`;
-            return;
-        }
-        document.getElementById('btn-roll').disabled = false;
-    }
-
-    function nextTurn() {
-        state.totalTurns++; 
-        let p = state.players[state.turn];
-        if (p.extraTurn) { 
-            p.extraTurn = false; 
-            log(`⭐ ${p.name} takes an extra turn!`, "event"); 
-        } else { 
-            do { state.turn = (state.turn + 1) % state.players.length; } while (state.players[state.turn].dead || state.finishers.includes(state.players[state.turn])); 
-        }
-        setTurn();
+        let btnContainer = document.getElementById('modal-btn-container');
+        btnContainer.innerHTML = `<button class="btn" id="modal-ok-btn" style="width: auto; padding: 10px 30px;">OK</button>`;
+        
+        document.getElementById('modal-ok-btn').onclick = () => {
+            document.getElementById('simple-modal').style.display = 'none';
+            if (callback) callback();
+        };
     }
 
     /* =========================================================================
-       MODULE 6: MOVEMENT & TELEPORTING
+       4. TURN ENGINE
        ========================================================================= */
-    document.getElementById('btn-roll').addEventListener('click', () => {
+    function startTurn() {
         let p = state.players[state.turn];
-        document.getElementById('btn-roll').disabled = true; 
-        let baseRoll = Math.floor(Math.random() * 6) + 1;
-        let bonus = (p.ally && p.ally.name === "Caveman") ? 1 : 0;
-        let finalRoll = baseRoll + bonus;
+        document.getElementById('turn-indicator').innerText = `${p.name}'s Turn`;
+        document.getElementById('turn-indicator').style.color = p.color;
         
-        if (p.ally && p.ally.name === "Shaman" && baseRoll === 1) { finalRoll = 6 + bonus; log(`🔮 Shaman turned a 1 into a 6!`, "event"); }
-
-        FX.rollCenter3DDice(finalRoll, () => {
-            if (bonus > 0) log(`🧢 Caveman adds +1!`, "gain");
-            log(`🎲 ${p.name} moves ${finalRoll}.`);
-            movePlayer(p, finalRoll);
-        });
-    });
-
-    function triggerExtraRoll(p) {
-        log(`⭐ ${p.name} gets a free extra roll!`, "event");
-        p.extraTurn = true;
-        nextTurn();
+        if (p.skip) {
+            p.skip = false;
+            document.getElementById('btn-roll').disabled = true;
+            log(`🛑 ${p.name} loses their turn (Vehicle Broken).`);
+            showMsg("Turn Skipped", `${p.name}, your vehicle is broken. You lose this turn.`, passTurn);
+            return;
+        }
+        
+        document.getElementById('btn-roll').disabled = false;
     }
 
-    function teleportTo(p, targetPos) {
-        p.pos = targetPos;
-        drawToken(p, true);
-        setTimeout(() => evaluateSpace(p), 600);
+    document.getElementById('btn-roll').addEventListener('click', () => {
+        let p = state.players[state.turn];
+        document.getElementById('btn-roll').disabled = true; // Prevent double click
+        rollDice(p);
+    });
+
+    function rollDice(p) {
+        let roll = Math.floor(Math.random() * 6) + 1;
+        document.getElementById('dice-display').innerText = `🎲 ${roll}`;
+        log(`🎲 ${p.name} rolled a ${roll}.`);
+        moveToken(p, roll);
+    }
+
+    function moveToken(p, spaces) {
+        let oldPos = p.pos;
+        p.pos += spaces;
+
+        // Lap logic
+        if (p.pos >= 36) {
+            p.pos = p.pos - 36;
+            p.laps++;
+            p.acorns += 2;
+            log(`🏁 ${p.name} completed a lap! (+2 🌰)`);
+            if(p.laps >= 3) {
+                showMsg("WINNER!", `${p.name} finished 3 laps and wins the game!`, () => location.reload());
+                return;
+            }
+        } else if (p.pos < 0) {
+            p.pos = 36 + p.pos; // Move backwards wrap around
+        }
+
+        drawToken(p);
+        evaluateSpace(p);
+    }
+
+    function teleport(p, spaceIndex) {
+        p.pos = spaceIndex;
+        drawToken(p);
+        evaluateSpace(p);
     }
 
     function jumpTo(p, spaceName) {
         let target = -1;
-        for(let i=1; i<SpaceData.length; i++) {
-            let checkPos = (p.pos + i) % SpaceData.length;
-            if(SpaceData[checkPos].t.toLowerCase().includes(spaceName.toLowerCase())) { target = checkPos; break; }
+        for(let i=1; i<36; i++) {
+            let checkPos = (p.pos + i) % 36;
+            let sp = SpaceData[checkPos] || {t:""};
+            if(sp.t.toLowerCase().includes(spaceName.toLowerCase())) { target = checkPos; break; }
         }
-        if(target !== -1) teleportTo(p, target);
-        else nextTurn();
-    }
-
-    function movePlayer(p, amt) {
-        let startPos = p.pos; let steps = Math.abs(amt); let dir = amt > 0 ? 1 : -1; let currentStep = 0;
-
-        function step() {
-            if (currentStep >= steps) { 
-                if(p.ally && p.ally.name === "Yak" && amt > 0) {
-                    let passed = 0; state.players.forEach(o => { if(o.id !== p.id && !o.dead && o.pos > startPos && o.pos <= startPos+amt) passed++; });
-                    if(passed > 0) { addAcorns(p, passed); log(`🐂 Yak power: got ${passed} 🌰 passing players!`, "gain"); }
-                }
-                evaluateSpace(p); return; 
-            }
-            p.pos += dir;
-            
-            if (p.pos >= SpaceData.length) {
-                p.pos = 0; p.laps++; 
-                addAcorns(p, 2); log(`🏁 ${p.name} finished lap ${p.laps}! (+2 🌰)`, "gain");
-                
-                if (!state.firstLapFinished) { state.firstLapFinished = true; addAcorns(p, 1); log(`🌟 ${p.name} is FIRST to finish a lap! (+1 🌰)`, "gain"); AudioEngine.sfxWin(); }
-                
-                if (p.laps >= 3 && !state.finishers.includes(p)) {
-                    state.finishers.push(p); let place = state.finishers.length; let totalP = state.players.length;
-                    
-                    if (totalP === 4) {
-                        if (place === 1) { addAcorns(p, 3); log(`🥇 ${p.name} finished 1st! (+3 🌰)`, "gain"); FX.shootConfetti(); }
-                        if (place === 2) { addAcorns(p, 2); log(`🥈 ${p.name} finished 2nd! (+2 🌰)`, "gain"); }
-                        if (place === 3) { addAcorns(p, 1); log(`🥉 ${p.name} finished 3rd! (+1 🌰)`, "gain"); }
-                        if (place === 4) { p.dead = true; log(`💀 ${p.name} finished LAST and is ELIMINATED!`, "lose"); AudioEngine.sfxHurt(); return endGame(); }
-                    } 
-                    else if (totalP === 3) {
-                        if (place === 1) { addAcorns(p, 2); log(`🥇 ${p.name} finished 1st! (+2 🌰)`, "gain"); FX.shootConfetti(); }
-                        if (place === 2) { addAcorns(p, 1); log(`🥈 ${p.name} finished 2nd! (+1 🌰)`, "gain"); }
-                        if (place === 3) { p.dead = true; log(`💀 ${p.name} finished LAST and is ELIMINATED!`, "lose"); AudioEngine.sfxHurt(); return endGame(); }
-                    } 
-                    else if (totalP === 2) {
-                        if (place === 1) { addAcorns(p, 3); log(`🥇 ${p.name} finished Lap 3 first! GAME OVER!`, "event"); FX.shootConfetti(); setTimeout(endGame, 1000); return; }
-                    }
-                }
-            } else if (p.pos < 0) { p.pos = SpaceData.length - 1; }
-
-            drawToken(p, true); currentStep++; setTimeout(step, 250); 
-        }
-        step();
-    }
-
-    function evaluateSpace(p) {
-        updateHUD(); let sp = SpaceData[p.pos]; log(`${p.name} landed on: ${sp.t}`);
-
-        if (p.pos === 0 && p.ally && p.ally.name === "Squirrel") { addAcorns(p, 4); log("Squirrel power: +4 🌰", "gain"); }
-        if (sp.t.toLowerCase().includes("bridge") && p.ally && p.ally.name === "White Dog") { addAcorns(p, 1); log("White Dog power: +1 🌰", "gain"); }
-        if (sp.t.toLowerCase().includes("free space") && p.ally && p.ally.name === "Leopard") { addAcorns(p, 1); log("Leopard power: +1 🌰", "gain"); }
-        if (cornerSpaces.includes(p.pos) && p.ally && p.ally.name === "Saber-tooth") { addAcorns(p, 1); log("Saber-tooth power: +1 🌰", "gain"); }
-
-        let enemy = state.players.find(o => o.id !== p.id && !o.dead && !state.finishers.includes(o) && o.pos === p.pos);
-        if (enemy) {
-            if(enemy.ally && enemy.ally.name === "White Wolf") {
-                log(`🐺 White Wolf defends! ${enemy.name} steals 1 🌰 from ${p.name}!`, "lose");
-                loseAcorns(p, 1); addAcorns(enemy, 1); AudioEngine.sfxHurt(); triggerSpaceLogic(p, sp);
-            } else {
-                log(`⚔️ DUEL INITIATED!`, "event");
-                openModal("⚔️ COMBAT INITIATED ⚔️", ""); AudioEngine.sfxHurt();
-                let content = document.getElementById('modal-content-area');
-                content.innerHTML = `
-                    <div class="duel-arena">
-                        <div class="duel-player" id="dp1"><div class="duel-avatar" style="background:${p.color}">${p.name.charAt(0)}</div><h3 style="color:${p.color}; font-size: 3vmin;">${p.name}</h3><div id="dd1" style="font-size: 8vmin; width: 12vmin; height: 12vmin; background:#FFF; color:#000; border-radius:1vmin; display:flex; align-items:center; justify-content:center; margin-top:1vmin;">?</div></div>
-                        <div class="vs-text">VS</div>
-                        <div class="duel-player" id="dp2"><div class="duel-avatar" style="background:${enemy.color}">${enemy.name.charAt(0)}</div><h3 style="color:${enemy.color}; font-size: 3vmin;">${enemy.name}</h3><div id="dd2" style="font-size: 8vmin; width: 12vmin; height: 12vmin; background:#FFF; color:#000; border-radius:1vmin; display:flex; align-items:center; justify-content:center; margin-top:1vmin;">?</div></div>
-                    </div>`;
-                document.getElementById('modal-btns').innerHTML = `<button class="btn btn-red" id="btn-start-duel">ROLL FOR COMBAT</button>`;
-                
-                document.getElementById('btn-start-duel').onclick = () => {
-                    document.getElementById('btn-start-duel').classList.add('hidden');
-                    let d1 = document.getElementById('dd1'); let d2 = document.getElementById('dd2');
-                    let r1=0, r2=0, ticks=0;
-                    let interval = setInterval(() => {
-                        r1 = Math.floor(Math.random()*6)+1; r2 = Math.floor(Math.random()*6)+1;
-                        while(r1 === r2) { r1 = Math.floor(Math.random()*6)+1; r2 = Math.floor(Math.random()*6)+1; }
-                        d1.innerText = r1; d2.innerText = r2; AudioEngine.sfxDiceTick(); ticks++;
-                        if(ticks > 15) {
-                            clearInterval(interval); let winner = r1 > r2 ? p : enemy; let loser = r1 > r2 ? enemy : p;
-                            if(r1 > r2) { d1.style.color="var(--gold)"; document.getElementById('dp2').style.opacity="0.3"; } else { d2.style.color="var(--gold)"; document.getElementById('dp1').style.opacity="0.3"; }
-                            AudioEngine.sfxWin();
-                            document.getElementById('modal-btns').innerHTML = `<h2 style="width:100%; color:var(--gold);">${winner.name} WINS!</h2><button class="btn btn-cyan" id="btn-end-duel">Steal Acorn & Continue</button>`;
-                            document.getElementById('btn-end-duel').onclick = () => { closeModal(); loseAcorns(loser, 1); addAcorns(winner, 1); log(`⚔️ ${winner.name} stole 1 🌰 from ${loser.name}!`, "event"); setTimeout(() => triggerSpaceLogic(p, sp), 250); };
-                        }
-                    }, 80);
-                };
-                return;
-            }
-        }
-        triggerSpaceLogic(p, sp);
-    }
-
-    /* THE FIX: BULLETPROOF SYNCHRONOUS LOGIC QUEUE */
-    function triggerSpaceLogic(p, sp) {
-        if (sp.class === 's-jaap') {
-            if (p.ally && p.ally.name === "Mammoth") { 
-                log(`Mammoth ignores Jaap!`); 
-                setTimeout(nextTurn, 500); 
-            } else {
-                createChoiceModal("JAAP STOP", [{t: "End Turn", a: () => { p.skip = true; AudioEngine.sfxHurt(); nextTurn(); }}]);
-                document.getElementById('modal-desc').innerHTML = `<span style="color: var(--red); font-size: clamp(1.5rem, 4vmin, 3rem);">Vehicle Broken. You will lose your next turn.</span>`;
-            }
-        }
-        else if (sp.class === 's-event') {
-            if (p.ally && p.ally.name === "Elder") { log(`Elder ignores Event!`); setTimeout(nextTurn, 500); return; }
-            
-            let ev = Events[Math.floor(Math.random() * Events.length)];
-            createChoiceModal("EVENT DRAWN", [{
-                t: "Resolve Card", 
-                close: !ev.wait, // The core fix: Leaves the modal open if the event has its own menu
-                a: () => { 
-                    if (ev.wait) { ev.f(p); } 
-                    else { ev.f(p); updateHUD(); nextTurn(); } 
-                }
-            }]);
-            document.getElementById('modal-desc').innerHTML = `<span style="color: var(--cyan); font-size: clamp(2rem, 5vmin, 4rem);">${ev.t}<br><br><span style="color:#FFF; font-size: 60%;">${ev.desc}</span></span>`;
-        }
-        else if (sp.f) { 
-            if (sp.wait) {
-                // Instantly show the menu for Ally, Trade, etc. No double popups.
-                sp.f(p);
-            } else {
-                // Instant background action (+1 Acorn, etc). No annoying popup required.
-                sp.f(p);
-                updateHUD();
-                setTimeout(nextTurn, 800);
-            }
-        }
-        else { 
-            setTimeout(nextTurn, 500); 
-        }
+        if(target !== -1) teleport(p, target);
+        else passTurn();
     }
 
     /* =========================================================================
-       MODULE 7: THE BULLETPROOF MODAL ENGINE
+       5. SPACE ACTIONS
        ========================================================================= */
-    function openModal(title, descHtml) {
-        document.getElementById('modal-overlay').classList.add('active'); document.getElementById('modal-title').innerText = title;
-        document.getElementById('modal-content-area').innerHTML = `<div id="modal-desc">${descHtml}</div>`; document.getElementById('modal-btns').innerHTML = '';
+    function evaluateSpace(p) {
+        let sp = SpaceData[p.pos] || { t: "Free space" };
+        log(`📍 ${p.name} landed on: ${sp.t}`);
+        updateHUD();
+
+        // If the space has an action, run it. 
+        if (sp.action) {
+            let dontPassTurn = sp.action(p); 
+            // If the action handles passing the turn itself (like opening a modal), it returns true.
+            // Otherwise, we pass the turn automatically.
+            if (!dontPassTurn) {
+                setTimeout(passTurn, 800);
+            }
+        } else {
+            // Boring space. Just pass the turn after a brief pause so they see they landed.
+            setTimeout(passTurn, 800);
+        }
     }
-    
-    function closeModal() { document.getElementById('modal-overlay').classList.remove('active'); }
-    
-    function createChoiceModal(title, btns) {
-        openModal(title, ""); let c = document.getElementById('modal-btns'); c.innerHTML = '';
-        btns.forEach(b => { 
-            let btn = document.createElement('button'); btn.className = 'btn'; btn.innerText = b.t; 
-            btn.onclick = () => { 
-                if (b.close !== false) closeModal(); // Safely closes unless specifically told not to
-                b.a(); 
-            }; 
-            c.appendChild(btn); 
+
+    function gainAcorns(p, amt) {
+        p.acorns += amt;
+        log(`💰 ${p.name} got ${amt} 🌰.`);
+        updateHUD();
+    }
+
+    function loseAcorns(p, amt) {
+        if(p.acorns < amt) amt = p.acorns;
+        p.acorns -= amt;
+        log(`🔻 ${p.name} lost ${amt} 🌰.`);
+        updateHUD();
+    }
+
+    function triggerEvent(p) {
+        let evText = Events[Math.floor(Math.random() * Events.length)];
+        log(`📜 Event: ${evText}`);
+        
+        // Execute simple logic based on text to keep it foolproof
+        showMsg("EVENT DRAWN", evText, () => {
+            if (evText.includes("Everyone loses")) {
+                state.players.forEach(pl => { if(pl.acorns > 0) pl.acorns--; });
+            } else if (evText.includes("Collect 2")) {
+                p.acorns += 2;
+            } else if (evText.includes("Move back 3")) {
+                moveToken(p, -3); return; // moveToken calls evaluateSpace which handles passing turn
+            } else if (evText.includes("Free Space")) {
+                jumpTo(p, "Free space"); return; // jumpTo handles passing turn
+            }
+            updateHUD();
+            passTurn();
         });
+        return true; // Tells evaluateSpace that we are handling the turn pass
     }
 
-    function endGame() {
-        AudioEngine.sfxWin(); let rank = [...state.players].sort((a,b) => b.acorns - a.acorns); let winner = rank[0];
-        openModal("🏆 GAME OVER 🏆", ""); FX.shootConfetti();
-        
-        let html = rank.map((p,i) => `
-            <div style="background: rgba(0,0,0,0.8); padding: 2.5vmin; border-radius: 1vmin; border: 2px solid ${p.color}; margin-bottom: 2vmin; text-align: left;">
-                <div style="display:flex; justify-content:space-between; font-size: clamp(1.5rem, 4vmin, 2.5rem); font-weight:bold; color:${p.color};">
-                    <span>${i===0 ? '👑 ' : ''}${i+1}. ${p.name}</span><span>${p.acorns} 🌰</span>
-                </div>
-            </div>`).join('');
-        
-        document.getElementById('modal-content-area').innerHTML = `<h3 style="font-size: clamp(2.5rem, 6vmin, 4rem); color: var(--gold); margin-bottom: 3vmin; font-family:'Carter One'; text-shadow: 2px 2px 0 #000;">${winner.name} WINS!</h3>${html}`;
-        document.getElementById('modal-btns').innerHTML = `<button class="btn btn-cyan" onclick="location.reload()">PLAY AGAIN</button>`;
-        document.getElementById('btn-roll').classList.add('hidden');
+    function passTurn() {
+        state.turn = (state.turn + 1) % state.players.length;
+        updateHUD();
+        startTurn();
     }
 
-    function showAllyMenu(p) {
-        if (p.ally && p.ally.name === "Scout" && !p.scoutBonus) { p.scoutBonus = true; addAcorns(p, 3); }
-        let avail = AlliesList.filter(a => !state.players.find(pl => pl.ally && pl.ally.name === a.name));
-        if(avail.length === 0) avail = AlliesList;
-        let choices = avail.sort(() => 0.5 - Math.random()).slice(0, 3);
-        let btns = choices.map(c => ({ t: `${c.name}\n(${c.p})`, a: () => { p.ally = c; log(`🤝 Allied with ${c.name}`, "event"); updateHUD(); nextTurn(); } }));
-        btns.push({ t: "Pass", a: () => { log("Passed on ally."); nextTurn(); } });
-        createChoiceModal(`Choose Ally to Hire`, btns);
-    }
+    // Start everything
+    window.onload = initGame;
 
-    function showTradeMenu(p) {
-        let btns = [
-            { t: "Buy Ally (4🌰)", close: false, a: () => { if(p.acorns>=4){ loseAcorns(p,4); showAllyMenu(p);} else {log("Not enough acorns!"); AudioEngine.sfxHurt(); closeModal(); nextTurn();} } },
-            { t: "Sell Ally (+2🌰)", a: () => { if(p.ally){p.ally=null; addAcorns(p,2); log("Sold ally.", "gain");} else {log("No ally to sell!", "lose");} updateHUD(); nextTurn(); } },
-            { t: "Leave Market", a: () => nextTurn() }
-        ];
-        createChoiceModal("Villager Market", btns);
-    }
-
-    function showTargetMenu(p, amt) {
-        let targets = state.players.filter(o => o.id !== p.id && !o.dead);
-        let btns = targets.map(t => ({ t: `${t.name}`, a: () => { let act = Math.min(amt, t.acorns); loseAcorns(t, act); addAcorns(p, act); log(`Stole ${act} 🌰 from ${t.name}`, "gain"); nextTurn(); } }));
-        if(btns.length === 0) btns.push({t: "Nobody available", a: () => nextTurn()});
-        createChoiceModal(`Steal ${amt} Acorn(s) from:`, btns);
-    }
-
-    function showSwapMenu(p) {
-        let targets = state.players.filter(o => o.id !== p.id && !o.dead && o.ally);
-        if(targets.length === 0) { log("Nobody has an ally to swap!"); return nextTurn(); }
-        let btns = targets.map(t => ({ t: `Swap with ${t.name}`, a: () => { let temp = p.ally; p.ally = t.ally; t.ally = temp; log(`Swapped allies with ${t.name}!`, "event"); updateHUD(); nextTurn(); } }));
-        btns.push({ t: "Pass", a: () => nextTurn() });
-        createChoiceModal("Swap Ally", btns);
-    }
 </script>
 </body>
 </html>
