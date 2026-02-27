@@ -319,7 +319,7 @@
         document.getElementById(`tc-${p.pos}`).appendChild(tok);
     }
 
-    function moveOneStep(p, amtRemaining, evaluateAtEnd) {
+    function moveStep(p, amtRemaining, evaluateAtEnd) {
         if (amtRemaining === 0) {
             state.isAnimating = false;
             if (evaluateAtEnd) handleLanding(p);
@@ -354,7 +354,7 @@
         updateHUD();
         
         setTimeout(() => {
-            moveOneStep(p, amtRemaining > 0 ? amtRemaining - 1 : amtRemaining + 1, evaluateAtEnd);
+            moveStep(p, amtRemaining > 0 ? amtRemaining - 1 : amtRemaining + 1, evaluateAtEnd);
         }, 200);
     }
 
@@ -485,7 +485,7 @@
 
     function triggerEvent(p) {
         const evs = [
-            {t: "Blizzard!", f: () => moveOneStep(p, -3, true)},
+            {t: "Blizzard!", f: () => moveStep(p, -3, true)},
             {t: "Gold Mine!", f: () => { gainAcorns(p, 4); passTurn(); }},
             {t: "Thief!", f: () => { 
                 let richest = state.players.filter(o => o.id !== p.id).sort((a,b) => b.acorns - a.acorns)[0];
@@ -528,7 +528,7 @@
             setTimeout(() => {
                 document.getElementById('dice-overlay').style.display = 'none';
                 state.isAnimating = true;
-                moveOneStep(p, roll, true);
+                moveStep(p, roll, true);
             }, 800);
         }, 1000);
     });
@@ -634,4 +634,5 @@
 </script>
 </body>
 </html>
+
 
