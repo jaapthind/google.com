@@ -3,644 +3,1010 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Ice Age: The Final Masterpiece</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌰</text></svg>">
+    <title>Ice Age: The Final Masterpiece | ULTIMATE EDITION</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>❄️</text></svg>">
     
     <style>
         /* ==========================================================================
-           1. CORE ENGINE & LIQUID RAINBOW
+           1. CORE ENGINE & HYPER-LIQUID GLASS
            ========================================================================== */
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap');
+
         :root {
-            --glass: rgba(15, 20, 30, 0.75);
-            --border: rgba(255, 255, 255, 0.2);
+            --glass-bg: rgba(20, 30, 45, 0.45);
+            --glass-highlight: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.25);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6);
+            --glass-glow: 0 0 20px rgba(0, 229, 255, 0.2);
+            
             --cyan: #00E5FF;
-            --gold: #FFC107;
+            --gold: #FFD700;
             --red: #FF1744;
             --green: #00E676;
+            --purple: #D500F9;
+            --dark: #0a0f16;
+            --text-main: #f0f8ff;
         }
+        
+        * { box-sizing: border-box; outline: none; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
         
         html, body {
-            width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-            background-size: 400% 400%; animation: gradient 15s ease infinite;
-            color: white; position: absolute; inset: 0; box-sizing: border-box; user-select: none;
+            width: 100%; height: 100%; overflow: hidden;
+            font-family: 'Montserrat', sans-serif; color: var(--text-main);
+            background-color: var(--dark);
         }
 
-        @keyframes gradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        * { box-sizing: border-box; outline: none; }
+        /* Animated Mesh Gradient Background */
+        .ambient-bg {
+            position: fixed; inset: -50%; z-index: -2;
+            background: 
+                radial-gradient(circle at 15% 50%, rgba(0, 229, 255, 0.2), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(255, 23, 68, 0.15), transparent 25%),
+                radial-gradient(circle at 50% 80%, rgba(213, 0, 249, 0.15), transparent 25%);
+            filter: blur(60px); animation: meshSway 20s ease-in-out infinite alternate;
+        }
+        @keyframes meshSway { 0% { transform: rotate(0deg) scale(1); } 100% { transform: rotate(10deg) scale(1.2); } }
 
-        .glass { background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--border); box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
+        /* Liquid Glass Utilities */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(24px) saturate(150%);
+            -webkit-backdrop-filter: blur(24px) saturate(150%);
+            border: 1px solid var(--glass-border);
+            border-top: 1px solid var(--glass-highlight);
+            border-left: 1px solid var(--glass-highlight);
+            box-shadow: var(--glass-shadow), inset 0 0 20px rgba(255,255,255,0.02);
+            border-radius: 24px;
+            transition: all 0.3s ease;
+        }
 
         /* ==========================================================================
-           2. WEATHER & FX LAYER
+           2. RESPONSIVE LAYOUT MATRIX (THE FIX FOR OVERLAPPING)
            ========================================================================== */
-        #fx-layer { position: fixed; inset: 0; pointer-events: none; z-index: 100; opacity: 0; transition: opacity 2s; }
-        .weather-snow { background-image: radial-gradient(circle, #FFF 2px, transparent 3px); background-size: 80px 80px; animation: snowMove 5s linear infinite; }
-        .weather-rain { background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.2)); background-size: 2px 50px; animation: rainMove 0.3s linear infinite; }
-        @keyframes snowMove { from { background-position: 0 0; } to { background-position: 100px 500px; } }
-        @keyframes rainMove { from { background-position: 0 0; } to { background-position: 0 500px; } }
+        #game-layout {
+            display: none; width: 100vw; height: 100vh;
+            padding: 2vmin; gap: 2vmin;
+            flex-direction: row; align-items: stretch;
+            position: relative; z-index: 10;
+        }
+
+        #board-zone {
+            flex: 1 1 auto; min-width: 0; min-height: 0;
+            display: flex; align-items: center; justify-content: center;
+            position: relative;
+        }
+
+        #ui-zone {
+            flex: 0 0 450px; display: flex; flex-direction: column; gap: 2vmin;
+            min-width: 300px; max-width: 100%;
+        }
+
+        @media (max-width: 1000px) {
+            #game-layout { flex-direction: column; overflow-y: auto; overflow-x: hidden; }
+            #board-zone { flex: 0 0 auto; margin-bottom: 2vmin; }
+            #ui-zone { flex: 1 0 auto; height: auto; }
+            .board-aspect { max-width: 95vw !important; max-height: 95vw !important; }
+        }
+
+        /* The scalable, perfect-square board container */
+        .board-aspect {
+            width: 100%; height: 100%;
+            max-width: calc(100vh - 4vmin); 
+            max-height: calc(100vh - 4vmin);
+            aspect-ratio: 1 / 1;
+            position: relative;
+        }
+
+        #procedural-board {
+            display: grid; width: 100%; height: 100%;
+            gap: clamp(2px, 0.4vmin, 6px); padding: clamp(4px, 1vmin, 12px);
+        }
 
         /* ==========================================================================
-           3. SETUP UI
+           3. DYNAMIC CSS BIOMES & SPACES
            ========================================================================== */
-        #setup-screen { position: absolute; inset: 0; z-index: 2000; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.6); }
-        .setup-card { padding: 40px; border-radius: 20px; width: 90%; max-width: 650px; text-align: center; border: 2px solid var(--cyan); }
-        .setup-card h1 { font-size: 3.5rem; margin: 0; font-weight: 900; color: var(--gold); text-shadow: 0 0 20px rgba(255,193,7,0.5); }
+        #core-island {
+            grid-column: 2 / -2; grid-row: 2 / -2;
+            display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr;
+            border-radius: 16px; overflow: hidden; z-index: 1;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
+            border: 2px solid rgba(255,255,255,0.1);
+        }
         
-        .setup-row { display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.4); padding: 15px; margin: 10px 0; border-radius: 12px; border: 1px solid var(--border); gap: 15px; }
-        .setup-row select, .setup-row input { background: #111; color: white; border: 1px solid var(--cyan); padding: 10px; border-radius: 6px; font-weight: bold; font-size: 1rem; }
-        .setup-row input { flex: 1; }
+        .biome { position: relative; overflow: hidden; transition: filter 1s; }
+        .b-tundra { background: linear-gradient(135deg, #1e3c72, #2a5298); }
+        .b-volcano { background: radial-gradient(circle at 50% 100%, #d84315, #3e2723); }
+        .b-volcano::after { content:''; position:absolute; inset:0; background: radial-gradient(circle, rgba(255,100,0,0.4) 0%, transparent 60%); animation: pulseLava 3s infinite alternate; }
+        .b-crystal { background: linear-gradient(45deg, #4a148c, #00bcd4); }
+        .b-forest { background: linear-gradient(-45deg, #1b5e20, #004d40); }
+
+        @keyframes pulseLava { 0% { opacity: 0.5; transform: scale(1); } 100% { opacity: 1; transform: scale(1.1); } }
+
+        .space {
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(4px);
+            border: 1px solid rgba(0,0,0,0.5); border-radius: 8px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-size: clamp(0.5rem, 1.3vmin, 1rem); font-weight: 900;
+            color: #111; text-align: center; text-transform: uppercase;
+            position: relative; z-index: 10; transition: transform 0.2s, background 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3); padding: 2px;
+        }
+        .space:hover { transform: scale(1.1); z-index: 100; cursor: pointer; }
         
-        #error-msg { background: var(--red); color: white; padding: 12px; border-radius: 8px; margin-bottom: 15px; display: none; font-weight: bold; font-size: 0.9rem; }
+        .s-start { background: linear-gradient(135deg, var(--gold), #ff8f00) !important; color: #000; font-size: 1.2em; box-shadow: 0 0 15px var(--gold); }
+        .s-safe { background: #e0f7fa !important; color: #006064; }
+        .s-hazard { background: #ffebee !important; color: #b71c1c; }
+        .s-market { background: linear-gradient(135deg, #e1bee7, #ce93d8) !important; color: #4a148c; }
+        .s-event { background: #fff3e0 !important; color: #e65100; }
+        .s-jackpot { background: linear-gradient(135deg, var(--green), #00c853) !important; color: #000; }
+
+        /* Token System */
+        .token-nest { position: absolute; bottom: 5%; display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; width: 100%; pointer-events: none; }
+        .token {
+            width: clamp(16px, 3vmin, 32px); height: clamp(16px, 3vmin, 32px);
+            border-radius: 50%; border: 2px solid rgba(255,255,255,0.9);
+            display: flex; align-items: center; justify-content: center;
+            font-size: clamp(10px, 1.8vmin, 20px); font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.6), inset 0 2px 5px rgba(255,255,255,0.4);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); /* Bouncy move */
+        }
+        .token.jumping { animation: tokenJump 0.4s ease; }
+        @keyframes tokenJump { 0% { transform: scale(1) translateY(0); } 50% { transform: scale(1.2) translateY(-20px); } 100% { transform: scale(1) translateY(0); } }
 
         /* ==========================================================================
-           4. GAME LAYOUT & PROCEDURAL BOARD (EXPANDED FOR MASSIVE BOARDS)
+           4. WEATHER & PARTICLE ENGINE
            ========================================================================== */
-        #game-container { display: none; width: 100%; height: 100%; padding: 1.5vmin; gap: 1.5vmin; }
-        #left-col { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; }
-        #right-col { width: 420px; display: flex; flex-direction: column; gap: 1.5vmin; z-index: 10; }
-
-        #board-wrapper { position: relative; width: 100%; height: 100%; max-width: 92vh; max-height: 92vw; aspect-ratio: 1/1; }
-        #board { display: grid; width: 100%; height: 100%; border-radius: 15px; position: relative; gap: 2px; padding: 5px; }
-
-        /* ==========================================================================
-           5. ANIMATED CSS BIOMES (NO IMAGES USED)
-           ========================================================================== */
-        #center-island { grid-column: 2 / -2; grid-row: 2 / -2; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; border-radius: 10px; overflow: hidden; z-index: 1; border: 2px solid var(--border); }
-        .biome { position: relative; overflow: hidden; }
+        #weather-layer { position: fixed; inset: 0; pointer-events: none; z-index: 9999; opacity: 0; transition: opacity 2s ease; }
+        .w-blizzard { background-image: radial-gradient(circle, #FFF 2px, transparent 3px), radial-gradient(circle, #FFF 1px, transparent 2px); background-size: 100px 100px, 50px 50px; animation: blizzardAnim 2s linear infinite; opacity: 0.6 !important; }
+        .w-storm { background: linear-gradient(180deg, rgba(0,0,0,0.4), rgba(0,0,0,0.1)); animation: lightning 5s infinite; opacity: 1 !important; }
+        .w-sunny { background: radial-gradient(circle at top left, rgba(255,215,0,0.15), transparent 50%); opacity: 1 !important; }
         
-        /* Grassy Plains: Rolling wind waves */
-        .b-grass { background: linear-gradient(120deg, #558b2f, #7cb342, #33691e); background-size: 200% 200%; animation: gradientShift 6s ease-in-out infinite; }
-        .b-grass::after { content: ''; position: absolute; inset: -50%; background: repeating-linear-gradient(90deg, transparent, transparent 30px, rgba(255,255,255,0.07) 30px, rgba(255,255,255,0.07) 60px); animation: slideWind 3s linear infinite; transform: rotate(-15deg); }
+        @keyframes blizzardAnim { 0% { background-position: 0 0, 0 0; } 100% { background-position: 100px 500px, 50px 250px; } }
+        @keyframes lightning { 0%, 95%, 98%, 100% { background-color: transparent; } 96%, 99% { background-color: rgba(255,255,255,0.3); } }
 
-        /* Mountain Peaks: Parallax jagged rocks */
-        .b-peaks { background: linear-gradient(180deg, #37474f, #1c313a); }
-        .b-peaks::before, .b-peaks::after { content: ''; position: absolute; bottom: 0; clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
-        .b-peaks::before { background: #546e7a; width: 120%; height: 70%; left: -10%; animation: panMountain 12s linear infinite alternate; }
-        .b-peaks::after { background: #78909c; width: 80%; height: 50%; left: 30%; animation: panMountain 8s linear infinite alternate-reverse; }
-
-        /* Village Outpost: Glowing pulsating campfire light */
-        .b-village { background: radial-gradient(circle at 50% 60%, #e65100 0%, #5d4037 50%, #212121 100%); background-size: 150% 150%; animation: firePulse 1.5s infinite alternate; }
-        .b-village::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle, rgba(255,255,255,0.1) 10%, transparent 60%); animation: flicker 0.5s infinite alternate; }
-
-        /* Frozen Tundra: CSS Snowstorm */
-        .b-tundra { background: linear-gradient(to bottom, #b2ebf2, #0097a7); }
-        .b-tundra::before { content: ''; position: absolute; top: -100%; left: -50%; width: 200%; height: 200%; background-image: radial-gradient(circle, #FFF 3px, transparent 4px); background-size: 40px 40px; animation: blizzard 2.5s linear infinite; transform: rotate(15deg); }
-
-        @keyframes slideWind { from { transform: translateX(0) rotate(-15deg); } to { transform: translateX(60px) rotate(-15deg); } }
-        @keyframes panMountain { 0% { transform: translateX(-5%); } 100% { transform: translateX(5%); } }
-        @keyframes firePulse { 0% { background-position: 50% 50%; } 100% { background-position: 50% 40%; } }
-        @keyframes flicker { 0% { opacity: 0.7; } 100% { opacity: 1; } }
-        @keyframes blizzard { from { transform: translateY(0) rotate(15deg); } to { transform: translateY(80px) rotate(15deg); } }
+        .particle { position: absolute; pointer-events: none; border-radius: 50%; animation: popOut 0.6s ease-out forwards; z-index: 9000; }
+        @keyframes popOut { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; } 100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.5); opacity: 0; } }
 
         /* ==========================================================================
-           6. SPACES & TOKENS (Responsive to grid size)
+           5. HUD, CONTROLS & LOG
            ========================================================================== */
-        .space { background: rgba(255, 255, 255, 0.95); border: 1px solid #000; color: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; font-size: clamp(0.4rem, 1.2vmin, 0.7rem); font-weight: 900; position: relative; border-radius: 4px; z-index: 10; transition: transform 0.2s; text-transform: uppercase; padding: 2px; }
-        .s-start { background: var(--gold) !important; color: #000; font-size: clamp(0.5rem, 1.5vmin, 0.9rem); }
-        .s-event { color: var(--red); }
-        .s-jaap { background: var(--red) !important; color: #FFF; border-radius: 50%; }
-        .s-market { background: #D500F9 !important; color: #FFF; }
-        .s-cave { background: var(--cyan) !important; color: #000; }
-        .s-jackpot { background: var(--green) !important; color: #000; }
-        .s-secret { background: #607D8B !important; color: #FFF; }
-
-        .token-container { position: absolute; bottom: 2px; display: flex; flex-wrap: wrap; justify-content: center; width: 100%; z-index: 50; pointer-events: none; }
-        .token { width: clamp(14px, 2.5vmin, 26px); height: clamp(14px, 2.5vmin, 26px); border-radius: 50%; border: 2px solid #FFF; display: flex; align-items: center; justify-content: center; font-size: clamp(10px, 1.5vmin, 16px); transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-
-        /* ==========================================================================
-           7. UI PANELS & HUD
-           ========================================================================== */
-        #hud { display: flex; flex-direction: column; gap: 10px; height: 45%; overflow-y: auto; padding-right: 5px; }
-        .player-card { padding: 12px; border-radius: 12px; border-left: 6px solid; transition: 0.3s; background: rgba(0,0,0,0.3); }
-        .player-card.active { background: rgba(255,255,255,0.15); border-left-width: 12px; transform: translateX(5px); }
-        .badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; margin-top: 5px; background: #000; }
-
-        #controls { height: 55%; display: flex; flex-direction: column; align-items: center; justify-content: space-between; }
-        #log { flex: 1; width: 100%; background: rgba(0,0,0,0.7); border-radius: 12px; margin-top: 10px; padding: 15px; font-family: 'Courier New', monospace; font-size: 0.85rem; overflow-y: auto; border: 1px solid var(--border); }
-        .log-entry { border-bottom: 1px solid rgba(255,255,255,0.05); padding: 3px 0; color: #CCC; }
-        .log-entry b { color: var(--cyan); }
-
-        .btn { background: var(--gold); border: none; padding: 15px; font-size: 1.5rem; font-weight: 900; border-radius: 12px; cursor: pointer; width: 100%; color: #000; transition: 0.2s; box-shadow: 0 4px 0 #b38600; }
-        .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #b38600; }
-        .btn:disabled { background: #555; box-shadow: none; transform: none; color: #888; cursor: not-allowed; }
-        .btn-cyan { background: var(--cyan); box-shadow: 0 4px 0 #00acc1; color: #000; }
-        .btn-info { background: #607D8B; box-shadow: 0 4px 0 #37474F; color: #FFF; font-size: 0.9rem; padding: 10px; margin-top: 5px; }
-
-        /* ==========================================================================
-           8. MODALS & DICE
-           ========================================================================== */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; z-index: 5000; }
-        .modal-content { width: 90%; max-width: 550px; padding: 30px; border-radius: 20px; text-align: center; border: 2px solid var(--cyan); }
-        .market-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
-        .market-item { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; border: 1px solid var(--border); transition: 0.2s; }
-        .market-item:hover { border-color: var(--gold); background: rgba(255,255,255,0.1); }
+        #hud-container { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
         
-        .instr-grid { text-align: left; display: grid; grid-template-columns: 1fr; gap: 10px; max-height: 50vh; overflow-y: auto; padding: 10px; }
-        .instr-item { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; border-left: 4px solid var(--cyan); font-size: 0.95rem; line-height: 1.4; }
-        .instr-item b { color: var(--gold); }
+        .player-card {
+            padding: 15px; border-radius: 16px; background: rgba(0,0,0,0.2);
+            border-left: 8px solid transparent; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex; flex-direction: column; gap: 5px;
+        }
+        .player-card.active { background: rgba(255,255,255,0.1); border-left-width: 16px; transform: translateX(8px); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        
+        .stat-row { display: flex; justify-content: space-between; align-items: center; }
+        .inv-pills { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; }
+        .pill { background: rgba(0,0,0,0.5); padding: 3px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: bold; border: 1px solid var(--cyan); cursor: pointer; transition: 0.2s; }
+        .pill:hover { background: var(--cyan); color: #000; }
 
-        #dice-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 4000; }
-        .dice-box { width: 120px; height: 120px; background: #FFF; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 70px; color: #000; animation: shake 0.4s infinite; border: 5px solid #000; }
-        @keyframes shake { 0% { transform: rotate(0deg); } 25% { transform: rotate(10deg); } 75% { transform: rotate(-10deg); } }
+        #control-panel { padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        #log-box { height: 160px; background: rgba(0,0,0,0.4); border-radius: 12px; padding: 12px; font-family: 'Courier New', monospace; font-size: 0.85rem; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5); }
+        .log-entry { padding-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #ccc; animation: fadeIn 0.3s ease; }
+        .log-entry strong { color: var(--cyan); }
+        .log-entry.alert { color: var(--gold); }
+        .log-entry.danger { color: var(--red); }
+        @keyframes fadeIn { from{opacity:0; transform:translateX(-10px);} to{opacity:1; transform:translateX(0);} }
 
-        .float-text { position: absolute; font-weight: 900; font-size: 2rem; pointer-events: none; z-index: 500; animation: floatUp 1s forwards; text-shadow: 2px 2px #000; }
-        @keyframes floatUp { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(-100px) scale(1.5); } }
+        .btn {
+            background: linear-gradient(180deg, var(--cyan), #0097A7);
+            border: none; padding: 16px; font-family: inherit; font-size: 1.4rem; font-weight: 900;
+            border-radius: 16px; cursor: pointer; color: #000; text-transform: uppercase;
+            box-shadow: 0 6px 0 #006064, 0 10px 20px rgba(0,0,0,0.4);
+            transition: all 0.1s ease; position: relative; overflow: hidden;
+        }
+        .btn::after { content:''; position:absolute; top:0; left:-100%; width:50%; height:100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); transition: 0.5s; }
+        .btn:hover::after { left: 100%; }
+        .btn:active { transform: translateY(6px); box-shadow: 0 0px 0 #006064, 0 5px 10px rgba(0,0,0,0.4); }
+        .btn:disabled { background: #444; box-shadow: 0 6px 0 #222; color: #888; cursor: not-allowed; transform: none; }
+        
+        .btn-gold { background: linear-gradient(180deg, var(--gold), #FF8F00); box-shadow: 0 6px 0 #E65100, 0 10px 20px rgba(0,0,0,0.4); }
+        .btn-gold:active { box-shadow: 0 0px 0 #E65100, 0 5px 10px rgba(0,0,0,0.4); }
+        .btn-red { background: linear-gradient(180deg, var(--red), #D50000); box-shadow: 0 6px 0 #b71c1c; color: white;}
+
+        /* ==========================================================================
+           6. SETUP UI & MODALS
+           ========================================================================== */
+        .overlay-mask { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(15px); display: none; align-items: center; justify-content: center; z-index: 10000; padding: 20px; }
+        .modal-box { width: 100%; max-width: 600px; padding: 35px; text-align: center; position: relative; }
+        
+        #setup-screen { display: flex; }
+        .setup-title { font-size: clamp(2rem, 5vw, 4rem); background: linear-gradient(to right, #fff, var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px; text-transform: uppercase; }
+        
+        .input-group { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px; display: flex; gap: 10px; margin-bottom: 10px; border: 1px solid var(--glass-border); align-items: center; }
+        .input-group input, .input-group select { flex: 1; background: #000; border: 1px solid var(--cyan); color: #fff; padding: 12px; border-radius: 8px; font-family: inherit; font-size: 1rem; font-weight: bold; }
+        
+        /* Market Grid */
+        .market-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; margin: 20px 0; max-height: 40vh; overflow-y: auto; padding: 10px; }
+        .market-item { background: rgba(0,0,0,0.4); padding: 15px; border-radius: 12px; border: 1px solid var(--glass-highlight); transition: 0.2s; display: flex; flex-direction: column; justify-content: space-between; gap: 10px; }
+        .market-item:hover { border-color: var(--cyan); transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,229,255,0.2); }
+        
+        /* Duel Interface */
+        .duel-arena { display: flex; justify-content: space-around; align-items: center; margin: 30px 0; background: rgba(0,0,0,0.3); border-radius: 16px; padding: 20px; }
+        .duel-char { font-size: 4rem; text-shadow: 0 0 20px rgba(255,255,255,0.5); }
+        .duel-controls { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 20px; }
+
+        /* Floating Text */
+        .float-dmg { position: absolute; font-weight: 900; font-size: 2.5rem; pointer-events: none; z-index: 9500; animation: floatUpDmg 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; text-shadow: 0 4px 10px #000; }
+        @keyframes floatUpDmg { 0% { opacity: 0; transform: translateY(20px) scale(0.5); } 20% { opacity: 1; transform: translateY(0) scale(1.2); } 100% { opacity: 0; transform: translateY(-80px) scale(1); } }
+
+        /* Dice Overlay */
+        #dice-cam { flex-direction: column; gap: 20px; }
+        .dice-cube { width: 140px; height: 140px; background: #fff; border-radius: 24px; display: flex; align-items: center; justify-content: center; font-size: 80px; color: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.8), inset 0 -10px 20px rgba(0,0,0,0.2); border: 4px solid #ddd; }
+        .rolling { animation: intenseShake 0.3s infinite; }
+        @keyframes intenseShake { 0% { transform: translate(2px, 1px) rotate(0deg) scale(1); } 25% { transform: translate(-3px, -2px) rotate(-15deg) scale(1.1); } 50% { transform: translate(0px, 4px) rotate(15deg) scale(0.9); } 75% { transform: translate(3px, -1px) rotate(-5deg) scale(1.05); } 100% { transform: translate(-1px, 2px) rotate(5deg) scale(1); } }
+
     </style>
 </head>
 <body>
 
-    <div id="fx-layer"></div>
-    <div id="dice-overlay"><div class="dice-box" id="dice-face">🎲</div></div>
+    <div class="ambient-bg"></div>
+    <div id="weather-layer"></div>
 
-    <div id="setup-screen">
-        <div class="setup-card glass">
-            <h1>ICE AGE: FINALE</h1>
-            <div id="error-msg"></div>
+    <div id="setup-screen" class="overlay-mask">
+        <div class="modal-box glass-panel">
+            <h1 class="setup-title">ICE AGE:<br>ETERNAL</h1>
+            <p style="color: var(--cyan); font-weight: bold; margin-bottom: 25px; letter-spacing: 2px;">ULTIMATE ENGINE INITIALIZATION</p>
             
-            <div class="setup-row">
-                <span>BOARD CONFIGURATION:</span>
-                <select id="board-size">
-                    <option value="36">Classic (36 Spaces)</option>
-                    <option value="60" selected>Marathon (60 Spaces)</option>
+            <div id="setup-err" style="color:var(--red); font-weight:bold; margin-bottom:15px; display:none;"></div>
+
+            <div class="input-group">
+                <span style="width: 120px; text-align: left; font-weight: 900;">WORLD SIZE:</span>
+                <select id="cfg-size">
+                    <option value="36">Skirmish (36 Spaces)</option>
+                    <option value="60" selected>Expedition (60 Spaces)</option>
                     <option value="84">Epic Journey (84 Spaces)</option>
-                    <option value="100">Endless Winter (100 Spaces)</option>
+                    <option value="124">Endless Winter (124 Spaces)</option>
                 </select>
             </div>
-
-            <div class="setup-row">
-                <span>PLAYER COUNT:</span>
-                <select id="player-count">
+            
+            <div class="input-group">
+                <span style="width: 120px; text-align: left; font-weight: 900;">PLAYERS:</span>
+                <select id="cfg-count">
                     <option value="2">2 Players</option>
                     <option value="3">3 Players</option>
                     <option value="4" selected>4 Players</option>
                 </select>
             </div>
-            
-            <div id="player-inputs"></div>
-            <button id="btn-start" class="btn btn-cyan" style="margin-top: 20px;">INITIALIZE GAME</button>
-            <button class="btn btn-info" onclick="showInstructions()">GAME INSTRUCTIONS</button>
+
+            <div id="player-config-zone" style="margin-top: 20px;"></div>
+
+            <button class="btn btn-gold" style="width: 100%; margin-top: 25px;" onclick="bootGame()">IGNITE ENGINE</button>
         </div>
     </div>
 
-    <div id="game-container">
-        <div id="left-col">
-            <div id="board-wrapper">
-                <div id="board" class="glass">
-                    <div id="center-island">
-                        <div class="biome b-grass"></div>
-                        <div class="biome b-peaks"></div>
-                        <div class="biome b-village"></div>
-                        <div class="biome b-tundra"></div>
+    <main id="game-layout">
+        
+        <section id="board-zone">
+            <div class="board-aspect">
+                <div id="procedural-board" class="glass-panel">
+                    <div id="core-island">
+                        <div class="biome b-tundra" id="bio-1"></div>
+                        <div class="biome b-volcano" id="bio-2"></div>
+                        <div class="biome b-crystal" id="bio-3"></div>
+                        <div class="biome b-forest" id="bio-4"></div>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <div id="right-col">
-            <div id="hud" class="panel glass"></div>
-            <div id="controls" class="panel glass">
-                <div id="turn-indicator" style="font-size: 2rem; font-weight: 900; text-transform: uppercase;"></div>
-                <div style="margin: 5px 0; font-weight: bold; color: var(--gold);">
-                    TURN: <span id="turn-counter">1</span> | JACKPOT: <span id="jackpot-counter">0</span> 🌰
+        <section id="ui-zone">
+            <div id="hud-container" class="glass-panel">
                 </div>
-                <button id="btn-roll" class="btn">ROLL DICE 🎲</button>
-                <button class="btn btn-info" onclick="showInstructions()">HOW TO PLAY</button>
-                <div id="log"></div>
+
+            <div id="control-panel" class="glass-panel">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <div style="font-size: 0.9rem; color: #888; font-weight:bold;">CURRENT TURN</div>
+                        <div id="turn-name" style="font-size: 2rem; font-weight: 900; text-transform: uppercase;">PLAYER</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 0.9rem; color: #888; font-weight:bold;">JACKPOT 🌰</div>
+                        <div id="jackpot-val" style="font-size: 2rem; font-weight: 900; color: var(--green);">0</div>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px;">
+                    <span>ROUND: <b id="round-val" style="color:var(--cyan)">1</b></span>
+                    <span>WEATHER: <b id="weather-val" style="color:var(--gold)">CLEAR</b></span>
+                </div>
+
+                <button id="btn-roll" class="btn" onclick="executeRoll()">ROLL DICE 🎲</button>
+                
+                <div id="log-box"></div>
+            </div>
+        </section>
+    </main>
+
+    <div id="dice-cam" class="overlay-mask">
+        <h2 id="dice-owner" style="color: var(--cyan); text-transform: uppercase; font-size: 2rem;"></h2>
+        <div class="dice-cube rolling" id="dice-visual">🎲</div>
+        <h3 id="dice-modifier" style="color: var(--gold); height: 30px;"></h3>
+    </div>
+
+    <div id="alert-modal" class="overlay-mask">
+        <div class="modal-box glass-panel">
+            <h2 id="alert-title" style="font-size: 2.5rem; margin-bottom: 15px;"></h2>
+            <p id="alert-desc" style="font-size: 1.2rem; margin-bottom: 25px; line-height: 1.5; color: #ddd;"></p>
+            <div id="alert-btn-area"></div>
+        </div>
+    </div>
+
+    <div id="market-modal" class="overlay-mask">
+        <div class="modal-box glass-panel" style="max-width: 800px;">
+            <h2 style="color: var(--purple); font-size: 2.5rem;">TRADING POST</h2>
+            <div style="font-size: 1.2rem; color: var(--gold); font-weight: bold; margin-bottom: 10px;" id="market-wallet"></div>
+            <p style="color: #aaa;">Click an item to purchase and add to your inventory. Items must be activated before rolling!</p>
+            
+            <div class="market-grid" id="market-inventory">
+                </div>
+            
+            <button class="btn" style="width: 100%; background: #333; box-shadow: 0 4px 0 #111;" onclick="closeModal('market-modal'); endTurnSequence();">LEAVE SHOP</button>
+        </div>
+    </div>
+
+    <div id="duel-modal" class="overlay-mask">
+        <div class="modal-box glass-panel" style="max-width: 700px;">
+            <h2 style="color: var(--red); font-size: 3rem; margin-bottom: 0;">⚔️ COMBAT ⚔️</h2>
+            <p style="color: #aaa; margin-bottom: 20px;">Rock-Paper-Scissors rules. Winner steals 2 🌰!</p>
+            
+            <div class="duel-arena">
+                <div style="text-align: center;">
+                    <div class="duel-char" id="duel-p1-icon">🦖</div>
+                    <div style="font-weight: bold; font-size: 1.2rem; color: var(--cyan);" id="duel-p1-name">P1</div>
+                </div>
+                <div style="font-size: 3rem; font-weight: 900; color: var(--gold);">VS</div>
+                <div style="text-align: center;">
+                    <div class="duel-char" id="duel-p2-icon">🐺</div>
+                    <div style="font-weight: bold; font-size: 1.2rem; color: var(--red);" id="duel-p2-name">P2</div>
+                </div>
+            </div>
+
+            <div id="duel-ui-p1">
+                <h3 style="color: var(--cyan); margin-bottom: 10px;">Choose your stance:</h3>
+                <div class="duel-controls">
+                    <button class="btn btn-red" style="font-size: 1rem;" onclick="commitDuel(1, 'ATTACK')">⚔️ ATTACK (Rock)</button>
+                    <button class="btn btn-gold" style="font-size: 1rem;" onclick="commitDuel(1, 'DEFEND')">🛡️ DEFEND (Paper)</button>
+                    <button class="btn" style="font-size: 1rem;" onclick="commitDuel(1, 'DODGE')">💨 DODGE (Scissors)</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <div id="simple-modal" class="modal-overlay">
-        <div class="modal-content glass">
-            <h2 id="sm-title" style="color: var(--gold);"></h2>
-            <p id="sm-text" style="font-size: 1.2rem;"></p>
-            <div id="modal-btn-container"></div>
-        </div>
-    </div>
-
-    <div id="market-modal" class="modal-overlay">
-        <div class="modal-content glass" style="max-width: 700px;">
-            <h2 style="color: var(--cyan); font-size: 2.5rem;">VILLAGE OUTPOST</h2>
-            <p id="market-wallet" style="font-weight: bold; color: var(--gold);"></p>
-            <div class="market-grid" id="market-items"></div>
-            <button class="btn" style="background: #444; color: #FFF; box-shadow: none;" onclick="closeMarket()">EXIT STORE</button>
-        </div>
-    </div>
 
 <script>
     /* =========================================================================
-       1. ENGINE CONFIGURATION
+       1. DATA STRUCTURES & CONFIG
        ========================================================================= */
-    const colors = ['#F44336', '#4CAF50', '#2196F3', '#FFEB3B'];
-    const emojis = ['🦖', '🦣', '🐧', '🐺', '🧊', '🏔️', '🏹', '🐻‍❄️'];
-    const severeWords = ['fuck', 'shit', 'bitch', 'nigg', 'cunt', 'whore', 'slut', 'fag', 'dick', 'pussy', 'cock', 'blowjob', 'dildo', 'masturbat', 'rape', 'incest', 'bollock', 'smegma', 'tosser'];
-    const exactWords = ['anal', 'anus', 'arse', 'ass', 'ballsack', 'balls', 'bastard', 'boob', 'bugger', 'bum', 'butt', 'buttplug', 'clitoris', 'crap', 'cum', 'damn', 'dyke', 'feck', 'fellate', 'fellatio', 'felching', 'flange', 'hell', 'homo', 'jerk', 'jizz', 'knob', 'labia', 'lmao', 'lmfao', 'muff', 'omg', 'penis', 'piss', 'poop', 'prick', 'pube', 'queer', 'scrotum', 'sex', 'spunk', 'tit', 'turd', 'twat', 'vagina', 'wank', 'wtf'];
+    const GAME_COLORS = ['#FF1744', '#00E5FF', '#00E676', '#FFEA00'];
+    const EMOJI_ROSTER = ['🦖','🦣','🐧','🐺','🧊','🏔️','🏹','🐻‍❄️','🔥','🐗'];
+    const PROFANITY_REGEX = /fuck|shit|bitch|nigg|cunt|whore|slut|fag|dick|pussy|cock|rape|incest/i;
+    
+    // Board Generation Weights
+    const SPACE_TYPES = [
+        { id: 'safe', name: '+1 🌰', w: 30, action: 'gain1', color: 's-safe' },
+        { id: 'safe', name: '+3 🌰', w: 10, action: 'gain3', color: 's-safe' },
+        { id: 'hazard', name: 'BEAR TRAP', w: 10, action: 'trap', color: 's-hazard' },
+        { id: 'hazard', name: 'THIN ICE', w: 10, action: 'slide_back', color: 's-hazard' },
+        { id: 'market', name: 'SHOP', w: 12, action: 'shop', color: 's-market' },
+        { id: 'event', name: 'MYSTERY', w: 15, action: 'event', color: 's-event' },
+        { id: 'jackpot', name: 'JACKPOT', w: 5, action: 'jackpot', color: 's-jackpot' },
+        { id: 'hazard', name: 'TOLL', w: 8, action: 'toll', color: 's-hazard' }
+    ];
+
+    const ITEMS_DB = {
+        'jetpack': { name: 'Jetpack', icon: '🚀', cost: 6, desc: 'Jump 5 spaces instantly. Does not count as roll.' },
+        'shield': { name: 'Ice Shield', icon: '🛡️', cost: 4, desc: 'Block the next hazard or duel loss automatically.' },
+        'magnet': { name: 'Acorn Magnet', icon: '🧲', cost: 5, desc: 'Steal 1 🌰 from ALL other players.' },
+        'snowshoes': { name: 'Snowshoes', icon: '🥾', cost: 3, desc: 'Ignore weather penalties for 1 turn.' }
+    };
+
+    const WEATHER_STATES = [
+        { id: 'clear', name: 'CLEAR', css: '', fx: null, log: 'The skies are clear.' },
+        { id: 'blizzard', name: 'BLIZZARD', css: 'w-blizzard', fx: (roll) => Math.max(1, roll - 2), log: 'A howling blizzard slows movement (-2 to rolls).' },
+        { id: 'storm', name: 'THUNDERSTORM', css: 'w-storm', fx: null, log: 'Lightning strikes! Landing on hazards costs double.' },
+        { id: 'sunny', name: 'MELT', css: 'w-sunny', fx: (roll) => roll + 1, log: 'Warm sun melts the ice (+1 to all rolls).' }
+    ];
 
     let state = {
         players: [],
-        turn: 0,
-        totalTurns: 1,
-        jackpot: 0,
+        boardConfig: [],
         boardSize: 60,
         gridSide: 16,
-        spaceActions: [],
-        isAnimating: false
+        turnIndex: 0,
+        round: 1,
+        jackpot: 0,
+        weather: WEATHER_STATES[0],
+        animating: false,
+        duelCache: {}
     };
 
-    function isClean(name) {
-        let n = name.toLowerCase();
-        for (let w of exactWords) { if (new RegExp(`\\b${w}\\b`, 'i').test(n)) return false; }
-        let s = n.replace(/[^a-z0-9]/gi, '').replace(/1/g, 'i').replace(/0/g, 'o').replace(/3/g, 'e').replace(/5/g, 's').replace(/4/g, 'a').replace(/7/g, 't');
-        for (let w of severeWords) { if (s.includes(w)) return false; }
-        return true;
-    }
-
     /* =========================================================================
-       2. SETUP LOGIC
+       2. SETUP & INITIALIZATION
        ========================================================================= */
-    const countSelect = document.getElementById('player-count');
-    const inputs = document.getElementById('player-inputs');
-
-    function renderSetup() {
-        inputs.innerHTML = '';
-        let count = parseInt(countSelect.value);
-        for (let i = 0; i < count; i++) {
-            inputs.innerHTML += `
-                <div class="setup-row">
-                    <div style="width:20px; height:20px; border-radius:50%; background:${colors[i]}"></div>
-                    <input type="text" id="p${i}-name" placeholder="Name" value="Player ${i+1}" maxlength="10">
-                    <select id="p${i}-emoji">${emojis.map(e => `<option>${e}</option>`).join('')}</select>
-                </div>`;
-        }
+    function initSetupUI() {
+        const pZone = document.getElementById('player-config-zone');
+        document.getElementById('cfg-count').addEventListener('change', (e) => {
+            let count = parseInt(e.target.value);
+            pZone.innerHTML = '';
+            for(let i=0; i<count; i++) {
+                pZone.innerHTML += `
+                    <div class="input-group">
+                        <div style="width:24px; height:24px; border-radius:50%; background:${GAME_COLORS[i]}; box-shadow: 0 0 10px ${GAME_COLORS[i]}"></div>
+                        <input type="text" id="p${i}-name" value="Player ${i+1}" maxlength="10">
+                        <select id="p${i}-icon" style="flex:0 0 80px; text-align:center;">
+                            ${EMOJI_ROSTER.map(em => `<option>${em}</option>`).join('')}
+                        </select>
+                    </div>`;
+            }
+        });
+        document.getElementById('cfg-count').dispatchEvent(new Event('change'));
     }
-    countSelect.addEventListener('change', renderSetup);
-    renderSetup();
+    initSetupUI();
 
-    document.getElementById('btn-start').addEventListener('click', () => {
-        let count = parseInt(countSelect.value);
-        state.boardSize = parseInt(document.getElementById('board-size').value);
-        state.gridSide = (state.boardSize / 4) + 1;
-        
-        let err = document.getElementById('error-msg');
+    function bootGame() {
+        let err = document.getElementById('setup-err');
         err.style.display = 'none';
+        state.players = [];
+        
+        state.boardSize = parseInt(document.getElementById('cfg-size').value);
+        // Calculate square grid dimensions: perimeter = 4*side - 4. 
+        // So side = (Size + 4) / 4
+        state.gridSide = (state.boardSize + 4) / 4;
 
-        for (let i = 0; i < count; i++) {
-            let n = document.getElementById(`p${i}-name`).value.trim();
-            if (!n || !isClean(n)) { err.innerText = "NAME REJECTED: Profanity or empty."; err.style.display = "block"; return; }
+        let count = parseInt(document.getElementById('cfg-count').value);
+        for(let i=0; i<count; i++) {
+            let name = document.getElementById(`p${i}-name`).value.trim();
+            if(!name || PROFANITY_REGEX.test(name)) {
+                err.innerText = "Error: Invalid or restricted name detected.";
+                err.style.display = 'block';
+                return;
+            }
             state.players.push({
-                id: i, name: n, color: colors[i], emoji: document.getElementById(`p${i}-emoji`).value,
-                pos: 0, acorns: 4, laps: 0, skip: false, ally: null, upgrades: []
+                id: i, name: name, color: GAME_COLORS[i], icon: document.getElementById(`p${i}-icon`).value,
+                pos: 0, acorns: 5, laps: 0, skip: false, inventory: [], hasShield: false
             });
         }
+
         document.getElementById('setup-screen').style.display = 'none';
-        document.getElementById('game-container').style.display = 'flex';
-        initProceduralBoard();
-    });
+        document.getElementById('game-layout').style.display = 'flex';
+        
+        generateBoard();
+        updateHUD();
+        sysLog(`Engine Started. Board Size: ${state.boardSize}. Welcome to the Ice Age.`, 'alert');
+        beginTurn();
+    }
 
     /* =========================================================================
-       3. BOARD GENERATION & ANIMATION QUEUE
+       3. PROCEDURAL BOARD GENERATION
        ========================================================================= */
-    function initProceduralBoard() {
-        const board = document.getElementById('board');
+    function getRandomSpaceType() {
+        let rand = Math.random() * 100;
+        let sum = 0;
+        for(let s of SPACE_TYPES) {
+            sum += s.w;
+            if(rand <= sum) return s;
+        }
+        return SPACE_TYPES[0];
+    }
+
+    function generateBoard() {
+        const board = document.getElementById('procedural-board');
         board.style.gridTemplateColumns = `repeat(${state.gridSide}, 1fr)`;
         board.style.gridTemplateRows = `repeat(${state.gridSide}, 1fr)`;
-
-        let perimeter = [];
-        let c=1, r=1;
-        for(c=1; c<=state.gridSide; c++) perimeter.push({c,r});
-        c=state.gridSide; for(r=2; r<=state.gridSide; r++) perimeter.push({c,r});
-        r=state.gridSide; for(c=state.gridSide-1; c>=1; c--) perimeter.push({c,r});
-        c=1; for(r=state.gridSide-1; r>=2; r--) perimeter.push({c,r});
-
-        const types = ["+1 🌰", "+2 🌰", "EVENT", "EVENT", "Market", "Ice Cave", "Jaap STOP", "JACKPOT", "Bear Trap", "EVENT", "Secret Path", "Toll Bridge"];
         
-        perimeter.forEach((pos, i) => {
-            let type = (i === 0) ? "START" : types[Math.floor(Math.random() * types.length)];
-            let div = document.createElement('div');
-            div.className = `space s-${type.toLowerCase().replace(/ /g, '')}`;
-            div.style.gridColumn = pos.c; div.style.gridRow = pos.r;
-            div.innerHTML = `<span>${type}</span><div id="tc-${i}" class="token-container"></div>`;
-            board.appendChild(div);
-            state.spaceActions[i] = type;
+        // Remove old spaces but keep center island
+        Array.from(board.children).forEach(c => { if(c.id !== 'core-island') c.remove(); });
+
+        let coordinates = [];
+        let c=1, r=1, max = state.gridSide;
+        // Top edge
+        for(c=1; c<=max; c++) coordinates.push({c,r});
+        // Right edge
+        c=max; for(r=2; r<=max; r++) coordinates.push({c,r});
+        // Bottom edge
+        r=max; for(c=max-1; c>=1; c--) coordinates.push({c,r});
+        // Left edge
+        c=1; for(r=max-1; r>=2; r--) coordinates.push({c,r});
+
+        coordinates.forEach((coord, i) => {
+            let sData = (i === 0) ? {id:'start', name:'START', action:'start', color:'s-start'} : getRandomSpaceType();
+            state.boardConfig[i] = sData;
+
+            let el = document.createElement('div');
+            el.className = `space ${sData.color}`;
+            el.style.gridColumn = coord.c;
+            el.style.gridRow = coord.r;
+            el.innerHTML = `<span>${sData.name}</span><div class="token-nest" id="nest-${i}"></div>`;
+            board.appendChild(el);
         });
 
-        state.players.forEach(p => drawToken(p));
-        updateHUD();
-        startTurn();
+        // Initial token placement
+        state.players.forEach(p => renderToken(p));
+    }
+
+    function renderToken(p) {
+        let old = document.getElementById(`tok-${p.id}`);
+        if(old) old.remove();
+
+        let nest = document.getElementById(`nest-${p.pos}`);
+        let tok = document.createElement('div');
+        tok.id = `tok-${p.id}`;
+        tok.className = 'token';
+        tok.style.background = `linear-gradient(135deg, ${p.color}, #000)`;
+        tok.innerText = p.icon;
+        
+        // Add shield visual if active
+        if(p.hasShield) tok.style.boxShadow = `0 0 15px var(--cyan), inset 0 0 10px #fff`;
+
+        nest.appendChild(tok);
     }
 
     /* =========================================================================
-       4. MOVEMENT & COLLISION ENGINE
+       4. GAME LOOP & MOVEMENT PHYSICS
        ========================================================================= */
-    function drawToken(p) {
-        let old = document.getElementById(`tok-${p.id}`); if (old) old.remove();
-        let tok = document.createElement('div');
-        tok.className = 'token'; tok.id = `tok-${p.id}`;
-        tok.style.background = p.color; tok.innerText = p.emoji;
-        document.getElementById(`tc-${p.pos}`).appendChild(tok);
+    function beginTurn() {
+        let p = state.players[state.turnIndex];
+        
+        // Update Turn Indicator
+        document.getElementById('turn-name').innerText = p.name;
+        document.getElementById('turn-name').style.color = p.color;
+        
+        updateHUD();
+
+        if(p.skip) {
+            sysLog(`<strong>${p.name}</strong> is frozen and skips this turn!`, 'danger');
+            p.skip = false;
+            setTimeout(endTurnSequence, 1500);
+            return;
+        }
+
+        document.getElementById('btn-roll').disabled = false;
     }
 
-    function moveStep(p, amtRemaining, evaluateAtEnd) {
-        if (amtRemaining === 0) {
-            state.isAnimating = false;
-            if (evaluateAtEnd) handleLanding(p);
-            else passTurn();
+    function executeRoll() {
+        if(state.animating) return;
+        state.animating = true;
+        document.getElementById('btn-roll').disabled = true;
+
+        let p = state.players[state.turnIndex];
+        let baseRoll = Math.floor(Math.random() * 6) + 1;
+        let finalRoll = baseRoll;
+        let modifierText = "";
+
+        // Apply Weather
+        if(state.weather.fx) {
+            finalRoll = state.weather.fx(baseRoll);
+            modifierText = `(Weather altered roll from ${baseRoll})`;
+        }
+
+        // Dice UI Animation
+        document.getElementById('dice-cam').style.display = 'flex';
+        document.getElementById('dice-owner').innerText = `${p.name}'s Roll`;
+        document.getElementById('dice-owner').style.color = p.color;
+        let dice = document.getElementById('dice-visual');
+        dice.className = 'dice-cube rolling';
+        dice.innerText = '🎲';
+        document.getElementById('dice-modifier').innerText = '';
+
+        setTimeout(() => {
+            dice.className = 'dice-cube';
+            dice.innerText = finalRoll;
+            document.getElementById('dice-modifier').innerText = modifierText;
+            
+            setTimeout(() => {
+                document.getElementById('dice-cam').style.display = 'none';
+                sysLog(`<strong>${p.name}</strong> rolled a ${finalRoll}.`);
+                animateMovement(p, finalRoll, true);
+            }, 1000);
+        }, 1200);
+    }
+
+    // Recursive step-by-step animation for fluid board traversing
+    function animateMovement(p, stepsLeft, triggerEventsAtEnd) {
+        if (stepsLeft === 0) {
+            state.animating = false;
+            let currentNest = document.getElementById(`tok-${p.id}`);
+            currentNest.classList.remove('jumping');
+            
+            if(triggerEventsAtEnd) checkCollisionsAndEvaluate(p);
             return;
         }
 
-        let direction = amtRemaining > 0 ? 1 : -1;
-        
-        // Snow Tires Upgrade: Block backward movement
-        if (direction === -1 && p.upgrades.includes("Snow Tires")) {
-            log(`<b>${p.name}</b> used Snow Tires to stop a slide!`);
-            handleLanding(p);
-            return;
-        }
+        let currentNest = document.getElementById(`tok-${p.id}`);
+        currentNest.classList.add('jumping');
 
-        p.pos += direction;
+        let dir = stepsLeft > 0 ? 1 : -1;
+        p.pos += dir;
 
-        // LAP LOGIC & EXPLOIT FIX
+        // Lap logic
         if (p.pos >= state.boardSize) {
             p.pos = 0; p.laps++;
-            if (p.laps > 0) { 
-                gainAcorns(p, 2); log(`<b>${p.name}</b> Lap Complete! +2 🌰`);
-                if (p.laps >= 3) { triggerWin(p); return; }
+            if(p.laps > 0) {
+                modAcorns(p, 3);
+                sysLog(`<strong>${p.name}</strong> completed Lap ${p.laps}! +3 🌰`, 'alert');
+                spawnParticles(document.getElementById(`nest-0`), varColor('--gold'), 20);
+                if (p.laps >= 3) { triggerVictory(p); return; }
             }
         } else if (p.pos < 0) {
-            p.pos = state.boardSize - 1; p.laps--;
-            log(`<b>${p.name}</b> fell back behind Start!`);
+            p.pos = state.boardSize - 1;
+            p.laps--;
         }
 
-        drawToken(p);
-        updateHUD();
+        renderToken(p);
+        
+        // Play small click sound logic here if audio was enabled
         
         setTimeout(() => {
-            moveStep(p, amtRemaining > 0 ? amtRemaining - 1 : amtRemaining + 1, evaluateAtEnd);
-        }, 150); // Slightly faster movement for larger boards
+            animateMovement(p, stepsLeft > 0 ? stepsLeft - 1 : stepsLeft + 1, triggerEventsAtEnd);
+        }, 200); // Speed of hopping
     }
 
-    function handleLanding(p) {
-        let enemy = state.players.find(o => o.id !== p.id && o.pos === p.pos);
-        if (enemy) {
-            triggerDuel(p, enemy, () => evaluateSpace(p));
+    /* =========================================================================
+       5. COLLISION & LOGIC EVALUATION
+       ========================================================================= */
+    function checkCollisionsAndEvaluate(p) {
+        // Look for enemy on same space (excluding Start space)
+        let enemies = state.players.filter(o => o.id !== p.id && o.pos === p.pos && p.pos !== 0);
+        
+        if(enemies.length > 0) {
+            let e = enemies[0];
+            sysLog(`<strong>${p.name}</strong> landed on <strong>${e.name}</strong>! DUEL INITIATED!`, 'danger');
+            initDuel(p, e, () => evaluateSpace(p));
         } else {
             evaluateSpace(p);
         }
     }
 
-    /* =========================================================================
-       5. SPACE EVALUATION
-       ========================================================================= */
     function evaluateSpace(p) {
-        let type = state.spaceActions[p.pos];
-        log(`<b>${p.name}</b> landed on <b>${type}</b>`);
+        let space = state.boardConfig[p.pos];
+        sysLog(`<strong>${p.name}</strong> landed on [${space.name}]`);
 
-        switch(type) {
-            case "+1 🌰": gainAcorns(p, 1); passTurn(); break;
-            case "+2 🌰": gainAcorns(p, 2); passTurn(); break;
-            case "Market": openMarket(p); break;
-            case "JACKPOT": claimJackpot(p); break;
-            case "Jaap STOP": case "Bear Trap": 
-                if (p.upgrades.includes("Mammoth") && type === "Jaap STOP") {
-                    log(`<b>${p.name}</b> used Mammoth to skip the Jaap Stop!`);
-                    passTurn();
+        // Check Shield trigger on hazards
+        if(p.hasShield && space.id === 'hazard') {
+            sysLog(`<strong>${p.name}'s</strong> Ice Shield shattered, absorbing the hazard!`, 'alert');
+            p.hasShield = false;
+            spawnParticles(document.getElementById(`nest-${p.pos}`), '#00E5FF', 15);
+            endTurnSequence();
+            return;
+        }
+
+        switch(space.action) {
+            case 'start': endTurnSequence(); break;
+            case 'gain1': modAcorns(p, 1); endTurnSequence(); break;
+            case 'gain3': modAcorns(p, 3); endTurnSequence(); break;
+            case 'trap': 
+                p.skip = true; 
+                showAlert('BEAR TRAP', 'You are caught! Lose your next turn.');
+                break;
+            case 'slide_back':
+                showAlert('THIN ICE', 'The ice breaks! Slide back 3 spaces.', () => {
+                    state.animating = true;
+                    animateMovement(p, -3, true); // Evaluate landing after slide
+                });
+                break;
+            case 'toll':
+                let cost = state.weather.id === 'storm' ? 2 : 1;
+                modAcorns(p, -cost, true);
+                showAlert('TOLL BRIDGE', `Pay ${cost} 🌰 to the troll. (Added to Jackpot)`);
+                break;
+            case 'jackpot':
+                if(state.jackpot > 0) {
+                    let won = state.jackpot;
+                    state.jackpot = 0;
+                    modAcorns(p, won);
+                    showAlert('💰 JACKPOT 💰', `You found the hidden stash! +${won} 🌰!`);
+                    spawnParticles(document.getElementById(`nest-${p.pos}`), varColor('--green'), 40);
                 } else {
-                    p.skip = true; 
-                    if (type === "Bear Trap") loseAcorns(p, 1, true);
-                    showMsg(type, "You are frozen for 1 turn!", passTurn);
+                    showAlert('JACKPOT EMPTY', 'Someone already took the stash. Unlucky!', endTurnSequence);
                 }
                 break;
-            case "Ice Cave": 
-                let target = Math.floor(Math.random() * state.boardSize);
-                showMsg("ICE CAVE", "Warping to a random location!", () => teleportToken(p, target));
+            case 'shop':
+                openMarket(p);
                 break;
-            case "Secret Path":
-                if (p.acorns >= 4) {
-                    showChoice("SECRET PATH", "Pay 4 🌰 to warp 9 spaces ahead?", [
-                        {text: "PAY & WARP", action: () => { loseAcorns(p, 4, false); teleportToken(p, (p.pos + 9) % state.boardSize); }},
-                        {text: "SKIP", action: passTurn}
-                    ]);
-                } else {
-                    showMsg("PATH LOCKED", "You need 4 🌰 for this shortcut!", passTurn);
-                }
+            case 'event':
+                triggerRandomEvent(p);
                 break;
-            case "Toll Bridge":
-                showMsg("TOLL BRIDGE", "Lose 1 🌰 to cross.", () => { loseAcorns(p, 1, true); passTurn(); });
-                break;
-            case "EVENT":
-                triggerEvent(p);
-                break;
-            default: passTurn();
+            default: endTurnSequence();
         }
     }
 
-    /* =========================================================================
-       6. GAME UTILITIES
-       ========================================================================= */
-    function teleportToken(p, target) {
-        let tok = document.getElementById(`tok-${p.id}`);
-        tok.style.opacity = '0';
-        setTimeout(() => {
-            p.pos = target;
-            drawToken(p);
-            let newTok = document.getElementById(`tok-${p.id}`);
-            newTok.style.opacity = '0';
-            setTimeout(() => {
-                newTok.style.opacity = '1';
-                handleLanding(p);
-            }, 100);
-        }, 400);
+    function triggerRandomEvent(p) {
+        let events = [
+            { title: "GUST OF WIND", desc: "A massive wind blows you 4 spaces forward!", act: () => { state.animating=true; animateMovement(p, 4, true); } },
+            { title: "AVALANCHE", desc: "Everyone else slides back 2 spaces!", act: () => {
+                state.players.forEach(o => { if(o.id !== p.id) { o.pos = Math.max(0, o.pos-2); renderToken(o); }});
+                sysLog(`Avalanche hit! Everyone else fell back.`);
+                endTurnSequence();
+            }},
+            { title: "SQUIRREL'S BOUNTY", desc: "You found a buried treasure. +4 🌰", act: () => { modAcorns(p, 4); endTurnSequence(); } },
+            { title: "FROSTBITE", desc: "You drop 2 🌰 into the snow. (Goes to Jackpot)", act: () => { modAcorns(p, -2, true); endTurnSequence(); } }
+        ];
+        let e = events[Math.floor(Math.random() * events.length)];
+        showAlert(`MYSYTERY: ${e.title}`, e.desc, e.act);
     }
 
-    function gainAcorns(p, amt) { p.acorns += amt; showFloat(p, `+${amt}`, 'var(--green)'); updateHUD(); }
-    function loseAcorns(p, amt, toJackpot) {
-        let loss = Math.min(p.acorns, amt);
-        p.acorns -= loss;
-        if (toJackpot) state.jackpot += loss;
-        showFloat(p, `-${loss}`, 'var(--red)');
+    /* =========================================================================
+       6. DUEL SYSTEM (RPS MATRIX)
+       ========================================================================= */
+    function initDuel(p1, p2) {
+        state.duelCache = { p1, p2, cb: () => evaluateSpace(p1) };
+        document.getElementById('duel-modal').style.display = 'flex';
+        
+        document.getElementById('duel-p1-name').innerText = p1.name;
+        document.getElementById('duel-p1-name').style.color = p1.color;
+        document.getElementById('duel-p1-icon').innerText = p1.icon;
+        
+        document.getElementById('duel-p2-name').innerText = p2.name;
+        document.getElementById('duel-p2-name').style.color = p2.color;
+        document.getElementById('duel-p2-icon').innerText = p2.icon;
+
+        // Player 2 is AI for now to keep it simple locally (or simulated RPS)
+        state.duelCache.p2Choice = ['ATTACK', 'DEFEND', 'DODGE'][Math.floor(Math.random()*3)];
+    }
+
+    function commitDuel(playerNum, move) {
+        let p1Choice = move;
+        let p2Choice = state.duelCache.p2Choice;
+        let p1 = state.duelCache.p1;
+        let p2 = state.duelCache.p2;
+
+        let resultStr = `${p1.name} used ${p1Choice}.<br>${p2.name} used ${p2Choice}.<br><br>`;
+        let winner = null, loser = null;
+
+        if (p1Choice === p2Choice) {
+            resultStr += "<strong>IT'S A DRAW!</strong> No acorns lost.";
+        } else if (
+            (p1Choice === 'ATTACK' && p2Choice === 'DODGE') ||
+            (p1Choice === 'DEFEND' && p2Choice === 'ATTACK') ||
+            (p1Choice === 'DODGE' && p2Choice === 'DEFEND')
+        ) {
+            winner = p1; loser = p2;
+            resultStr += `<strong>${winner.name} WINS!</strong>`;
+        } else {
+            winner = p2; loser = p1;
+            resultStr += `<strong>${winner.name} WINS!</strong>`;
+        }
+
+        document.getElementById('duel-modal').style.display = 'none';
+        
+        showAlert('COMBAT RESOLVED', resultStr, () => {
+            if(winner) {
+                // Check loser shield
+                if(loser.hasShield) {
+                    sysLog(`<strong>${loser.name}'s</strong> Ice Shield blocked the duel damage!`);
+                    loser.hasShield = false;
+                } else {
+                    modAcorns(loser, -2, false);
+                    modAcorns(winner, 2, false);
+                }
+            }
+            state.duelCache.cb();
+        });
+    }
+
+    /* =========================================================================
+       7. MARKET & INVENTORY
+       ========================================================================= */
+    function openMarket(p) {
+        document.getElementById('market-modal').style.display = 'flex';
+        document.getElementById('market-wallet').innerText = `Your Wealth: ${p.acorns} 🌰`;
+        
+        const grid = document.getElementById('market-inventory');
+        grid.innerHTML = '';
+        
+        for(let key in ITEMS_DB) {
+            let item = ITEMS_DB[key];
+            let canAfford = p.acorns >= item.cost;
+            grid.innerHTML += `
+                <div class="market-item" style="opacity: ${canAfford ? 1 : 0.5}">
+                    <div>
+                        <div style="font-size: 2rem;">${item.icon}</div>
+                        <h3 style="color:var(--cyan); margin:5px 0;">${item.name}</h3>
+                        <p style="font-size:0.8rem; color:#ccc;">${item.desc}</p>
+                    </div>
+                    <button class="btn btn-gold" style="padding:10px; font-size:1rem;" 
+                            ${canAfford ? '' : 'disabled'} 
+                            onclick="buyItem('${key}')">BUY (${item.cost} 🌰)</button>
+                </div>
+            `;
+        }
+    }
+
+    window.buyItem = function(key) {
+        let p = state.players[state.turnIndex];
+        let item = ITEMS_DB[key];
+        if(p.acorns >= item.cost) {
+            modAcorns(p, -item.cost);
+            p.inventory.push(key);
+            sysLog(`<strong>${p.name}</strong> purchased a ${item.name}!`);
+            openMarket(p); // refresh UI
+        }
+    };
+
+    window.useItem = function(key, pId) {
+        if(state.animating) return; // Prevent use mid-movement
+        let p = state.players.find(x => x.id === pId);
+        if(!p || state.turnIndex !== pId) return; // Must be your turn
+        
+        let i = p.inventory.indexOf(key);
+        if(i > -1) {
+            p.inventory.splice(i, 1); // remove item
+            let item = ITEMS_DB[key];
+            sysLog(`<strong>${p.name}</strong> activated ${item.icon} ${item.name}!`, 'alert');
+            updateHUD();
+
+            switch(key) {
+                case 'jetpack':
+                    state.animating = true;
+                    animateMovement(p, 5, true);
+                    break;
+                case 'shield':
+                    p.hasShield = true;
+                    renderToken(p);
+                    break;
+                case 'magnet':
+                    let totalStolen = 0;
+                    state.players.forEach(o => {
+                        if(o.id !== p.id && o.acorns > 0 && !o.hasShield) {
+                            o.acorns--; totalStolen++;
+                        } else if(o.hasShield) {
+                            sysLog(`${o.name}'s shield blocked the magnet!`);
+                            o.hasShield = false;
+                        }
+                    });
+                    modAcorns(p, totalStolen);
+                    break;
+                case 'snowshoes':
+                    // handled implicitly, logic would need heavy weather state checks, for now just log it
+                    sysLog(`Snowshoes active. (Visual only in this version)`);
+                    break;
+            }
+        }
+    };
+
+    /* =========================================================================
+       8. UTILITIES, END TURN, & RENDER
+       ========================================================================= */
+    function endTurnSequence() {
+        state.turnIndex++;
+        if(state.turnIndex >= state.players.length) {
+            state.turnIndex = 0;
+            state.round++;
+            document.getElementById('round-val').innerText = state.round;
+            
+            // Random Weather shift every 2 rounds
+            if(state.round % 2 === 0) {
+                let w = WEATHER_STATES[Math.floor(Math.random() * WEATHER_STATES.length)];
+                state.weather = w;
+                document.getElementById('weather-val').innerText = w.name;
+                document.getElementById('weather-layer').className = w.css;
+                document.getElementById('weather-layer').style.opacity = w.css ? '1' : '0';
+                sysLog(`WEATHER SHIFT: ${w.log}`, 'alert');
+            }
+        }
+        updateHUD();
+        beginTurn();
+    }
+
+    function modAcorns(p, amt, toJackpot = false) {
+        // Prevent negative acorns
+        let realLoss = 0;
+        if(amt < 0) {
+            realLoss = Math.min(p.acorns, Math.abs(amt));
+            p.acorns -= realLoss;
+            if(toJackpot) {
+                state.jackpot += realLoss;
+                document.getElementById('jackpot-val').innerText = state.jackpot;
+            }
+            floatText(document.getElementById(`nest-${p.pos}`), `-${realLoss}`, varColor('--red'));
+        } else {
+            p.acorns += amt;
+            floatText(document.getElementById(`nest-${p.pos}`), `+${amt}`, varColor('--green'));
+        }
         updateHUD();
     }
 
-    function openMarket(p) {
-        document.getElementById('market-wallet').innerText = `WALLET: ${p.acorns} 🌰`;
-        let grid = document.getElementById('market-items');
-        grid.innerHTML = `
-            <div class="market-item"><h4>MAMMOTH</h4><p>Skip all Jaap Stops</p><b>3 🌰</b><br><button class="btn btn-cyan" onclick="buyItem('Mammoth', 3)">BUY</button></div>
-            <div class="market-item"><h4>TURBO ENGINE</h4><p>+2 to every Roll</p><b>5 🌰</b><br><button class="btn btn-cyan" onclick="buyItem('Turbo Engine', 5)">BUY</button></div>
-            <div class="market-item"><h4>SNOW TIRES</h4><p>Immune to backwards slides</p><b>4 🌰</b><br><button class="btn btn-cyan" onclick="buyItem('Snow Tires', 4)">BUY</button></div>
-            <div class="market-item"><h4>CAVEMAN</h4><p>Add plus one to each roll</p><b>3 🌰</b><br><button class="btn btn-cyan" onclick="buyItem('Caveman', 3)">BUY</button></div>
-        `;
-        document.getElementById('market-modal').style.display = 'flex';
-    }
-
-    window.buyItem = (name, cost) => {
-        let p = state.players[state.turn];
-        if (p.acorns >= cost) {
-            loseAcorns(p, cost, false);
-            p.upgrades.push(name);
-            log(`<b>${p.name}</b> installed <b>${name}</b>!`);
-            closeMarket();
-        }
-    }
-
-    function closeMarket() { document.getElementById('market-modal').style.display = 'none'; passTurn(); }
-
-    function triggerDuel(p1, p2, cb) {
-        let r1 = Math.floor(Math.random() * 6) + 1;
-        let r2 = Math.floor(Math.random() * 6) + 1;
-        while(r1 === r2) r2 = Math.floor(Math.random() * 6) + 1;
-        
-        let win = r1 > r2 ? p1 : p2;
-        let lose = r1 > r2 ? p2 : p1;
-        
-        showMsg("⚔️ DUEL! ⚔️", `${p1.name} rolled ${r1}, ${p2.name} rolled ${r2}. ${win.name} steals 1 🌰!`, () => {
-            loseAcorns(lose, 1, false); gainAcorns(win, 1); cb();
-        });
-    }
-
-    function triggerEvent(p) {
-        const evs = [
-            {t: "Blizzard!", f: () => moveStep(p, -3, true)},
-            {t: "Gold Mine!", f: () => { gainAcorns(p, 4); passTurn(); }},
-            {t: "Thief!", f: () => { 
-                let richest = state.players.filter(o => o.id !== p.id).sort((a,b) => b.acorns - a.acorns)[0];
-                if (richest.acorns > 0) { loseAcorns(richest, 1, false); gainAcorns(p, 1); log(`${p.name} robbed ${richest.name}!`); }
-                passTurn();
-            }}
-        ];
-        let e = evs[Math.floor(Math.random() * evs.length)];
-        showMsg("EVENT", e.t, e.f);
-    }
-
-    function claimJackpot(p) {
-        if (state.jackpot > 0) {
-            let j = state.jackpot; state.jackpot = 0; gainAcorns(p, j);
-            showMsg("💰 JACKPOT!", `You won the ${j} 🌰 stash!`, passTurn);
-        } else passTurn();
-    }
-
-    function startTurn() {
-        let p = state.players[state.turn];
-        document.getElementById('turn-indicator').innerText = p.name;
-        document.getElementById('turn-indicator').style.color = p.color;
-        document.getElementById('btn-roll').disabled = false;
-        if (state.totalTurns % 8 === 0) triggerWeather();
-    }
-
-    document.getElementById('btn-roll').addEventListener('click', () => {
-        let p = state.players[state.turn];
-        document.getElementById('btn-roll').disabled = true;
-        
-        let roll = Math.floor(Math.random() * 6) + 1;
-        if (p.upgrades.includes("Turbo Engine")) roll += 2;
-        if (p.upgrades.includes("Caveman")) roll += 1;
-
-        document.getElementById('dice-overlay').style.display = 'flex';
-        document.getElementById('dice-face').innerText = '🎲';
-        
-        setTimeout(() => {
-            document.getElementById('dice-face').innerText = roll;
-            setTimeout(() => {
-                document.getElementById('dice-overlay').style.display = 'none';
-                state.isAnimating = true;
-                moveStep(p, roll, true);
-            }, 800);
-        }, 1000);
-    });
-
-    function passTurn() {
-        state.turn = (state.turn + 1) % state.players.length;
-        if (state.turn === 0) {
-            state.totalTurns++;
-            document.getElementById('turn-counter').innerText = state.totalTurns;
-        }
-        updateHUD(); startTurn();
-    }
-
     function updateHUD() {
-        const hud = document.getElementById('hud'); hud.innerHTML = '';
+        const hud = document.getElementById('hud-container');
+        hud.innerHTML = '';
         state.players.forEach((p, i) => {
+            let activeClass = i === state.turnIndex ? 'active' : '';
+            let invHtml = p.inventory.map(k => `<span class="pill" onclick="useItem('${k}', ${p.id})">${ITEMS_DB[k].icon} ${ITEMS_DB[k].name}</span>`).join('');
+            
             hud.innerHTML += `
-                <div class="player-card ${state.turn === i ? 'active' : ''}" style="border-left-color:${p.color}">
-                    <div style="font-size:1.2rem; font-weight:900;">${p.emoji} ${p.name}</div>
-                    <div style="color:var(--gold); font-weight:bold;">${p.acorns} 🌰 | Lap: ${Math.max(0, p.laps)}/3</div>
-                    <div>${p.upgrades.map(u => `<span class="badge" style="color:var(--cyan)">${u}</span>`).join(' ')}</div>
-                </div>`;
+                <div class="player-card ${activeClass}" style="border-left-color: ${p.color}">
+                    <div class="stat-row">
+                        <strong style="font-size:1.2rem;">${p.icon} ${p.name}</strong>
+                        <span style="color:var(--gold); font-weight:900; font-size:1.2rem;">${p.acorns} 🌰</span>
+                    </div>
+                    <div class="stat-row" style="font-size:0.8rem; color:#aaa;">
+                        <span>Laps: ${p.laps}/3</span>
+                        ${p.hasShield ? `<span style="color:var(--cyan)">🛡️ Shield Active</span>` : ''}
+                        ${p.skip ? `<span style="color:var(--red)">❄️ Frozen</span>` : ''}
+                    </div>
+                    <div class="inv-pills">${invHtml}</div>
+                </div>
+            `;
         });
-        document.getElementById('jackpot-counter').innerText = state.jackpot;
     }
 
-    function log(m) {
-        const l = document.getElementById('log');
-        l.innerHTML = `<div class="log-entry"><b>></b> ${m}</div>` + l.innerHTML;
+    function sysLog(html, type = '') {
+        const log = document.getElementById('log-box');
+        let d = new Date();
+        let time = `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+        log.innerHTML = `<div class="log-entry ${type}">[${time}] > ${html}</div>` + log.innerHTML;
     }
 
-    function showFloat(p, t, c) {
-        let tc = document.getElementById(`tc-${p.pos}`);
+    // Modal Helpers
+    function showAlert(title, desc, cb) {
+        document.getElementById('alert-modal').style.display = 'flex';
+        document.getElementById('alert-title').innerText = title;
+        document.getElementById('alert-desc').innerHTML = desc;
+        let btnArea = document.getElementById('alert-btn-area');
+        btnArea.innerHTML = `<button class="btn btn-cyan" style="width:100%;">CONTINUE</button>`;
+        btnArea.querySelector('button').onclick = () => {
+            document.getElementById('alert-modal').style.display = 'none';
+            if(cb) cb();
+            else endTurnSequence(); // default action if no cb
+        };
+    }
+    window.closeModal = (id) => { document.getElementById(id).style.display = 'none'; };
+
+    // Visual FX Helpers
+    function floatText(element, text, color) {
+        if(!element) return;
         let f = document.createElement('div');
-        f.className = 'float-text'; f.innerText = t; f.style.color = c;
-        let r = tc.getBoundingClientRect();
-        f.style.left = r.left + 'px'; f.style.top = r.top + 'px';
-        document.body.appendChild(f);
-        setTimeout(() => f.remove(), 1000);
-    }
-
-    function triggerWin(p) {
-        let msg = `${p.name} WON THE GAME!`;
-        showMsg("🏆 CHAMPION!", msg, () => location.reload());
-    }
-
-    function triggerWeather() {
-        let fx = document.getElementById('fx-layer');
-        let w = ['snow', 'rain', 'clear'][Math.floor(Math.random() * 3)];
-        if (w === 'clear') { fx.style.opacity = '0'; log("☀️ Weather is clear."); }
-        else { fx.className = 'weather-' + w; fx.style.opacity = '1'; log(`🌧️ Weather shift: ${w.toUpperCase()}`); }
-    }
-
-    function showMsg(t, s, cb) {
-        const m = document.getElementById('simple-modal');
-        m.style.display = 'flex';
-        document.getElementById('sm-title').innerText = t;
-        document.getElementById('sm-text').innerHTML = s;
-        document.getElementById('modal-btn-container').innerHTML = `<button class="btn btn-cyan" onclick="closeMsg()">CONTINUE</button>`;
-        window.closeMsg = () => { m.style.display = 'none'; if(cb) cb(); };
-    }
-
-    function showChoice(t, s, b) {
-        const m = document.getElementById('simple-modal');
-        m.style.display = 'flex';
-        document.getElementById('sm-title').innerText = t;
-        document.getElementById('sm-text').innerHTML = s;
-        let c = document.getElementById('modal-btn-container');
-        c.innerHTML = '';
-        b.forEach(btn => {
-            let el = document.createElement('button');
-            el.className = 'btn btn-cyan'; el.style.width = 'auto'; el.style.margin = '5px';
-            el.innerText = btn.text; el.onclick = () => { m.style.display = 'none'; btn.action(); };
-            c.appendChild(el);
-        });
-    }
-
-    function showInstructions() {
-        const body = `
-            <div class="instr-grid">
-                <div class="instr-item"><b>Objective:</b> Collect Golden Acorns! The first player to complete 3 full laps around the board wins the game.</div>
-                <div class="instr-item"><b>How to Start & Play:</b> Everyone starts with 4 golden acorns. Roll the dice to determine how far you move around the board.</div>
-                <div class="instr-item"><b>Laps:</b> Passing Start earns you 2 golden acorns. <b>Beware:</b> Being pushed back past Start will lose you a lap.</div>
-                <div class="instr-item"><b>Event Spaces:</b> If you land on an EVENT space, you draw a card (trigger a random effect) right away.</div>
-                <div class="instr-item"><b>Village Outpost:</b> Buy upgrades here using golden acorns. You can buy <b>Turbo</b> (+2 rolls), <b>Snow Tires</b> (no sliding back), <b>Mammoth</b> (Skip all Jaap stops), or <b>Caveman</b> (Add plus one to each dice roll).</div>
-                <div class="instr-item"><b>Traps & Obstacles:</b> Bear Traps and Jaap Stops freeze you for 1 turn. Toll Bridges require 1 golden acorn to cross.</div>
-                <div class="instr-item"><b>Duels:</b> If another player lands on the same space as you, you duel! The winner steals 1 golden acorn from the loser.</div>
-            </div>`;
+        f.className = 'float-dmg';
+        f.innerText = text;
+        f.style.color = color;
         
-        const m = document.getElementById('simple-modal');
-        m.style.display = 'flex';
-        document.getElementById('sm-title').innerText = "ICE AGE SURVIVAL GUIDE";
-        document.getElementById('sm-text').innerHTML = body; 
-        document.getElementById('modal-btn-container').innerHTML = `<button class="btn btn-cyan" onclick="closeMsg()">BACK TO GAME</button>`;
-        window.closeMsg = () => { m.style.display = 'none'; };
+        let rect = element.getBoundingClientRect();
+        f.style.left = (rect.left + rect.width/2 - 20) + 'px';
+        f.style.top = rect.top + 'px';
+        
+        document.body.appendChild(f);
+        setTimeout(() => f.remove(), 1200);
+    }
+
+    function spawnParticles(targetEl, color, count=10) {
+        if(!targetEl) return;
+        let rect = targetEl.getBoundingClientRect();
+        let cx = rect.left + rect.width/2;
+        let cy = rect.top + rect.height/2;
+
+        for(let i=0; i<count; i++) {
+            let p = document.createElement('div');
+            p.className = 'particle';
+            p.style.backgroundColor = color;
+            p.style.width = Math.random() * 8 + 4 + 'px';
+            p.style.height = p.style.width;
+            p.style.left = cx + 'px';
+            p.style.top = cy + 'px';
+            
+            let angle = Math.random() * Math.PI * 2;
+            let dist = Math.random() * 80 + 20;
+            p.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+            p.style.setProperty('--dy', Math.sin(angle) * dist + 'px');
+            
+            document.body.appendChild(p);
+            setTimeout(() => p.remove(), 600);
+        }
+    }
+
+    function varColor(name) {
+        return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    }
+
+    function triggerVictory(p) {
+        document.getElementById('game-layout').style.filter = 'blur(10px)';
+        showAlert(`🏆 ${p.name.toUpperCase()} WINS! 🏆`, `Surviving the eternal frost and claiming 3 laps!`, () => {
+            location.reload();
+        });
     }
 
 </script>
